@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<% include common.html %>
+<style>
+.aboutUs-main{
+	width: 1150px;
+	margin: 0 auto;
+	display: table;
+}
+.aboutUs-outer{
+	/* background: white; */
+}
+
+.aboutUs-left{
+	width: 490px;height: 200px;font-size:23px;color:#FFFFFF;margin-top: 50px;
+}
+.aboutUs-left>a{
+	color:#FFFFFF;
+}
+</style>
+
+<body>
+<% include header.html %>
+<div>
+	<div class="marginTop20">
+		<div class="aboutUs-outer">
+			<div class="aboutUs-main" style="padding-bottom: 100px;">
+ 			 	<!-- left -->
+				<div class="left" style="width:150px;background:#bbcebb;float:left;">
+					<ul >
+						<li><img src="" width="100px"/></li>
+						<li>欢迎你，1531534891</li>
+						<li>当前活跃度：1</li>
+					</ul>
+					<ul class="right">
+						<li>个人信息</li>
+						<li>我的订单</li>
+						<li>我的收藏</li>
+						<li>发布商品列表</li>
+						<li>收货地址</li>
+					</ul>
+				</div>
+				<!-- right -->
+				<div class="right" style="background:#bbcebb;float:left;width: 1000px">
+					<ul>
+						<li><img src="" width="100px"/></li>
+						<li><img src="" alt="" width="100px"> 修改头像</li>
+						<li>昵称</li>
+						<li>手机号码</li>
+						<li>登录密码 修改</li>
+					</ul>
+					<div class="">
+						<input type="text" placeholder="输入原登录密码" name="" >
+					</div>
+					<div class="">
+						<input type="text" placeholder="输入新登录密码" name="" >
+					</div>
+					<div class="">
+						<input type="text" placeholder="再次输入新登录密码" name="" >
+					</div>
+					<div class="">
+						<input type="button" name="" value="修改登录密码">
+					</div>
+				</div>
+ 			</div>
+	</div>
+    <!-- 底部固定区域 -->
+	<% include footer.html %>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,205 @@
+﻿
+<!DOCTYPE html>
+<html>
+	<% include common.html %>
+	<script src="/js/wangEditor.min.js" charset="utf-8"></script>
+
+<style>
+	.w-e-text-container{
+		min-height:500px;
+	}
+	#issueSubmit{
+		/* width: 20%; */
+	}
+	.issue-main{
+		width:1100px;
+		margin:0 auto;
+    background: #FFFFFF;
+    padding: 20px 50px 50px 50px;
+    margin-top: 20px;
+	}
+	.addrWidth{
+		width: 330px;
+	}
+</style>
+<body>
+<% include header.html %>
+<div>
+  <div class="issue-main">
+  <h3 id="pagination" class="page-header">发布商品</h3>
+		<form class="form-horizontal" action="/issueSubmit" method="post"  onsubmit="return checkIssue()">
+	  	<div class="marginTop20">
+			 <label  class=" control-label"><span class="red">*</span>是否全新</label>
+			 <select name="is_new" class="form-control optionWidth" >
+				  <option value="">请选择</option>
+			 	  <option value="0">全新</option>
+			  	<option value="1">闲置</option>
+			 </select>
+	    </div>
+	  <div class="marginTop20">
+	   	<label  class="control-label"><span class="red">*</span>商品名称</label>
+		  <input name="title" type="text" class="form-control addrWidth"  placeholder="请填写商品名">
+	  </div>
+		<div class="marginTop20">
+		 <label  class=" control-label"><span class="red">*</span>商品价格</label>
+		 <input name="price" type="text" class="form-control addrWidth"  placeholder="商品价格">
+	  </div>
+	  <div class="marginTop20">
+		<label  class="control-label"><span class="red">*</span>商品概述</label>
+			<textarea name="deScription" rows="8" class="form-control addrWidth"  placeholder="请简述商品将展示在首页" cols="80"></textarea>
+	  </div>
+	  <div class="marginTop20">
+		<label  class=" control-label">商品外部链接</label>
+		  <input name="link" type="text" class="form-control addrWidth"  placeholder="外部链接方便客户直接购买">
+	  </div>
+	  <div class="marginTop20">
+			<div class="marginTop20">
+	 			<label  class=" control-label"><span class="red">*</span>联系方式</label>
+		 			<select class="form-control optionWidth" name="contact_status">
+		 				 <option value="">请选择</option>
+		 				 <option value="0">手机</option>
+		 				 <option value="1">QQ</option>
+						 <option value="2">微信</option>
+						 <option value="3">其它</option>
+		 			</select>
+				<input name="contact_val" type="text" class="form-control addrWidth" placeholder="请输入">
+ 		 </div>
+		</div>
+		<div class="marginTop20">
+			<label  class=" control-label"><span class="red">*</span>发货地区</label>
+			<select name="region_id" class="form-control optionWidth">
+				 <option value="">请选择</option>
+				 <% for (var i=0; i<province.length; i++) { %>
+				   <option value="<%= province[i].region_id%>"><%= province[i].region_name %></a></option>
+				 <%}%>
+			</select>
+		  <input name="addr" type="text" class="form-control addrWidth" placeholder="请填写发货详细地址">
+		</div>
+	  <div class="marginTop20">
+	  	<label  class=" control-label"><span class="red">*</span>商品首页图</label>
+		  <input type="file" class="hide form-control-file FileUpload hide">
+		 	<div>
+				<input type="hidden" name="url" >
+				<input type="hidden" name="GoodsDetails" >
+		  	<img src="" width="300px" error="" alt="" class="ShowImage">
+			</div>
+		  <button onclick="javascript:$('.FileUpload').click();"  type="button" class="btn btn-default btn-sm marginTop10"><span class="glyphicon glyphicon-cloud-upload"></span>上传
+		  </button>
+	  </div>
+
+		<div class="marginTop20">
+			<label>编辑商品详情（可直接复制文字与图片）</label>
+	  </div>
+		<div id="div1">
+			<div></div>
+		</div>
+		<div class=" marginTop20">
+			<!-- <a id="issueSubmit" class="btn btn-default btn-lg" role="button">提交</a> -->
+				<input class="btn btn-default btn-lg" type="submit"  value="提交">
+		</div>
+		</form>
+	</div>
+    <!-- 底部固定区域 -->
+	<% include footer.html %>
+</div>
+<script>
+
+//图片上传
+$('.FileUpload').change(function(){
+var formData=new FormData();
+formData.append('file',$('.FileUpload').get(0).files[0]);
+		$.ajax({
+                type:'POST',
+                url:'/upload',
+                data:formData,
+								contentType: false,
+                processData:false,
+                mimeType:"multipart/form-data",
+                success:function(res){
+									var res = JSON.parse(res);
+                    console.log(res.data);
+										$('[name=url]').val(res.data);
+										$('.ShowImage').attr('src',res.data);
+                }
+      });
+})	;
+
+
+  $('.w-e-text-container').css('height',window.innerHeight+'px !important');
+  var E = window.wangEditor;
+  var editor = new E('#div1');
+  // 配置服务器端地址
+  // editor.customConfig.uploadImgServer = '/a';
+  //editor.customConfig.uploadImgShowBase64 = true;   // 使用 base64 保存图片
+   editor.customConfig.uploadImgServer = '/system/upload';
+  // 进行下文提到的其他配置
+  editor.customConfig.uploadFileName = 'fileNames';
+  editor.customConfig.uploadImgMaxLength = 1
+  editor.create();
+
+  // document.getElementById('issueSubmit').addEventListener('click', function () {
+  //    console.log(editor.txt.html());
+  //   $.post('/system/saveText',{'txt':editor.txt.html(),'id':getQueryString('id')},function(result){
+  //       console.log('success');
+  //   })
+  //   // 读取 html
+  // }, false)
+
+// 验证表单
+function checkForm(){
+
+	if(!Common.$NullMessage(Common.$getNameVal("is_new"),"请选择商品是否全新")){
+		return false;
+	}if(!Common.$NullMessage(Common.$getNameVal("title"),"请填写商品名称")){
+		return false;
+	}if(!Common.$NullMessage(Common.$getNameVal("price"),"请填写商品价格")){
+		return false;
+	}if(!Common.$NullMessage(Common.$getNameVal("deScription"),"请填写商品概述")){
+		return false;
+	}if(!Common.$NullMessage(Common.$getNameVal("contact_status"),"请选择联系方式")){
+		return false;
+	}if(!Common.$NullMessage(Common.$getNameVal("contact_val"),"请填写你的联系方式")){
+		return false;
+	}if(!Common.$NullMessage(Common.$getNameVal("region_id"),"请选择发货地区")){
+		return false;
+	}if(!Common.$NullMessage(Common.$getNameVal("url"),"请上传首页展示图")){
+		return false;
+	}
+	Common.$setNameVal("GoodsDetails",editor.txt.html());
+	return true;
+}
+// 表单提交验证的方法
+function checkIssue(){
+
+
+	console.log('submit');
+	// return false;
+
+
+
+	return checkForm()?1:scrollTop();
+
+
+	// console.log();
+
+	// console.log(editor.txt.html());
+
+}
+function scrollTop(){
+	$("html,body").animate({scrollTop:0},1000);
+	return false;
+}
+
+//获取浏览器url 参数值 ，name ：浏览器参数
+function getQueryString(name) {
+    var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) {
+        return unescape(r[2]);
+    }
+    return null;
+}
+
+</script>
+</body>
+</html>

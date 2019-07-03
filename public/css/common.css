@@ -1,0 +1,107 @@
+body ul{
+	margin:0;
+	padding:0;
+	list-style:none;
+}
+body{
+  padding: 0;
+  margin: 0;
+	background: #F6F3EA;
+}
+a{
+	color:#000000;
+}
+.red{
+	color:red;
+	margin-right:5px;
+}
+.form-control{
+	display:initial;
+	width:100%;
+}
+.hide{
+	display: none;
+}
+a:hover{
+	color: #f58103;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.optionWidth{
+	width:110px;
+}
+.Tcenter{
+  text-align: center;
+}
+.TRight{
+  text-align: right;
+}
+.height34{
+		height: 34px;
+    line-height: 34px;
+}
+.fwBold{
+  font-weight: bold;
+}
+.marginLeft10{
+  margin-left:10px;
+}
+.marginLeft20{
+  margin-left:20px;
+}
+.marginRight10{
+  margin-left: 10px;
+}
+.marginTop10{
+    margin-top: 10px;
+}.marginBottom10{
+    margin-bottom: 10px;
+}
+.marginTop20{
+    margin-top: 20px;
+}.marginBottom20{
+    margin-bottom: 20px;
+}
+.marginTB{
+	margin:30px 0;
+}
+.fs12{
+  font-size: 12px;
+}.fs13{
+  font-size: 13px;
+}.fs14{
+  font-size: 14px;
+}.fs15{
+  font-size: 15px;
+}.fs16{
+  font-size: 16px;
+}.fs17{
+  font-size: 16px;
+}.fs18{
+  font-size: 16px;
+}.fs19{
+  font-size: 16px;
+}.fs20{
+  font-size: 16px;
+}
+.floatRight{
+	float:right;
+}
+.bgwhite{
+  background: #FFFFFF;
+}
+.tableCell{
+	display: table-cell;
+	vertical-align: middle;
+}
+.colorWhite{
+		color: #FFFFFF;
+}
+textarea{
+	resize: none;
+}
+.page-header{
+	border-bottom: 5px solid #ffbf09;
+}
+input[type=button]:active{opacity: 0.6;}

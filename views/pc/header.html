@@ -1,0 +1,59 @@
+﻿
+<style>
+	#header{
+		width: 1150px;
+		height:50px;
+		line-height:50px;
+		margin: 0 auto;
+		display: table;
+	}
+	#header ul:nth-child(1){
+		float: left;
+	}
+	#header ul:nth-child(2){
+		float: right;
+	}
+	#header ul li{
+		float: left;
+		margin: 0 10px;
+		cursor: pointer;
+	}
+	.banner-main{
+		width:1100px;
+		margin:0 auto;
+	}
+	.banner-main img{
+		width:100%;
+	}
+	#header>ul>li:hover{
+		color:#f58103;
+	}
+	.hidden{
+	       display:none;
+	}
+  </style>
+
+<body>
+	<nav class="bgwhite">
+		  <div id="header">
+				<ul>
+				  	<%if(token){%>
+							<li><img width="35px" height="35px"  src="/images/user-icon.png" alt=""></li>
+							<li>欢迎你，<%=nickName %></li>
+							<li data-toggle="modal" data-target="#Modal">退出<form id="logout" method="post" action="/logout"></form></li>
+					  <%}else{%>
+							<li class="<%if(hidden == 2){%> hidden <%}%>"><a href="/login">请登陆</a></li>
+							<li><a href="/register">免费注册</a></li>
+						<%}%>
+						<li class="<%if(hidden == 1){%> hidden <%}%>"><a href="/">首页</a></li>
+				</ul>
+				<ul>
+					<li><a href="userInfo">我的信息</a></li>
+					<li>购物车</li>
+					<li>收藏夹</li>
+					<li><a href="/aboutUs">联系我们</a></li>
+				</ul>
+		  </div>
+		</nav>
+	<%-include("toastModel.html",{"content":"是否确认退出"})%>
+</body>

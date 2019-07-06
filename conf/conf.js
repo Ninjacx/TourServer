@@ -5,11 +5,11 @@ var mysql = require('mysql');
 // MySQL连接池数据库联接配置
 
 var pool = mysql.createPool({
-    host: '127.0.0.1',
+    host: '47.98.163.21',
     user: 'root',
-    password: '',
+    password: '123',
     database: 'bqk',
-    port: 3307
+    port: 3306
 });
 
 

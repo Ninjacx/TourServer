@@ -17,6 +17,34 @@ const AuthMiddleware = require('./checklogin');
 
 const common = require('./common');
 
+/** Tour - API */
+// 一级类目
+router.get('/GetPlate',(req, res, next)=>{
+	// count 为分页数大于整数则多1
+    var selectSQL = `select * from t_plate`;
+      conf.query(selectSQL,function(err,result){
+        var result=JSON.stringify(result);
+        res.json(result);
+      });
+});
+// 二级类目
+router.get('/GetPlateSecond',(req, res, next)=>{
+	// count 为分页数大于整数则多1
+    var selectSQL = `select * from t_plate_second`;
+      conf.query(selectSQL,function(err,result){
+        var result=JSON.stringify(result);
+        res.json(result);
+      });
+});
+
+
+
+/** */
+
+
+
+
+
 router.get('/login', function(req, res, next) {
 	// 防止重复登陆
 	if(req.session.token){

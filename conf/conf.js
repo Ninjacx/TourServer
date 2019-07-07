@@ -8,7 +8,7 @@ var pool = mysql.createPool({
     host: '47.98.163.21',
     user: 'root',
     password: '123',
-    database: 'bqk',
+    database: 'tour',
     port: 3306
 });
 

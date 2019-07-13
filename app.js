@@ -6,6 +6,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var ejs = require('ejs');
 var indexRouter = require('./routes/index');
+var menuRouter = require('./routes/menu');
+
 var usersRouter = require('./routes/users');
 var goodsRouter = require('./routes/goods');
 var carRouter = require('./routes/shopCar');
@@ -51,6 +53,7 @@ app.use(function(req, res, next){
 });
 
 app.use('/', indexRouter);
+app.use('/menu', menuRouter);
 app.use('/car', carRouter);//购物车
 app.use('/users', usersRouter);
 app.use('/goods', goodsRouter);

@@ -19,8 +19,8 @@ const common = require('./common');
 
 /** Tour - API */
 // 一级类目
-router.get('/GetPlate',(req, res, next)=>{
-	// count 为分页数大于整数则多1
+router.get('/getPlate',(req, res, next)=>{
+	// 
     var selectSQL = `select * from t_plate`;
       conf.query(selectSQL,function(err,result){
         var result=JSON.stringify(result);
@@ -28,8 +28,8 @@ router.get('/GetPlate',(req, res, next)=>{
       });
 });
 // 二级类目
-router.get('/GetPlateSecond',(req, res, next)=>{
-	// count 为分页数大于整数则多1
+router.get('/getPlateSecond',(req, res, next)=>{
+	//
     var selectSQL = `select * from t_plate_second`;
       conf.query(selectSQL,function(err,result){
         var result=JSON.stringify(result);

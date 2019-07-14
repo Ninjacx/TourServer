@@ -19,21 +19,10 @@ const common = require('./common');
 
 /** Tour - API */
 // 查出菜单 
-router.get('/getMenu',(req, res, next)=>{
+router.get('/getBanner',(req, res, next)=>{
   // 传入groups = 1 则加条件，不然就查全部
     var groups = req.query.groups?`and groups = ${req.query.groups}`:"";
     var selectSQL = `select name,icon,groups from t_menu where is_del = 0 ${groups}`;
-      conf.query(selectSQL,function(err,result){
-        var result=JSON.stringify(result);
-        res.json(result);
-      });
-});
-
-// 查出APP 展示的商家广告位 与 APP 其它展示图
-router.get('/getBanner',(req, res, next)=>{
-  // 传入groups = 1 则加条件，不然就查全部
-    var type = req.query.type?`and type = ${req.query.type}`:"";
-    var selectSQL = `select image,type from t_banner where is_del = 0 ${type}`;
       conf.query(selectSQL,function(err,result){
         var result=JSON.stringify(result);
         res.json(result);

@@ -20,7 +20,18 @@
         // if(data.replace(/(^\s*)|(\s*$)/g, "")){
         //
         // }
-    }
+    },
+    // 向前台返回JSON方法的简单封装
+        jsonWrite: function(res, ret) {
+          if (typeof ret === 'undefined') {
+              res.json({
+                  code: '-1',
+                  msg: '获取数据失败，请刷新重试!'
+              });
+          } else {
+              res.json(ret);
+          }
+        }
  }
 
 

@@ -7,6 +7,7 @@ var logger = require('morgan');
 var ejs = require('ejs');
 var indexRouter = require('./routes/index');
 var menuRouter = require('./routes/menu');
+var forumRouter = require('./routes/forum'); // 关于帖子的接口
 
 var usersRouter = require('./routes/users');
 var goodsRouter = require('./routes/goods');
@@ -54,6 +55,8 @@ app.use(function(req, res, next){
 
 app.use('/', indexRouter);
 app.use('/menu', menuRouter);
+app.use('/forum', forumRouter);
+
 app.use('/car', carRouter);//购物车
 app.use('/users', usersRouter);
 app.use('/goods', goodsRouter);

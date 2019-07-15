@@ -18,8 +18,11 @@ function query(sql,callback){
   pool.getConnection(function (err, connection){
       if (err) console.log("POOL ==> " + err);
       connection.query(sql,function(err,res){
-          if (err) console.log(err);
-          callback(err,res);
+          if (err){
+            res.json(ret);
+          } else{
+            callback(err,res);
+          }
           connection.release();
           // return res;
       });
@@ -31,8 +34,8 @@ function quertPromise(sql){
   return new Promise((resolve, reject) => {
     // console.log(reject);
     query(sql,function(err,result){
-      var result=JSON.stringify(result);
-           result=JSON.parse(result);
+           var result=JSON.stringify(result);
+             result=JSON.parse(result);
            resolve(result);
          });
   });

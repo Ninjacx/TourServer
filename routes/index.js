@@ -18,13 +18,86 @@ const AuthMiddleware = require('./checklogin');
 const common = require('./common');
 
 /** Tour - API */
+// 首页展示的数据 
+// 一级类目
+router.get('/homeData',(req, res, next)=>{
+	var {page}=req.query;
+	
+	var offSets = (page?page:1 - 1) * 10;
+	var contentsql = `select * from t_content where is_del=0 limit 10 offset ${offSets}`;
+	// 查询10条数据第N页 这样不需要查询图片表中所有数据 则增加效率
+	var contentImg = `SELECT * from t_content_image LEFT JOIN (SELECT id from t_content where is_del=0 LIMIT 10 OFFSET ${offSets}) as t_content on t_content_image.content_id = t_content.id where t_content_image.is_del=0`;
+	conf.query(contentsql,function(err,result1){
+		if(result1.length>0){
+			
+			conf.query(contentImg,function(err,result2){
+				var list = [];
+				// console.log(result2);
+				
+				result1.map((item1)=>{
+					result2.map((item2)=>{
+						// list.push(item1);
+						
+						if(item1.id == item2.content_id){
+							// console.log(list);
+							// console.log(item2);
+							// item1.imgList.push(3);
+							console.log(item1.id)
+							// list.imgList.push(item2.image_url);
+							
+							// res.json({oList:resOrder,oDetailList:resDetailOrder});
+							// res.json({
+							// 	basicData: '-1',
+							// 	// msgList: [].push(item2.image_url)
+							// });
+						}
+					})
+				})
+				// return false;
+				res.json({
+					basicData: list,
+					// msgList: [].push(item2.image_url)
+				});
+			})
+		
+		}else{
+			res.json({
+				code: '-1',
+				msg: '没有数据了'
+			});
+		}
+		
+	})
+	return false;
+	var getContentList = conf.quertPromise(getContentList);
+	// var promise = Promise.all([oSaveGoods]);//oList:res1,oDetailList:res2
+	// 			promise.then(function([resGoods]) {
+	// 			var saveGoodsDetails = `INSERT INTO t_goods_details(goods_id,details)VALUES("${resGoods.insertId}","${GoodsDetails}")`;
+	// 			conf.query(saveGoodsDetails,function(err,result){
+	// 					console.log(err);
+	// 			  res.render('pc/href',{hidden: '',title: "发布商品成功",contents: "发布的产品将进行系统审核，审核成功后将在首页进行展示"});
+	// 	  });
+	// 					// res.json({oList:resOrder,oDetailList:resDetailOrder});
+	// 			}).catch(function(err) {
+	// 				res.json(err);
+	// 			  //定义错误页面
+	// 			});
+});
+
+
 // 一级类目
 router.get('/getPlate',(req, res, next)=>{
 	// 
     var selectSQL = `select * from t_plate`;
       conf.query(selectSQL,function(err,result){
+		// if (err) {
+		// 	res.writeHead(500, { "Content-Type": "text/plain" });
+		// 	res.end("Internal server error");
+		// 	return;
+		// }
         var result=JSON.stringify(result);
-        res.json(result);
+		res.json(result);
+	
       });
 });
 // 二级类目
@@ -146,7 +219,6 @@ router.get('/getMember',(req, res, next)=>{
 			res.json({count:resCount,list:result});
 		  });
       });
-
 });
 
 

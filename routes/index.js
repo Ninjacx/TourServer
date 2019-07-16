@@ -19,47 +19,30 @@ const common = require('./common');
 
 /** Tour - API */
 // 首页展示的数据 
-// 一级类目
 router.get('/homeData',(req, res, next)=>{
 	var {page}=req.query;
-	
-	var offSets = (page?page:1 - 1) * 10;
+	var offSets = ((page?page:1)- 1) * 10;
 	var contentsql = `select * from t_content where is_del=0 limit 10 offset ${offSets}`;
 	// 查询10条数据第N页 这样不需要查询图片表中所有数据 则增加效率
 	var contentImg = `SELECT * from t_content_image LEFT JOIN (SELECT id from t_content where is_del=0 LIMIT 10 OFFSET ${offSets}) as t_content on t_content_image.content_id = t_content.id where t_content_image.is_del=0`;
 	conf.query(contentsql,function(err,result1){
 		if(result1.length>0){
-			
+			var list = [];
 			conf.query(contentImg,function(err,result2){
-				var list = [];
 				// console.log(result2);
-				
 				result1.map((item1)=>{
+					item1.imgList = [];
 					result2.map((item2)=>{
-						// list.push(item1);
-						
 						if(item1.id == item2.content_id){
-							// console.log(list);
-							// console.log(item2);
-							// item1.imgList.push(3);
-							console.log(item1.id)
-							// list.imgList.push(item2.image_url);
-							
-							// res.json({oList:resOrder,oDetailList:resDetailOrder});
-							// res.json({
-							// 	basicData: '-1',
-							// 	// msgList: [].push(item2.image_url)
-							// });
+							item1.imgList.push(item2.image_url);
 						}
 					})
 				})
 				// return false;
 				res.json({
-					basicData: list,
-					// msgList: [].push(item2.image_url)
+					basicData: result1,
 				});
 			})
-		
 		}else{
 			res.json({
 				code: '-1',

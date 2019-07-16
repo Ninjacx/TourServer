@@ -40,13 +40,14 @@ router.get('/homeData',(req, res, next)=>{
 				})
 				// return false;
 				res.json({
+					code: 200,
 					basicData: result1,
 				});
 			})
 		}else{
 			res.json({
-				code: '-1',
-				msg: '没有数据了'
+				code: -1,
+				msg: "没有数据了"
 			});
 		}
 		

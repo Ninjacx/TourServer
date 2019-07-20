@@ -16,7 +16,8 @@ const uuidv1 = require('uuid/v1');
 const AuthMiddleware = require('./checklogin');
 
 const common = require('./common');
-
+  
+  
 /** Tour - API */
 // 首页展示的数据 
 router.get('/homeData',(req, res, next)=>{

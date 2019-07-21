@@ -18,13 +18,18 @@ function query(sql,callback){
   pool.getConnection(function (err, connection){
       if (err) console.log("POOL ==> " + err);
       connection.query(sql,function(err,res){
+        
           if (err){
-            res.json(ret);
+            // err处理？
+            // callback(err,{code: 0,msg: error});
+            // next(err)
+            console.log(err);
+            connection.release();
+            return false;
           } else{
             callback(err,res);
           }
           connection.release();
-          // return res;
       });
   });
 }

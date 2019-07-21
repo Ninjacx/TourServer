@@ -53,14 +53,15 @@ app.use(function(req, res, next){
     next();
 });
 
+/* APP 前台接口 */
 app.use('/', indexRouter);
 app.use('/menu', menuRouter);
 app.use('/forum', forumRouter);
 
-app.use('/car', carRouter);//购物车
+// app.use('/car', carRouter);//购物车
 app.use('/users', usersRouter);
-app.use('/goods', goodsRouter);
-app.use('/system', system);
+// app.use('/goods', goodsRouter);
+// app.use('/system', system);
 app.use(express.static(path.join(__dirname, 'public')));
 //app.use('/static',express.static('/public'));
 // catch 404 and forward to error handler

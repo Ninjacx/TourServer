@@ -51,7 +51,7 @@ router.post('/login', function(req, res, next) {
           if(result[0].phone){
             isCreateSql= `update t_user set token = "${uuidv1()}" where phone = "${phone}"`;	//有账号则代表登录，生成新的token
           }else{
-            isCreateSql= `insert into t_user(nick_name,signature,token,phone)values("停不下来的乌龟","一只喜欢慢悠悠旅行的乌龟","${uuidv1()}","${phone}")`;
+            isCreateSql= `insert into t_user(nick_name,signature,token,phone)values("旅行的乌龟","一只喜欢慢悠悠旅行的乌龟","${uuidv1()}","${phone}")`;
           }
           // 手机短信登录
             if(state == 1) {

@@ -25,7 +25,7 @@ function query(sql,callback){
             // next(err)
             console.log(err);
             connection.release();
-            // return false;
+            return false;
           } else{
             callback(err,res);
           }

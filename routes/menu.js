@@ -22,7 +22,7 @@ const common = require('./common');
 router.get('/getMenu',(req, res, next)=>{
   // 传入groups = 1 则加条件，不然就查全部
     var groups = req.query.groups?`and groups = ${req.query.groups}`:"";
-    var selectSQL = `select name,icon,groups from t_menu where is_del = 0 ${groups}`;
+    var selectSQL = `select name,icon,menu_key,groups from t_menu where is_del = 0 ${groups}`;
       conf.query(selectSQL,function(err,result){
         var result=JSON.stringify(result);
         res.json(result);

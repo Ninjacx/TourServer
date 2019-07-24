@@ -24,7 +24,7 @@ router.get('/homeData',(req, res, next)=>{
 	var {page}=req.query;
 	var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
 	// var offSets = ((page?page:1)- 1) * 10;
-	var contentsql = `select t_content.*,nick_name,icon from t_content left join t_user on t_content.user_id = t_user.id where t_content.is_del=0 limit 10 offset ${offSets}`;
+	var contentsql = `select t_content.*,DATE_FORMAT(t_content.create_time,"%Y-%m-%d")as create_time,t_user.nick_name,icon from t_content left join t_user on t_content.user_id = t_user.id where t_content.is_del=0 limit 10 offset ${offSets}`;
 	// 查询10条数据第N页 这样不需要查询图片表中所有数据 则增加效率
 	var contentImg = `SELECT * from t_content_image LEFT JOIN (SELECT id from t_content where is_del=0 LIMIT 10 OFFSET ${offSets}) as t_content on t_content_image.content_id = t_content.id where t_content_image.is_del=0`;
 	conf.query(contentsql,function(err,result1){

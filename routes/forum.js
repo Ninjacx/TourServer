@@ -29,15 +29,44 @@ router.get('/getMenu',(req, res, next)=>{
       });
 });
 
-// 查出APP 展示的商家广告位 与 APP 其它展示图
-router.get('/getBanner',(req, res, next)=>{
-  // 传入groups = 1 则加条件，不然就查全部
-    var type = req.query.type?`and type = ${req.query.type}`:"";
-    var selectSQL = `select image,type from t_banner where is_del = 0 ${type}`;
-      conf.query(selectSQL,function(err,result){
-        var result=JSON.stringify(result);
-        res.json(result);
-      });
+// 类目展示列表数据 
+router.get('/forumList',(req, res, next)=> {
+	var {page,plateSecond_id}=req.query;
+  var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
+  
+  var plateSeconde_id = req.query.plateSeconde_id?`and t_content.plateSeconde_id = ${req.query.plateSeconde_id}`:"";
+	// var offSets = ((page?page:1)- 1) * 10;
+	var contentsql = `select t_content.*,DATE_FORMAT(t_content.create_time,"%Y-%m-%d")as create_time,t_user.nick_name,icon from t_content 
+					left join t_user on t_content.user_id = t_user.id where t_content.is_del=0  ${plateSeconde_id} limit 10 offset ${offSets}`;
+	// 查询10条数据第N页 这样不需要查询图片表中所有数据 则增加效率
+	var contentImg = `SELECT * from t_content_image left join (SELECT id from t_content where is_del=0 ${plateSeconde_id} limit 10 offset ${offSets}) as t_content 
+					on t_content_image.content_id = t_content.id where t_content_image.is_del=0`;
+	conf.query(contentsql,function(err,result1){
+		if(result1.length>0){
+			var list = [];
+			conf.query(contentImg,function(err,result2){
+				// console.log(result2);
+				result1.map((item1)=>{
+					item1.imgList = [];
+					result2.map((item2)=>{
+						if(item1.id == item2.content_id){
+							item1.imgList.push(item2.image_url);
+						}
+					})
+				})
+				// return false;
+				res.json({
+					code: 200,
+					basicData: result1,
+				});
+			})
+		}else{
+			res.json({
+				code: -1,
+				msg: "没有数据了"
+			});
+		}
+	})
 });
 
 // 查出APP 展示的商家广告位 与 APP 其它展示图
@@ -49,7 +78,7 @@ router.get('/getBanner',(req, res, next)=>{
         var result=JSON.stringify(result);
         res.json(result);
       });
-}); 
+});
 
 // 查出APP帖子中一级的评论和回复与数量 
 router.get('/getComment',(req, res, next)=>{

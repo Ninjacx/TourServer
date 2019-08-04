@@ -80,23 +80,45 @@ router.get('/getBanner',(req, res, next)=>{
       });
 });
 
-// 查出APP帖子中一级的评论和回复与数量 
-router.get('/getComment',(req, res, next)=>{
+// 查出APP帖子详情
+router.get('/getContentDetetail',(req, res, next)=>{
   // 传入groups = 1 则加条件，不然就查全部
     var id = req.query.id;
     id = id?id:0;
-    var selectSQL = `select count(r.comment_id) as replyCount,a.*,b.comment as reply,t_user.nick_name as commentNickName,u.nick_name as replyNickName from t_content_comment  as a 
+    selectComment = `select count(r.comment_id) as replyCount,a.*,b.comment as reply,t_user.nick_name as commentNickName,u.nick_name as replyNickName from t_content_comment  as a 
     left join t_user on a.user_id = t_user.id
     left join t_content_comment as b on b.id = a.commentId_user 
     left join t_user u on u.id = b.user_id 
     left join t_content_reply  as r  on r.comment_id = a.id and r.is_del=0 where a.content_id= ${id} and a.is_del = 0  GROUP BY a.id`;
-      conf.query(selectSQL,function(err,result){
-        // var result=JSON.stringify(result);
+    selectForum = `select t_content.*,t_user.nick_name from t_content left join t_user on t_user.id = t_content.user_id where t_content.id = ${id} and t_content.is_del = 0`;
+    selectForumImg = `select image_url from t_content_image where content_id = ${id} and is_del = 0`;
+
+    var sqlforum = conf.quertPromise(selectForum);
+    var sqlforumImg = conf.quertPromise(selectForumImg);
+    var sqlComment = conf.quertPromise(selectComment);
+
+    var promise = Promise.all([sqlComment,sqlforum,sqlforumImg]);
+
+    promise.then(function([resComment,resforum,resforumImg]) {
+      res.json({
+            code: 200,
+            data: {
+              detail: resforum,
+              forumImg: resforumImg,
+              comment: resComment
+            }
+          });
+    }).catch(function(err) {
+      //定义错误页面
+      console.log(err);
+      if(err){
         res.json({
-          code: 200,
-          data: result
+          code: -1,
+          data: []
         });
-      });
+      }
+          
+    });
 });
 
 module.exports = router;

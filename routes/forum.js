@@ -90,7 +90,9 @@ router.get('/getContentDetetail',(req, res, next)=>{
     left join t_content_comment as b on b.id = a.commentId_user 
     left join t_user u on u.id = b.user_id 
     left join t_content_reply  as r  on r.comment_id = a.id and r.is_del=0 where a.content_id= ${id} and a.is_del = 0  GROUP BY a.id`;
-    selectForum = `select t_content.*,t_user.nick_name from t_content left join t_user on t_user.id = t_content.user_id where t_content.id = ${id} and t_content.is_del = 0`;
+    selectForum = `select 
+    (select count(content_id) from t_content_comment where content_id = ${id} and is_del = 0 GROUP BY content_id)as AllcommentCount,
+    t_content.*,t_user.nick_name,t_user.icon from t_content left join t_user on t_user.id = t_content.user_id where t_content.id = ${id} and t_content.is_del = 0`;
     selectForumImg = `select image_url from t_content_image where content_id = ${id} and is_del = 0`;
 
     var sqlforum = conf.quertPromise(selectForum);

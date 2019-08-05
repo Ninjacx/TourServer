@@ -123,4 +123,30 @@ router.get('/getContentDetetail',(req, res, next)=>{
     });
 });
 
+// 查出P帖子详情的评论（上拉加载）
+router.get('/getComment',(req, res, next)=>{
+  // 传入groups = 1 则加条件，不然就查全部
+    var {id,page} = req.query;
+    var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
+    id = id?id:0;
+    sqlComment = `select count(r.comment_id) as replyCount,a.*,b.comment as reply,t_user.nick_name as commentNickName,u.nick_name as replyNickName from t_content_comment  as a 
+    left join t_user on a.user_id = t_user.id
+    left join t_content_comment as b on b.id = a.commentId_user 
+    left join t_user u on u.id = b.user_id 
+    left join t_content_reply  as r  on r.comment_id = a.id and r.is_del=0 where a.content_id= ${id} and a.is_del = 0  GROUP BY a.id limit 10 offset ${offSets}`;
+    conf.query(sqlComment,function(err,result){
+      if(!result.length){
+        res.json({
+          code: -1,
+          data: []
+        });
+        return false;
+      }
+      res.json({
+        code: 200,
+        data: result
+      });
+    });
+});
+
 module.exports = router;

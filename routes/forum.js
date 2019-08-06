@@ -94,21 +94,24 @@ router.get('/getContentDetetail',(req, res, next)=>{
     (select count(content_id) from t_content_comment where content_id = ${id} and is_del = 0 GROUP BY content_id)as AllcommentCount,
     t_content.*,t_user.nick_name,t_user.icon from t_content left join t_user on t_user.id = t_content.user_id where t_content.id = ${id} and t_content.is_del = 0`;
     var selectForumImg = `select image_url from t_content_image where content_id = ${id} and is_del = 0`;
+    var selectSupport = `select t_user.nick_name from t_support left join t_content on t_support.content_id = t_content.id and t_support.is_del = 0 left join t_user on t_support.user_id = t_user.id where t_support.content_id = ${id}`;
     // 点赞用户显示
-  // select t_user.nick_name from t_support left join t_content on t_support.content_id = t_content.id and t_support.is_del = 0 left join t_user on t_support.user_id = t_user.id
+  // 
     var sqlforum = conf.quertPromise(selectForum);
     var sqlforumImg = conf.quertPromise(selectForumImg);
     var sqlComment = conf.quertPromise(selectComment);
+    var sqlSupport = conf.quertPromise(selectSupport);
+    
+    var promise = Promise.all([sqlComment,sqlforum,sqlforumImg,sqlSupport]);
 
-    var promise = Promise.all([sqlComment,sqlforum,sqlforumImg]);
-
-    promise.then(function([resComment,resforum,resforumImg]) {
+    promise.then(function([resComment,resforum,resforumImg,resSupport]) {
       res.json({
             code: 200,
             data: {
               detail: resforum,
               forumImg: resforumImg,
-              comment: resComment
+              comment: resComment,
+              support: resSupport
             }
           });
     }).catch(function(err) {

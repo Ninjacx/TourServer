@@ -85,16 +85,17 @@ router.get('/getContentDetetail',(req, res, next)=>{
   // 传入groups = 1 则加条件，不然就查全部
     var id = req.query.id;
     id = id?id:0;
-    selectComment = `select count(r.comment_id) as replyCount,a.*,b.comment as reply,t_user.nick_name as commentNickName,u.nick_name as replyNickName from t_content_comment  as a 
+    var selectComment = `select count(r.comment_id) as replyCount,a.*,b.comment as reply,t_user.nick_name as commentNickName,u.nick_name as replyNickName from t_content_comment  as a 
     left join t_user on a.user_id = t_user.id
     left join t_content_comment as b on b.id = a.commentId_user 
     left join t_user u on u.id = b.user_id 
     left join t_content_reply  as r  on r.comment_id = a.id and r.is_del=0 where a.content_id= ${id} and a.is_del = 0  GROUP BY a.id`;
-    selectForum = `select 
+    var selectForum = `select 
     (select count(content_id) from t_content_comment where content_id = ${id} and is_del = 0 GROUP BY content_id)as AllcommentCount,
     t_content.*,t_user.nick_name,t_user.icon from t_content left join t_user on t_user.id = t_content.user_id where t_content.id = ${id} and t_content.is_del = 0`;
-    selectForumImg = `select image_url from t_content_image where content_id = ${id} and is_del = 0`;
-
+    var selectForumImg = `select image_url from t_content_image where content_id = ${id} and is_del = 0`;
+    // 点赞用户显示
+  // select t_user.nick_name from t_support left join t_content on t_support.content_id = t_content.id and t_support.is_del = 0 left join t_user on t_support.user_id = t_user.id
     var sqlforum = conf.quertPromise(selectForum);
     var sqlforumImg = conf.quertPromise(selectForumImg);
     var sqlComment = conf.quertPromise(selectComment);

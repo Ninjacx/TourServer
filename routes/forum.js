@@ -150,6 +150,7 @@ router.get('/getComment',(req, res, next)=>{
     left join t_content_comment as b on b.id = a.commentId_user 
     left join t_user u on u.id = b.user_id 
     left join t_content_reply  as r  on r.comment_id = a.id and r.is_del=0 where a.content_id= ${id} and a.is_del = 0  GROUP BY a.id limit 10 offset ${offSets}`;
+    // GROUP BY a.id ORDER BY a.create_time desc limit 10
     conf.query(sqlComment,function(err,result){
       if(!result.length){
         res.json({
@@ -164,5 +165,19 @@ router.get('/getComment',(req, res, next)=>{
       });
     });
 });
+
+// 发表评论+回复通用 回复多commentId_user 
+router.get('/addComment',(req, res, next)=>{
+    // var groups = req.query.groups?`and groups = ${req.query.groups}`:"";
+    var {userId,contentId,comment} = req.query;
+    var sql = `insert into t_content_comment(content_id,comment,user_id)values("${contentId}","${comment}","${userId}")`;
+      conf.query(sql,function(err,result){
+          res.json({
+            code: 200
+          });
+      });
+});
+
+// 
 
 module.exports = router;

@@ -80,6 +80,18 @@ router.get('/getBanner',(req, res, next)=>{
       });
 });
 
+// 搜索帖子列表
+router.get('/searchContentList',(req, res, next)=>{
+    var searchVal = req.query.searchVal?common.trim(req.query.searchVal):null;
+    var searchSQL = `select * from t_content where title like  "%${searchVal}%"`;
+      conf.query(searchSQL,function(err,result){
+          res.json({
+            code: 200,
+            data: result
+          });
+      });
+});
+
 // 查出APP帖子详情
 router.get('/getContentDetetail',(req, res, next)=>{
   // 传入groups = 1 则加条件，不然就查全部

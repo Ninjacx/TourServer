@@ -83,12 +83,22 @@ router.get('/getBanner',(req, res, next)=>{
 // 搜索帖子列表
 router.get('/searchContentList',(req, res, next)=>{
     var searchVal = req.query.searchVal?common.trim(req.query.searchVal):null;
-    var searchSQL = `select * from t_content where title like  "%${searchVal}%"`;
+    var {page} = req.query;
+    var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
+
+    var searchSQL = `select * from t_content where title like  "%${searchVal}%" limit 10 offset ${offSets}`;
       conf.query(searchSQL,function(err,result){
-          res.json({
-            code: 200,
-            data: result
-          });
+          if(result.length){
+            res.json({
+              code: 200,
+              data: result
+            });
+          }else{
+            res.json({
+              code: -1,
+              data: []
+            });
+          }
       });
 });
 

@@ -29,6 +29,29 @@ router.get('/getMenu',(req, res, next)=>{
       });
 });
 
+// 点赞功能
+router.get('/support',(req, res, next)=>{
+  // 传入groups = 1 则加条件，不然就查全部
+    var {userId,isSupport,contentId} = req.query;
+    // 验证是否有此条点赞
+    var selectSQL = `select id from t_support where user_id = ${userId} and is_del = 0`;
+    var insertSupport = `insert into t_support(user_id,is_support,content_id)values("${userId}","${isSupport}","${contentId}")`;
+    var updateSupport = `update t_support set is_support = ${isSupport} where user_id = ${userId} and content_id = "${contentId}"`;
+      conf.query(selectSQL,function(err,result){
+        if(result.length){
+           // 已有则更新点赞状态
+           conf.query(updateSupport,function(err,result){
+            res.json({code: 200})
+          })
+        }else{
+          // 没有记录则新增一条点赞记录
+          conf.query(insertSupport,function(err,result){
+            res.json({code: 200})
+          })
+        }
+      });
+});
+
 // 类目展示列表数据 
 router.get('/forumList',(req, res, next)=> {
 	var {page,plateSecond_id}=req.query;
@@ -122,7 +145,7 @@ router.get('/getContentDetetail',(req, res, next)=>{
         ELSE DATE_FORMAT(t_content.create_time,"20%y-%m-%d") END as dateTime 
     from t_content left join t_user on t_user.id = t_content.user_id where t_content.id = ${id} and t_content.is_del = 0`;
     var selectForumImg = `select image_url from t_content_image where content_id = ${id} and is_del = 0`;
-    var selectSupport = `select t_user.nick_name from t_support left join t_content on t_support.content_id = t_content.id and t_support.is_del = 0 left join t_user on t_support.user_id = t_user.id where t_support.content_id = ${id}`;
+    var selectSupport = `select t_user.nick_name from t_support left join t_content on t_support.content_id = t_content.id and t_support.is_del = 0 left join t_user on t_support.user_id = t_user.id where t_support.content_id = ${id} order by update_time desc`;
     // 点赞用户显示
   // 
     var sqlforum = conf.quertPromise(selectForum);

@@ -103,33 +103,44 @@ router.get('/getBanner',(req, res, next)=>{
       });
 });
 
-// 搜索帖子列表
-router.get('/searchContentList',(req, res, next)=>{
+// 搜索 用户、帖子
+router.get('/search',(req, res, next)=>{
     var searchVal = req.query.searchVal?common.trim(req.query.searchVal):null;
     var {page} = req.query;
     var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
 
-    var searchSQL = `select * from t_content where title like  "%${searchVal}%" limit 10 offset ${offSets}`;
-      conf.query(searchSQL,function(err,result){
-          if(result.length){
-            res.json({
+    var searchContentSQL = `select * from t_content where title like  "%${searchVal}%" limit 3`;
+    var searchUserSQL = `select id,nick_name,icon from t_user where nick_name like  "%${searchVal}%" limit 10`;
+
+    var sqlContent = conf.quertPromise(searchContentSQL);
+    var sqlUser = conf.quertPromise(searchUserSQL);
+
+    var promise = Promise.all([sqlContent,sqlUser]);
+      promise.then(function([resContent,resUser]) {
+        res.json({
               code: 200,
-              data: result
+              data: {
+                resContent: resContent,
+                resUser: resUser
+              }
             });
-          }else{
-            res.json({
-              code: -1,
-              data: []
-            });
-          }
+      }).catch(function(err) {
+        //定义错误页面
+        if(err){
+          res.json({
+            code: -1,
+            data: []
+          });
+        }
       });
 });
 
 // 查出APP帖子详情
 router.get('/getContentDetetail',(req, res, next)=>{
   // 传入groups = 1 则加条件，不然就查全部
-    var id = req.query.id;
-    id = id?id:0;
+    var {id,token} = req.query;
+    id = id?id:null;
+    token = token?token:null;
     var selectComment = `select count(r.comment_id) as replyCount,a.*,b.comment as reply,t_user.icon,t_user.nick_name as commentNickName,u.nick_name as replyNickName from t_content_comment  as a 
     left join t_user on a.user_id = t_user.id
     left join t_content_comment as b on b.id = a.commentId_user 
@@ -146,23 +157,26 @@ router.get('/getContentDetetail',(req, res, next)=>{
     from t_content left join t_user on t_user.id = t_content.user_id where t_content.id = ${id} and t_content.is_del = 0`;
     var selectForumImg = `select image_url from t_content_image where content_id = ${id} and is_del = 0`;
     var selectSupport = `select t_user.nick_name from t_support left join t_content on t_support.content_id = t_content.id and t_support.is_del = 0 left join t_user on t_support.user_id = t_user.id where t_support.content_id = ${id} and t_support.is_support = 1 order by update_time desc`;
+    var selectuserIsSupport = `select t_support.is_support from t_support left join t_user on t_support.user_id = t_user.id 
+        where t_support.content_id = ${id} and t_user.token  = "${token}"`;
     // 点赞用户显示
-  // 
     var sqlforum = conf.quertPromise(selectForum);
     var sqlforumImg = conf.quertPromise(selectForumImg);
     var sqlComment = conf.quertPromise(selectComment);
     var sqlSupport = conf.quertPromise(selectSupport);
-    
-    var promise = Promise.all([sqlComment,sqlforum,sqlforumImg,sqlSupport]);
+    var sqlUserIsSupport = conf.quertPromise(selectuserIsSupport);
 
-    promise.then(function([resComment,resforum,resforumImg,resSupport]) {
+    var promise = Promise.all([sqlComment,sqlforum,sqlforumImg,sqlSupport,sqlUserIsSupport]);
+
+    promise.then(function([resComment,resforum,resforumImg,resSupport,resUserIsSupport]) {
       res.json({
             code: 200,
             data: {
               detail: resforum,
               forumImg: resforumImg,
               comment: resComment,
-              support: resSupport
+              support: resSupport,
+              UserIsSupport: resUserIsSupport
             }
           });
     }).catch(function(err) {

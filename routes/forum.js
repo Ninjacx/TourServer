@@ -118,7 +118,7 @@ router.get('/search',(req, res, next)=>{
             from t_content 
             left join t_user on t_content.user_id = t_user.id 
             left join t_plate_second on t_content.plateSeconde_id= t_plate_second.id 
-          where title like  "%${searchVal}%" limit 3`;
+          where title like  "%${searchVal}%" limit 5`;
     var searchUserSQL = `select id,nick_name,icon from t_user where nick_name like  "%${searchVal}%" limit 10`;
     var sqlContent = conf.quertPromise(searchContentSQL);
     var sqlUser = conf.quertPromise(searchUserSQL);
@@ -162,13 +162,14 @@ router.get('/getContentDetetail',(req, res, next)=>{
     left join t_content_reply  as r  on r.comment_id = a.id and r.is_del=0 where a.content_id= ${id} and a.is_del = 0  GROUP BY a.id`;
     var selectForum = `select 
     (select count(content_id) from t_content_comment where content_id = ${id} and is_del = 0 GROUP BY content_id)as AllcommentCount,
-        t_content.*,t_user.nick_name,t_user.icon ,
         CASE (DATE_FORMAT(now(),"%y%m%d")-DATE_FORMAT(t_content.create_time,"%y%m%d"))
         WHEN 0 THEN  CONCAT('今天',DATE_FORMAT(t_content.create_time,'%T')) 
         WHEN 1 then CONCAT('昨天',DATE_FORMAT(t_content.create_time,'%T'))
         WHEN 2 then CONCAT('前天',DATE_FORMAT(t_content.create_time,'%T'))
-        ELSE DATE_FORMAT(t_content.create_time,"20%y-%m-%d") END as dateTime 
-    from t_content left join t_user on t_user.id = t_content.user_id where t_content.id = ${id} and t_content.is_del = 0`;
+        ELSE DATE_FORMAT(t_content.create_time,"20%y-%m-%d") END as dateTime ,t_content.*,t_user.nick_name,t_user.icon ,t_plate_second.plate_name
+      from t_content 
+        left join t_plate_second on t_content.plateSeconde_id = t_plate_second.id
+        left join t_user on t_user.id = t_content.user_id where t_content.id = ${id} and t_content.is_del = 0`;
     var selectForumImg = `select image_url from t_content_image where content_id = ${id} and is_del = 0`;
     var selectSupport = `select t_user.nick_name from t_support left join t_content on t_support.content_id = t_content.id and t_support.is_del = 0 left join t_user on t_support.user_id = t_user.id where t_support.content_id = ${id} and t_support.is_support = 1 order by update_time desc`;
     var selectuserIsSupport = `select t_support.is_support from t_support left join t_user on t_support.user_id = t_user.id 
@@ -242,8 +243,9 @@ router.get('/getComment',(req, res, next)=>{
 // 发表评论+回复通用 回复多commentId_user 
 router.post('/addComment',(req, res, next)=>{
     // var groups = req.query.groups?`and groups = ${req.query.groups}`:"";
-    var {userId,contentId,comment} = req.body;
-    var sql = `insert into t_content_comment(content_id,comment,user_id)values("${contentId}","${comment}","${userId}")`;
+    var {userId,contentId,comment,commentIdUser} = req.body;
+    commentIdUser?commentIdUser:null
+    var sql = `insert into t_content_comment(content_id,comment,user_id,commentId_user)values("${contentId}","${comment}","${userId}","${commentIdUser}")`;
       conf.query(sql,function(err,result){
           res.json({
             code: 200,

@@ -105,34 +105,48 @@ router.get('/getBanner',(req, res, next)=>{
 
 // 搜索 用户、帖子
 router.get('/search',(req, res, next)=>{
-    var searchVal = req.query.searchVal?common.trim(req.query.searchVal):null;
-    var {page} = req.query;
-    var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
-
-    var searchContentSQL = `select * from t_content where title like  "%${searchVal}%" limit 3`;
+  var searchVal = req.query.searchVal?common.trim(req.query.searchVal):null;
+  var {page} = req.query;
+  var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
+  var searchContentSQL = `
+          select 
+            CASE (DATE_FORMAT(now(),"%y%m%d")-DATE_FORMAT(t_content.create_time,"%y%m%d"))
+            WHEN 0 THEN  CONCAT('今天',DATE_FORMAT(t_content.create_time,'%T')) 
+            WHEN 1 then CONCAT('昨天',DATE_FORMAT(t_content.create_time,'%T'))
+            WHEN 2 then CONCAT('前天',DATE_FORMAT(t_content.create_time,'%T'))
+            ELSE DATE_FORMAT(t_content.create_time,"20%y-%m-%d") END as dateTime,t_plate_second.plate_name,t_user.nick_name,t_content.title
+            from t_content 
+            left join t_user on t_content.user_id = t_user.id 
+            left join t_plate_second on t_content.plateSeconde_id= t_plate_second.id 
+          where title like  "%${searchVal}%" limit 3`;
     var searchUserSQL = `select id,nick_name,icon from t_user where nick_name like  "%${searchVal}%" limit 10`;
-
     var sqlContent = conf.quertPromise(searchContentSQL);
     var sqlUser = conf.quertPromise(searchUserSQL);
-
     var promise = Promise.all([sqlContent,sqlUser]);
-      promise.then(function([resContent,resUser]) {
-        res.json({
-              code: 200,
-              data: {
-                resContent: resContent,
-                resUser: resUser
-              }
-            });
-      }).catch(function(err) {
-        //定义错误页面
-        if(err){
-          res.json({
-            code: -1,
-            data: []
+          promise.then(function([resContent,resUser]) {
+            if(!resContent.length&&!resUser.length) {
+              res.json({
+                code: -1,
+                msg: "没有数据"
+              })
+            }else{
+              res.json({
+                code: 200,
+                data: {
+                  resContent: resContent,
+                  resUser: resUser
+                }
+              });
+            }
+          }).catch(function(err) {
+            //定义错误页面
+            if(err){
+              res.json({
+                code: -1,
+                data: []
+              });
+            }
           });
-        }
-      });
 });
 
 // 查出APP帖子详情

@@ -90,9 +90,9 @@ router.get('/GetConsignee', function(req, res, next) {
   var Addr = `select  t_shipping_addr.* from t_user left join t_shipping_addr on t_user.addr_id = t_shipping_addr.id where t_user.id = ${uid} and t_shipping_addr.is_del = 0 limit 1`;
   conf.query(Addr,function(err,result){
 	  console.log(result);
-		if(result!=''&&result){
-			res.json(result);
-		}
+      if(result!=''&&result){
+        res.json(result);
+      }
     });
 });
 

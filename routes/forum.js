@@ -242,7 +242,6 @@ router.get('/getComment',(req, res, next)=>{
 
 // 发表评论+回复通用 回复多commentId_user 
 router.post('/addComment',(req, res, next)=>{
-    // var groups = req.query.groups?`and groups = ${req.query.groups}`:"";
     var {userId,contentId,comment,commentIdUser} = req.body;
     commentIdUser?commentIdUser:null
     var sql = `insert into t_content_comment(content_id,comment,user_id,commentId_user)values("${contentId}","${comment}","${userId}","${commentIdUser}")`;

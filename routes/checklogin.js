@@ -7,12 +7,17 @@ var conf = require('../conf/conf');
 
  /*验证*/
   module.exports = function AuthMiddleware(req, res, next) {
-    var token = req.query.token;
-    var sql = `select * from t_user where is_del = 0 and token = ${token}`;
+    var token = req.body.token;
+    var sql = `select nick_name from t_user where is_del = 0 and token = "${token}"`;
     
     conf.query(sql,function(err,result){
-        console.log(result);
-        return false;
+        if(!result.length||err){
+          res.json({
+            code: -1,
+            msg: "请先登录"
+          });
+        }
+        next();
     })
     //  var token = req.session.token;
     //    if (!token) {

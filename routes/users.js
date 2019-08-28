@@ -8,7 +8,7 @@ const uuidv5 = require('uuid/v5');
 router.get('/isLogin', function(req, res, next) {
   var token = req.query.token;
   console.log(token);
-  var sql = `select * from t_user where is_del = 0 and token = "${token}"`;
+  var sql = `select *,DATE_FORMAT(create_time,"%Y-%m-%d")as createTime from t_user where is_del = 0 and token = "${token}"`;
         conf.query(sql,function(err,result){
         if(result.length) {
           res.json({code: 200,data: result[0]});
@@ -63,11 +63,11 @@ router.post('/login', function(req, res, next) {
                 // 如果是插入的数据则再次查询后返回
                    var userSql='';
                    if(isCreateSqlRes.insertId>0){
-                      // 新增
-                      userSql = `select * from t_user where id = ${isCreateSqlRes.insertId}`
+                      // 新增查询用户数据
+                      userSql = `select *,DATE_FORMAT(create_time,"%Y-%m-%d")as createTime from t_user where id = ${isCreateSqlRes.insertId}`
                     }else{
-                      // 更新
-                      userSql = `select * from t_user where phone = "${req.body.phone}"`
+                      // 更新查询用户数据
+                      userSql = `select *,DATE_FORMAT(create_time,"%Y-%m-%d")as createTime from t_user where phone = "${req.body.phone}"`
                     }
                    conf.query(userSql,function(err,NewResult){
                     console.log(NewResult);

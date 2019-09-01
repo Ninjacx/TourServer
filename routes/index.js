@@ -113,9 +113,13 @@ router.get('/userInfo',AuthMiddleware,function(req, res, next) {
 router.post('/upload', function(req, res, next) {
 	var form = new formidable.IncomingForm();
     //设置文件上传存放地址（需要先把这个文件夹，在项目中建好）
-    form.uploadDir = "./public/upload/temp";
+	form.uploadDir = "./public/upload/temp";
+	
     //执行里面的回调函数的时候，表单已经全部接收完毕了。
     form.parse(req, function(err, fields, files) {
+			// console.log(fields);
+			console.log(files);
+			return false;
             var oldpath = files.file.path; //myFileName就是我们刚在前台模板里面配置的后台接受的名称；
             var extname = uuidv5(files.file.name, uuidv5.DNS); //因为formidable这个时候存在我们刚路径上的，只是一个path，还没有具体的扩展名，如：2.png这样的
             // //新的路径由组成：原父路径 + 拓展名
@@ -126,7 +130,7 @@ router.post('/upload', function(req, res, next) {
                     res.json({code: -1,data: err});
                 }else{
                     res.json({code:200,data: '/upload/temp/'+extname}) //返回图片路径，让前端展示
-				        }
+				}
             });
     });
 });

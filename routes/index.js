@@ -111,6 +111,7 @@ router.get('/userInfo',AuthMiddleware,function(req, res, next) {
 
 //通用图片上传
 router.post('/upload', function(req, res, next) {
+ 
 	var form = new formidable.IncomingForm();
     //设置文件上传存放地址（需要先把这个文件夹，在项目中建好）
 	form.uploadDir = "./public/upload/temp";
@@ -119,7 +120,7 @@ router.post('/upload', function(req, res, next) {
     form.parse(req, function(err, fields, files) {
 			// console.log(fields);
 			console.log(files);
-			return false;
+			// return false;
             var oldpath = files.file.path; //myFileName就是我们刚在前台模板里面配置的后台接受的名称；
             var extname = uuidv5(files.file.name, uuidv5.DNS); //因为formidable这个时候存在我们刚路径上的，只是一个path，还没有具体的扩展名，如：2.png这样的
             // //新的路径由组成：原父路径 + 拓展名

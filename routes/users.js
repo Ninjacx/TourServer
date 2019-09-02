@@ -4,6 +4,9 @@ var conf = require('../conf/conf');
 const uuidv1 = require('uuid/v1');
 const uuidv5 = require('uuid/v5');
 
+/*验证登录*/
+const AuthMiddleware = require('./checklogin');
+
 /**验证用户token是否登录 */
 router.get('/isLogin', function(req, res, next) {
   var token = req.query.token;
@@ -84,6 +87,28 @@ router.post('/login', function(req, res, next) {
 });
 
 
+/**修改用户个人信息 */
+router.post('/changeUserInfo',AuthMiddleware, function(req, res, next) {
+  var {token,type,value} = req.body;
+
+  // 根据类型区分修改哪个字段
+  var typeName = "";
+  if(type == 1){ typeName = "nick_name";}
+  if(type == 2){ typeName = "sex";}
+  if(type == 3){ typeName = "signature";}
+  
+  var sql = `update t_user set ${typeName} = "${value}" where token = "${token}"`;
+  // 更新完毕后 查询最新用户数据
+  var sqlUser = `select *,DATE_FORMAT(create_time,"%Y-%m-%d")as createTime from t_user where is_del = 0 and token = "${token}"`;
+        conf.query(sql,function(){
+          conf.query(sqlUser,function(err,result){
+            res.json({code: 200,data: result[0],msg: "修改成功"});
+          });
+       });
+});
+
+/***********************************************TourEnd */
+
 /* 获取用户收货地址 */
 router.get('/GetConsignee', function(req, res, next) {
   var uid = req.query.uid;
@@ -108,15 +133,5 @@ router.get('/GetAddressList', function(req, res, next) {
 
     });
 });
-
-/* GET users listing. */
-router.get('/a', function(req, res, next) {
-  res.send('respond with a resourceaa');
-});
-
-/* GET users listing. */
-router.get('/b', function(req, res, next) {
-  res.send('respond with a resourceaa');
-});
-
+ 
 module.exports = router;

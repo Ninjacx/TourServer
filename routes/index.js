@@ -16,7 +16,8 @@ const uuidv1 = require('uuid/v1');
 const AuthMiddleware = require('./checklogin');
 
 const common = require('./common');
-  
+const serverIp = 'http://192.168.1.33/';
+
 
 /** Tour - API */
 // 首页展示的数据 
@@ -62,30 +63,29 @@ WHEN 0 THEN '今天' WHEN 1 then '昨天' WHEN 2 then '前天' ELSE DATE_FORMAT(
 });
 
 
-// 一级类目
-router.get('/getPlate',(req, res, next)=>{
-	// 
-    var selectSQL = `select * from t_plate`;
-      conf.query(selectSQL,function(err,result){
-		// if (err) {
-		// 	res.writeHead(500, { "Content-Type": "text/plain" });
-		// 	res.end("Internal server error");
-		// 	return;
-		// }
-        var result=JSON.stringify(result);
-		res.json(result);
-	
-      });
+// 获取两个类目菜单的接口数据
+router.get('/getPlateAll',(req, res, next)=>{
+	  var selectPlate = `select * from t_plate`;
+	  var selectPlate2 = `select * from t_plate_second`;
+	  var oPlate = conf.quertPromise(selectPlate);
+	  var oPlate2 = conf.quertPromise(selectPlate2);
+		var promise = Promise.all([oPlate,oPlate2]);//oList:res1,oDetailList:res2
+			promise.then(function([resPlate1,resPlate2]) {
+			res.json({code: 200,resPlate1,resPlate2});
+		}).catch(function(err) {
+				res.json({code: -1,msg: "您的网络好像有点问题"});
+				 //定义错误页面
+		});
 });
-// 二级类目
-router.get('/getPlateSecond',(req, res, next)=>{
-	//
-    var selectSQL = `select * from t_plate_second`;
-      conf.query(selectSQL,function(err,result){
-        var result=JSON.stringify(result);
-        res.json(result);
-      });
-});
+// // 二级类目
+// router.get('/getPlateSecond',(req, res, next)=>{
+// 	//
+//     var selectSQL = `select * from t_plate_second`;
+//       conf.query(selectSQL,function(err,result){
+//         var result=JSON.stringify(result);
+//         res.json(result);
+//       });
+// });
 
 
 
@@ -127,9 +127,22 @@ router.post('/upload', function(req, res, next) {
                     res.json({code: -1,data: err});
                 }else{
 					// 1.入库 2.查询用户表最新数据
-					//  `UPDATE t_shop_car SET status = 1 WHERE id = ${item.car_id}`;	//
-					console.log(token);
-					console.log(extname);
+					 var updateIconSQL = `update t_user set icon = "${serverIp}upload/${extname}" where token = "${token}"`;
+					 var userSql = `select *,DATE_FORMAT(create_time,"%Y-%m-%d")as createTime from t_user where token = "${token}"`
+					 conf.query(updateIconSQL,function(error,updateResult){
+						 if(!error){
+							conf.query(userSql,function(err,result){
+								if(!err){
+									res.json({code:200,data: result[0]});
+								}
+								
+							 });
+						 }else{
+							 res.json({code: -1,msg: "请稍后再试"});
+						 }
+						
+					 });
+					
                     // res.json({code:200,data: '/upload/'+extname}) //返回图片路径，让前端展示
 				}
             });

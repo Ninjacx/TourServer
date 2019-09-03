@@ -91,10 +91,6 @@ router.get('/getPlateSecond',(req, res, next)=>{
 
 /** */
 
-
-
-
-
 router.get('/login', function(req, res, next) {
 	// 防止重复登陆
 	if(req.session.token){
@@ -111,26 +107,30 @@ router.get('/userInfo',AuthMiddleware,function(req, res, next) {
 
 //通用图片上传
 router.post('/upload', function(req, res, next) {
- 
-	var form = new formidable.IncomingForm();
-    //设置文件上传存放地址（需要先把这个文件夹，在项目中建好）
-	form.uploadDir = "./public/upload/temp";
 	
+	var form = new formidable.IncomingForm();
+	var token = req.body.token;
+	// console.log(req.body);
+	// console.log(`token=${token}`);
+    //设置文件上传存放地址（需要先把这个文件夹，在项目中建好）
+	form.uploadDir = "./public/upload";
     //执行里面的回调函数的时候，表单已经全部接收完毕了。
-    form.parse(req, function(err, fields, files) {
-			// console.log(fields);
-			console.log(files);
-			// return false;
+    form.parse(req, function(err, params, files) {
+			var {token} = params; // 获取到formdata用户的token
             var oldpath = files.file.path; //myFileName就是我们刚在前台模板里面配置的后台接受的名称；
             var extname = uuidv5(files.file.name, uuidv5.DNS); //因为formidable这个时候存在我们刚路径上的，只是一个path，还没有具体的扩展名，如：2.png这样的
             // //新的路径由组成：原父路径 + 拓展名
-            var newpath = "./public/upload/temp/" + extname;
+            var newpath = "./public/upload/" + extname;
              //改名
             fs.rename(oldpath, newpath, function(err) { //把之前存的图片换成真的图片的完整路径
                 if(err) {
                     res.json({code: -1,data: err});
                 }else{
-                    res.json({code:200,data: '/upload/temp/'+extname}) //返回图片路径，让前端展示
+					// 1.入库 2.查询用户表最新数据
+					//  `UPDATE t_shop_car SET status = 1 WHERE id = ${item.car_id}`;	//
+					console.log(token);
+					console.log(extname);
+                    // res.json({code:200,data: '/upload/'+extname}) //返回图片路径，让前端展示
 				}
             });
     });
@@ -175,8 +175,6 @@ router.post('/upload', function(req, res, next) {
   // var data='';//mysql未安装
 });
 */
-
-
 
 /**  **/
 

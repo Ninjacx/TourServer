@@ -8,6 +8,7 @@ var conf = require('../conf/conf');
  /*APP 登录中间件验证*/
   module.exports = function AuthMiddleware(req, res, next) {
     var token = req.body.token;
+    console.log(`token=${token}`);
     var sql = `select nick_name from t_user where is_del = 0 and token = "${token}"`;
       conf.query(sql,function(err,result){
           if(!result.length||err){

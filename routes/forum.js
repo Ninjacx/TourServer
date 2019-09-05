@@ -13,7 +13,7 @@ const uuidv5 = require('uuid/v5');
 const uuidv1 = require('uuid/v1');
 
 /*验证登录*/
-const AuthMiddleware = require('./checklogin');
+// const AuthMiddleware = require('./checklogin');
 
 const common = require('./common');
 

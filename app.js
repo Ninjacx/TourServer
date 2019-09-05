@@ -10,9 +10,7 @@ var menuRouter = require('./routes/menu');
 var forumRouter = require('./routes/forum'); // 关于帖子的接口
 
 var usersRouter = require('./routes/users');
-var goodsRouter = require('./routes/goods');
-var carRouter = require('./routes/shopCar');
-var system = require('./routes/system');
+// var system = require('./routes/system');
 var session =require("express-session");
 
 var app = express();
@@ -58,9 +56,7 @@ app.use('/', indexRouter);
 app.use('/menu', menuRouter);
 app.use('/forum', forumRouter);
 
-// app.use('/car', carRouter);//购物车
 app.use('/users', usersRouter);
-// app.use('/goods', goodsRouter);
 // app.use('/system', system);
 app.use(express.static(path.join(__dirname, 'public')));
 //app.use('/static',express.static('/public'));

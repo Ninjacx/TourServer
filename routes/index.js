@@ -13,7 +13,7 @@ const uuidv5 = require('uuid/v5');
 const uuidv1 = require('uuid/v1');
 
 /*验证登录*/
-const AuthMiddleware = require('./checklogin');
+// const AuthMiddleware = require('./checklogin');
 
 const common = require('./common');
 const serverIp = 'http://192.168.1.33/';
@@ -104,10 +104,7 @@ router.get('/login', function(req, res, next) {
 	}
 });
 
-router.get('/userInfo',AuthMiddleware,function(req, res, next) {
-	// 防止重复登陆
-		res.render('pc/userInfo', { hidden: ""});
-});
+ 
 
 //通用图片上传
 router.post('/upload', function(req, res, next) {
@@ -219,25 +216,7 @@ router.get('/getMember',(req, res, next)=>{
 });
 
 
-/**    **/
-//首页类别4条
-router.get('/GetClassify',(req, res, next)=>{
-    var selectSQL = 'select * from t_classify limit 4';
-    conf.query(selectSQL,function(err,result){
-            var result=JSON.stringify(result);
-        res.json({res:result});
-      });
-});
 
-//精品推荐换一批随机4条
-router.get('/changeRecommend',(req, res, next)=>{
-    var selectSQL = 'select * from t_goods order by rand() LIMIT 4';
-    conf.query(selectSQL,function(err,result){
-            var result=JSON.stringify(result);
-            console.log(result);
-        res.json({res:result});
-      });
-});
 
 //获取产品规格
 router.get('/getSize',(req, res, next)=>{
@@ -276,45 +255,7 @@ router.get('/weekSpecial',(req, res, next)=>{
       });
 });
 
-//首页产品分页通用
-router.get('/getGoodsList',(req, res, next)=>{
-	// count 为分页数大于整数则多1
-    var selectSQL = `SELECT *,ceil((select COUNT(id) from t_goods WHERE is_del = 0 and status = 1)/20)as count from t_goods WHERE is_del = 0 and status = 1 ORDER BY createtime desc LIMIT ${req.query.limit} OFFSET ${req.query.goods_id}`;
-      conf.query(selectSQL,function(err,result){
-            var result=JSON.stringify(result);
-        res.json({res:result});
-      });
-});
-
-//首页产品展示
-router.get('/issue',AuthMiddleware,(req, res, next)=>{
-	// count 为分页数大于整数则多1
-    var region = `select region_id,region_name from region where region_type = 1`;
-      conf.query(region,function(err,result){
-      	res.render('pc/issue', { hidden: "",province: result});
-      });
-});
-
-//发布商品
-router.post('/issueSubmit',AuthMiddleware,(req, res, next)=>{
-		console.log(req.body);
-		var {is_new,title,price,deScription,link,contact_status,contact_val,region_id,addr,url,GoodsDetails}=req.body;
-		var saveGoods = `INSERT INTO t_goods(is_new,title,price,description,link,contact_status,contact_val,region_id,addr,createtime,url)VALUES(${is_new},"${title}","${price}","${deScription}","${link}","${contact_status}","${contact_val}",${region_id},"${addr}",now(),"${url}")`;
-		var oSaveGoods = conf.quertPromise(saveGoods);
-		// var oDetailList = conf.quertPromise(orderDetailList);
-		var promise = Promise.all([oSaveGoods]);//oList:res1,oDetailList:res2
-					promise.then(function([resGoods]) {
-					var saveGoodsDetails = `INSERT INTO t_goods_details(goods_id,details)VALUES("${resGoods.insertId}","${GoodsDetails}")`;
-					conf.query(saveGoodsDetails,function(err,result){
-							console.log(err);
-		      		res.render('pc/href',{hidden: '',title: "发布商品成功",contents: "发布的产品将进行系统审核，审核成功后将在首页进行展示"});
-		      });
-							// res.json({oList:resOrder,oDetailList:resDetailOrder});
-					}).catch(function(err) {
-						res.json(err);
-					  //定义错误页面
-					});
-});
+  
 
 router.get('/aboutUs',function(req, res, next) {
 	res.render('pc/aboutUs',{hidden: ''});
@@ -509,29 +450,7 @@ router.get('/pay', function(req, res, next) {
     res.json({url:url_API})
 });
 
-router.post('/payResult', function(req, res, next) {
-  //var {account,password}=req.body;
-   console.log(req.body);
-});
-
-router.post('/AuthResult', function(req, res, next) {
-  //var {account,password}=req.body;
-   console.log(req.body);
-});
-//登录页面
-// router.get('/login', function(req, res, next){
-// var data='';
-//     res.render('logo/login', { title: "" ,"b":false,user:data});
-// });
-// router.get('/doc', function(req, res, next) {
-//   res.render('document/doc');
-// });
-// router.get('/banners', function(req, res, next) {
-//   res.render('index2', { title: '咕噜噜/banners' });
-// });
-
-
-
+ 
 
 router.get('/', function(req, res, next) {
 	var deviceAgent = req.headers["user-agent"].toLowerCase();
@@ -543,13 +462,6 @@ router.get('/', function(req, res, next) {
         res.render('pc/index', { hidden: 1});
     }
 });
-
-
-router.get('/b', function(req, res, next) {
-  res.sendFile(`${process.cwd()}/public/html/login.html`, {title:'index'});
-  // res.jsonp({"bbb":123});
-});
-//router.use(staticPath('./public'));
 
 
 module.exports = router;

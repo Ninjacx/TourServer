@@ -5,7 +5,7 @@ const uuidv1 = require('uuid/v1');
 const uuidv5 = require('uuid/v5');
 
 /*验证登录*/
-const AuthMiddleware = require('./checklogin');
+const checklogin = require('./checklogin');
 
 /**验证用户token是否登录 */
 router.get('/isLogin', function(req, res, next) {
@@ -88,7 +88,7 @@ router.post('/login', function(req, res, next) {
 
 
 /**修改用户个人信息 */
-router.post('/changeUserInfo',AuthMiddleware, function(req, res, next) {
+router.post('/changeUserInfo',checklogin.AuthMiddleware, function(req, res, next) {
   var {token,type,value} = req.body;
 
   // 根据类型区分修改哪个字段
@@ -107,31 +107,22 @@ router.post('/changeUserInfo',AuthMiddleware, function(req, res, next) {
        });
 });
 
+/** 用户粉丝列表 */
+router.get('/fans',checklogin.AuthMiddlewareGet, function(req, res, next) {
+  var {token,page} = req.query;
+  var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
+  var sqlFans = `select t_user.nick_name,t_focus.is_focus  from t_fans  
+            left join t_user on t_fans.user_fans = t_user.id 
+            left join t_focus on t_fans.user_fans = t_focus.focus_user 
+            and t_focus.user_id = (select id from t_user where token = "${token}") 
+            where t_fans.user_id = (select id from t_user where token = "${token}") and t_fans.is_fans = 1
+            order by t_fans.create_time desc limit 10 offset ${offSets}`;
+        conf.query(sqlFans,function(err,result){
+          res.json({code: 200,data: result});
+        });
+});
+
+
 /***********************************************TourEnd */
 
-/* 获取用户收货地址 */
-router.get('/GetConsignee', function(req, res, next) {
-  var uid = req.query.uid;
-  var Addr = `select  t_shipping_addr.* from t_user left join t_shipping_addr on t_user.addr_id = t_shipping_addr.id where t_user.id = ${uid} and t_shipping_addr.is_del = 0 limit 1`;
-  conf.query(Addr,function(err,result){
-	  console.log(result);
-      if(result!=''&&result){
-        res.json(result);
-      }
-    });
-});
-
-/* 获取用户地址列表 */
-router.get('/GetAddressList', function(req, res, next) {
-  var uid = req.query.uid;
-  var selectSQL = `SELECT * from t_shipping_addr where uid = ${uid} and is_del = 0`;
-  conf.query(selectSQL,function(err,result){
-	  console.log(result);
-		if(result!=''&&result){
-			res.json({result:result});
-		}
-
-    });
-});
- 
 module.exports = router;

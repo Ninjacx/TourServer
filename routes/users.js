@@ -16,7 +16,7 @@ router.get('/isLogin', function(req, res, next) {
         if(result.length) {
           res.json({code: 200,data: result[0]});
         }else{
-          res.json({code: -1,msg: "请先登录"});
+          res.json({code: -2,msg: "请先登录"});
         }
     });
 });
@@ -111,34 +111,36 @@ router.post('/changeUserInfo',checklogin.AuthMiddleware, function(req, res, next
 router.get('/fans',checklogin.AuthMiddlewareGet, function(req, res, next) {
   var {token,page} = req.query;
   var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
-  var sqlFans = `select t_user.nick_name,t_user.signature,t_user.icon,t_focus.is_focus  from t_fans  
+  var sqlFans = `select t_user.nick_name,t_user.signature,t_user.icon,t_focus.focus_state  from t_fans  
             left join t_user on t_fans.user_fans = t_user.id 
             left join t_focus on t_fans.user_fans = t_focus.user_focus
             and t_focus.user_id = (select id from t_user where token = "${token}") 
-            where t_fans.user_id = (select id from t_user where token = "${token}") and t_fans.is_fans = 1
+            where t_fans.user_id = (select id from t_user where token = "${token}") and t_fans.fans_state = 1
             order by t_fans.update_time desc limit 10 offset ${offSets}`;
             conf.query(sqlFans,function(err,result){
-              if(result.length){
-                res.json({code: 200,data: result});
-              }else{
-                res.json({code: -1});
-              }
+               checklogin.result(res,result,true);
             });
 });
 
-/** 用户粉丝列表 */
+/** 用户关注列表 */
 router.get('/focus',checklogin.AuthMiddlewareGet, function(req, res, next) {
   var {token,page} = req.query;
   var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
-  var sqlFocus = `select t_user.nick_name,t_user.signature,t_user.icon,t_focus.is_focus  from t_focus left join t_user on t_focus.user_focus = t_user.id 
+  var sqlFocus = `select t_user.nick_name,t_user.signature,t_user.icon,t_focus.focus_state  from t_focus left join t_user on t_focus.user_focus = t_user.id 
                     where t_focus.user_id = (select id from t_user where token = "${token}") 
-                    and t_focus.is_focus = 1 order by t_focus.update_time desc limit 10 offset ${offSets}`;
+                    and t_focus.focus_state = 1 order by t_focus.update_time desc limit 10 offset ${offSets}`;
             conf.query(sqlFocus,function(err,result){
-              if(result.length){
-                res.json({code: 200,data: result});
-              }else{
-                res.json({code: -1});
-              }
+              checklogin.result(res,result,true);
+            });
+});
+
+// 更新用户关注的人
+router.get('/changeFocusState',checklogin.AuthMiddlewareGet, function(req, res, next) {
+        var {token,id,focusState} = req.query;
+        var sqlFocus = `update t_focus  left join t_user  on t_focus.user_id = t_user.id SET t_focus.focus_state = ${focusState}
+                  where  t_focus.id = ${id} and t_user.token = "${token}"`;
+            conf.query(sqlFocus,function(err,result){
+              checklogin.result(res,result);
             });
 });
 

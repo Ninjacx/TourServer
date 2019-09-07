@@ -15,7 +15,7 @@ var conf = require('../conf/conf');
             conf.query(sql,function(err,result){
                 if(!result.length||err){
                   res.json({
-                    code: -1,
+                    code: -2,
                     msg: "请先登录"
                   });
                   return false;
@@ -30,13 +30,27 @@ var conf = require('../conf/conf');
           conf.query(sql,function(err,result){
               if(!result.length||err){
                 res.json({
-                  code: -1,
+                  code: -2,
                   msg: "请先登录"
                 });
                 return false;
               }
             next();
         })
+    },
+    // result,传入结果集，isRes 是否返回结果参数  指定提示文字
+    result: function(resJson,result,isRes,successMsg,failMsg) {
+      var successMsg = successMsg?successMsg: "操作成功";
+      var failMsg = failMsg?failMsg: "请稍后再试";
+      if(result.length||result.changedRows){
+        var res = {code: 200,msg:successMsg};
+        if(isRes){
+          res.data = result;
+        }
+        resJson.json(res);
+      }else{
+        resJson.json({code: -1,msg: failMsg});
+      }
     }
 }
 

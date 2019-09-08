@@ -42,10 +42,16 @@ var conf = require('../conf/conf');
     result: function(resJson,result,isRes,successMsg,failMsg) {
       var successMsg = successMsg?successMsg: "操作成功";
       var failMsg = failMsg?failMsg: "请稍后再试";
-      if(result.length||result.changedRows){
+      if(result.length||result.changedRows||result.insertId){
         var res = {code: 200,msg:successMsg};
         if(isRes){
-          res.data = result;
+          if(result.insertId){
+            res.data = result.insertId;
+          }else if(result.changedRows){
+            res.data = changedRows;
+          }else{
+            res.data = result;
+          }
         }
         resJson.json(res);
       }else{

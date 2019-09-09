@@ -114,7 +114,8 @@ router.post('/upload', function(req, res, next) {
                 }else{
 					// 1.入库 2.查询用户表最新数据
 					 var updateIconSQL = `update t_user set icon = "${serverIp}upload/${extname}" where token = "${token}"`;
-					 var userSql = `select *,DATE_FORMAT(create_time,"%Y-%m-%d")as createTime from t_user where token = "${token}"`
+					 var userSql = `select t_user.*,t_member.member_name,DATE_FORMAT(t_user.create_time,"%Y-%m-%d")as createTime 
+					 from t_user left join t_member on t_user.member_id = t_member.id where t_user.is_del = 0 and is_freeze = 0 and token = "${token}"`
 					 conf.query(updateIconSQL,function(error,updateResult){
 						 if(!error){
 							conf.query(userSql,function(err,result){

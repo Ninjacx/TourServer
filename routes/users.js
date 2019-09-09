@@ -153,7 +153,7 @@ router.get('/changeFocusState',checklogin.AuthMiddlewareGet, function(req, res, 
                             checklogin.result(res,result);
                           });
         }else{
-              // userFans 关注人的ID
+              // userFans 关注哪个用户的ID
               var insertFocus = `insert into t_focus(user_id,user_focus)values(${userId},${userFans})`;
                           conf.query(insertFocus,function(err,result){
                             // console.log(result.insertId);

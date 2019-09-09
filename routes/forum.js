@@ -155,11 +155,13 @@ router.get('/getContentDetetail',(req, res, next)=>{
     var {id,token} = req.query;
     id = id?id:null;
     token = token?token:null;
-    var selectComment = `select count(r.comment_id) as replyCount,a.*,b.comment as reply,t_user.icon,t_user.nick_name as commentNickName,u.nick_name as replyNickName from t_content_comment  as a 
-    left join t_user on a.user_id = t_user.id
-    left join t_content_comment as b on b.id = a.commentId_user 
-    left join t_user u on u.id = b.user_id 
-    left join t_content_reply  as r  on r.comment_id = a.id and r.is_del=0 where a.content_id= ${id} and a.is_del = 0  GROUP BY a.id`;
+    // 评论
+    // var selectComment = `select count(r.comment_id) as replyCount,a.*,b.comment as reply,t_user.icon,t_user.nick_name as commentNickName,u.nick_name as replyNickName from t_content_comment  as a 
+    // left join t_user on a.user_id = t_user.id
+    // left join t_content_comment as b on b.id = a.commentId_user 
+    // left join t_user u on u.id = b.user_id 
+    // left join t_content_reply  as r  on r.comment_id = a.id and r.is_del=0 where a.content_id= ${id} and a.is_del = 0  GROUP BY a.id`;
+    // 帖子信息详情
     var selectForum = `select 
     (select count(content_id) from t_content_comment where content_id = ${id} and is_del = 0 GROUP BY content_id)as AllcommentCount,
         CASE (DATE_FORMAT(now(),"%y%m%d")-DATE_FORMAT(t_content.create_time,"%y%m%d"))
@@ -174,24 +176,32 @@ router.get('/getContentDetetail',(req, res, next)=>{
     var selectSupport = `select t_user.nick_name from t_support left join t_content on t_support.content_id = t_content.id and t_support.is_del = 0 left join t_user on t_support.user_id = t_user.id where t_support.content_id = ${id} and t_support.is_support = 1 order by update_time desc`;
     var selectuserIsSupport = `select t_support.is_support from t_support left join t_user on t_support.user_id = t_user.id 
         where t_support.content_id = ${id} and t_user.token  = "${token}"`;
+    // 查询此用户是否关注了此帖和此用户
+    var selectIsFocus = `select t_content.user_id,t_focus.id,t_focus.focus_state,t_collect.collect_state from t_content 
+     left join t_focus on t_content.user_id = t_focus.user_focus and t_focus.user_id = (select id from t_user where token = "${token}")
+     left join t_collect on t_content.id = t_collect.type_id  and type_id = ${id} and t_collect.user_id = (select id from t_user where token = "${token}")
+     where t_content.id = ${id} `;
+
     // 点赞用户显示
     var sqlforum = conf.quertPromise(selectForum);
     var sqlforumImg = conf.quertPromise(selectForumImg);
-    var sqlComment = conf.quertPromise(selectComment);
+    // var sqlComment = conf.quertPromise(selectComment);
     var sqlSupport = conf.quertPromise(selectSupport);
     var sqlUserIsSupport = conf.quertPromise(selectuserIsSupport);
+    var sqlUserIsFocus = conf.quertPromise(selectIsFocus);
 
-    var promise = Promise.all([sqlComment,sqlforum,sqlforumImg,sqlSupport,sqlUserIsSupport]);
+    var promise = Promise.all([sqlforum,sqlforumImg,sqlSupport,sqlUserIsSupport,sqlUserIsFocus]);//sqlComment
 
-    promise.then(function([resComment,resforum,resforumImg,resSupport,resUserIsSupport]) {
+    promise.then(function([resforum,resforumImg,resSupport,resUserIsSupport,resUserIsFocus]) { //resComment
       res.json({
             code: 200,
             data: {
               detail: resforum,
               forumImg: resforumImg,
-              comment: resComment,
+              // comment: resComment,
               support: resSupport,
-              UserIsSupport: resUserIsSupport
+              UserIsSupport: resUserIsSupport,
+              UserIsFocus: resUserIsFocus
             }
           });
     }).catch(function(err) {

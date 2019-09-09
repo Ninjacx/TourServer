@@ -67,7 +67,7 @@ WHEN 0 THEN '今天' WHEN 1 then '昨天' WHEN 2 then '前天' ELSE DATE_FORMAT(
 router.get('/getPlateAll',(req, res, next)=>{
 	  var token = req.query.token;
 	  var selectPlate = `select * from t_plate`;
-	  var selectPlate2 = `select t_plate_second.*,t_collect.is_collect from t_plate_second 
+	  var selectPlate2 = `select t_plate_second.*,t_collect.collect_state from t_plate_second 
 	  left join t_collect  on t_plate_second.id = t_collect.type_id 
 	  and t_collect.user_id = (select id from t_user where token = "${token}" ) and type = 1 
 	  order by t_plate_second.id`;

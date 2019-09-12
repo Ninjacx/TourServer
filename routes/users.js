@@ -166,12 +166,16 @@ router.post('/changeFocusState',checklogin.AuthMiddlewareGet, function(req, res,
 // 用户详情信息
 router.get('/userDetail', function(req, res, next) {
   var {token,focusId,userFans,focusState,userId} = req.query;
-  var z = `select case sex when '1' THEN '男生' when '0' THEN '女生' END as sexName,t_member.member_name,nick_name,DATE_FORMAT(t_user.create_time,"%Y-%m-%d")as createTime from t_user 
-  left join t_member on t_user.member_id = t_member.id where  t_user.id = 1
+  // 基本信息
+  var basic = `select case sex when '1' THEN '男生' when '0' THEN '女生' END as sexName,t_member.member_name,nick_name,DATE_FORMAT(t_user.create_time,"%Y-%m-%d")as createTime from t_user 
+  left join t_member on t_user.member_id = t_member.id where  t_user.id = ${userId}`
+  // 用户发的帖子
+  var userContent = `select * from t_content where user_id = ${userId}`;
+  // 用户的评论
+  var userComment = `select * from t_content_comment left join t_content on t_content_comment.content_id = t_content.id where t_content_comment.user_id = ${userId}`;
   
-  select * from t_content where user_id = 1
   
-  select * from t_content_comment left join t_content on t_content_comment.content_id = t_content.id where t_content_comment.user_id = 1`;
+  
 });
 
 

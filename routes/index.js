@@ -81,19 +81,22 @@ router.get('/getPlateAll',(req, res, next)=>{
 				 //定义错误页面
 		});
 });
-// // 二级类目
-// router.get('/getPlateSecond',(req, res, next)=>{
-// 	//
-//     var selectSQL = `select * from t_plate_second`;
-//       conf.query(selectSQL,function(err,result){
-//         var result=JSON.stringify(result);
-//         res.json(result);
-//       });
-// });
+
+
+//通用图片上传
+router.post('/uploadQNY', function(req, res, next) {
+	var accessKey = 'E8sxauX_j1uhsQrJOIPI7JXqhLv5ysUxjaQcr7g_';
+	var secretKey = 'cRdesdlbE78qTlmwwdE0joQO-MViCgsVeccH2-7D';
+	var mac = new qiniu.auth.digest.Mac(accessKey, secretKey);	 
+	var options = {
+		scope: tourimg,
+	  };
+	  var putPolicy = new qiniu.rs.PutPolicy(options);
+	  var uploadToken=putPolicy.uploadToken(mac);
+});
 
 //通用图片上传
 router.post('/upload', function(req, res, next) {
-	
 	var form = new formidable.IncomingForm();
 	var token = req.body.token;
 	// console.log(req.body);
@@ -122,7 +125,6 @@ router.post('/upload', function(req, res, next) {
 								if(!err){
 									res.json({code:200,data: result[0]});
 								}
-								
 							 });
 						 }else{
 							 res.json({code: -1,msg: "请稍后再试"});

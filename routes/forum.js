@@ -13,7 +13,7 @@ const uuidv5 = require('uuid/v5');
 const uuidv1 = require('uuid/v1');
 
 /*验证登录*/
-// const AuthMiddleware = require('./checklogin');
+const checklogin = require('./checklogin');
 
 const common = require('./common');
 
@@ -220,7 +220,9 @@ router.get('/getContentDetetail',(req, res, next)=>{
 // 查出P帖子详情的评论（上拉加载）
 router.get('/getComment',(req, res, next)=>{
   // 传入groups = 1 则加条件，不然就查全部
-    var {id,page} = req.query;
+    var {id,page,userId} = req.query;
+    var whereStr = id?`a.content_id= ${id}`:`a.user_id=${userId}`;
+
     var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
     id = id?id:0;
     sqlComment = `select count(r.comment_id) as replyCount,a.*,b.comment as reply,t_user.nick_name as commentNickName,u.nick_name as replyNickName,t_user.icon, 
@@ -233,7 +235,7 @@ router.get('/getComment',(req, res, next)=>{
     left join t_user on a.user_id = t_user.id
     left join t_content_comment as b on b.id = a.commentId_user 
     left join t_user u on u.id = b.user_id 
-    left join t_content_reply  as r  on r.comment_id = a.id and r.is_del=0 where a.content_id= ${id} and a.is_del = 0  group by a.id order by a.create_time desc limit 10 offset ${offSets}`;
+    left join t_content_reply  as r  on r.comment_id = a.id and r.is_del=0 where ${whereStr} and a.is_del = 0  group by a.id order by a.create_time desc limit 10 offset ${offSets}`;
     // GROUP BY a.id order by a.create_time desc limit 10
     conf.query(sqlComment,function(err,result){
       if(!result.length){
@@ -247,19 +249,24 @@ router.get('/getComment',(req, res, next)=>{
         code: 200,
         data: result
       });
-    });
+    },res);
 });
 
 // 发表评论+回复通用 回复多commentId_user 
 router.post('/addComment',(req, res, next)=>{
     var {userId,contentId,comment,commentIdUser} = req.body;
     commentIdUser?commentIdUser:null
-    var sql = `insert into t_content_comment(content_id,comment,user_id,commentId_user)values("${contentId}","${comment}","${userId}","${commentIdUser}")`;
-      conf.query(sql,function(err,result){
-          res.json({
-            code: 200,
-            msg: "评论成功"
-          });
+    var sqlComment = `insert into t_content_comment(content_id,comment,user_id,commentId_user)values("${contentId}","${comment}","${userId}","${commentIdUser}")`;
+    conf.query(sqlComment,function(err,result){
+        if(commentIdUser){
+          var sqlreply = `insert into t_content_reply(user_id,comment_id,reply)values("${userId}","${commentIdUser}","${comment}")`;
+          // 插入reply表 
+          conf.query(sqlreply,function(err,replyResult){
+            checklogin.result(res,replyResult,false,"回复成功");
+          })
+        }else{
+            checklogin.result(res,result,false,"评论成功");
+        }
       });
 });
 

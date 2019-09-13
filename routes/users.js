@@ -143,8 +143,8 @@ router.get('/focus',checklogin.AuthMiddlewareGet, function(req, res, next) {
 });
 
 // 更新用户关注的人
-router.post('/changeFocusState',checklogin.AuthMiddlewareGet, function(req, res, next) {
-        var {token,focusId,userFans,focusState,userId} = req.query;
+router.post('/changeFocusState',checklogin.AuthMiddleware, function(req, res, next) {
+        var {token,focusId,userFans,focusState,userId} = req.body;
         // 有关注人的数据则更新否则插入一条数据
         if(focusId){
           var updateFocus = `update t_focus  left join t_user  on t_focus.user_id = t_user.id SET t_focus.focus_state = ${focusState}
@@ -173,8 +173,6 @@ router.get('/userDetail', function(req, res, next) {
   var userContent = `select * from t_content where user_id = ${userId}`;
   // 用户的评论
   var userComment = `select * from t_content_comment left join t_content on t_content_comment.content_id = t_content.id where t_content_comment.user_id = ${userId}`;
-  
-  
   
 });
 

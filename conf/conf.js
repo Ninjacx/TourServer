@@ -14,7 +14,7 @@ var pool = mysql.createPool({
 
 
 // function sql(sql){
-function query(sql,callback){
+function query(sql,callback,routerRes){
   pool.getConnection(function (err, connection){
       if (err) console.log("POOL ==> " + err);
       connection.query(sql,function(err,res){
@@ -23,7 +23,10 @@ function query(sql,callback){
             // err处理？
             // callback(err,{code: 0,msg: error});
             // next(err)
-            console.log(err);
+            routerRes.json({
+              code: -1,
+              msg: err
+            })
             connection.release();
             return false;
           } else{

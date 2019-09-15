@@ -12,8 +12,8 @@ var fs = require('fs');//文件
 const uuidv5 = require('uuid/v5');
 const uuidv1 = require('uuid/v1');
 
-/*验证登录*/
-// const AuthMiddleware = require('./checklogin');
+
+const checklogin = require('./checklogin');
 
 const common = require('./common');
 const serverIp = 'http://192.168.1.33/';
@@ -26,17 +26,21 @@ router.get('/homeData',(req, res, next)=>{
 	/**select CASE (DATE_FORMAT(now(),"%y%m%d")-DATE_FORMAT(t_content.create_time,"%y%m%d"))
 WHEN 0 THEN '今天' WHEN 1 then '昨天' WHEN 2 then '前天' ELSE DATE_FORMAT(t_content.create_time,"20%y-%m-%d") END as dataTime from t_content 
  */
-	var {page}=req.query;
+	var {page,userId}=req.query;
+	// 查看用户详情中帖子传入用户ID 需要用到
+	var userId = userId?`and t_content.user_id = ${userId}`: "";
+	console.log(userId);
 	var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
 	// var offSets = ((page?page:1)- 1) * 10;
 	var contentsql = `select t_content.*,DATE_FORMAT(t_content.create_time,"%Y-%m-%d")as create_time,t_user.nick_name,icon from t_content 
-					left join t_user on t_content.user_id = t_user.id where t_content.is_del=0 limit 10 offset ${offSets}`;
+					  left join t_user on t_content.user_id = t_user.id where t_content.is_del = 0 ${userId} order by create_time limit 10 offset ${offSets}`;
+	console.log(contentsql);		
 	// 查询10条数据第N页 这样不需要查询图片表中所有数据 则增加效率
-	var contentImg = `SELECT * from t_content_image LEFT JOIN (SELECT id from t_content where is_del=0 LIMIT 10 OFFSET ${offSets}) as t_content 
-					on t_content_image.content_id = t_content.id where t_content_image.is_del=0`;
+	var contentImg = `SELECT * from t_content_image LEFT JOIN (SELECT id from t_content where is_del = 0 ${userId} order by create_time LIMIT 10 OFFSET ${offSets}) as t_content 
+					  on t_content_image.content_id = t_content.id where t_content_image.is_del=0`;
 	conf.query(contentsql,function(err,result1){
 		if(result1.length>0){
-			var list = [];
+			// var list = [];
 			conf.query(contentImg,function(err,result2){
 				// console.log(result2);
 				result1.map((item1)=>{
@@ -50,16 +54,16 @@ WHEN 0 THEN '今天' WHEN 1 then '昨天' WHEN 2 then '前天' ELSE DATE_FORMAT(
 				// return false;
 				res.json({
 					code: 200,
-					basicData: result1,
+					data: result1,
 				});
-			})
+			},res)
 		}else{
 			res.json({
 				code: -1,
 				msg: "没有数据了"
 			});
 		}
-	})
+	},res)
 });
 
 
@@ -84,16 +88,28 @@ router.get('/getPlateAll',(req, res, next)=>{
 
 
 //通用图片上传
-router.post('/uploadQNY', function(req, res, next) {
+router.get('/uploadQNY', function(req, res, next) {
 	var accessKey = 'E8sxauX_j1uhsQrJOIPI7JXqhLv5ysUxjaQcr7g_';
 	var secretKey = 'cRdesdlbE78qTlmwwdE0joQO-MViCgsVeccH2-7D';
 	var mac = new qiniu.auth.digest.Mac(accessKey, secretKey);	 
 	var options = {
-		scope: tourimg,
+		scope: "tourimg",
+		callbackUrl: 'http://192.168.1.33/QNYcallback',
 	  };
 	  var putPolicy = new qiniu.rs.PutPolicy(options);
 	  var uploadToken=putPolicy.uploadToken(mac);
+	  res.json({
+		code: 200,
+		data: uploadToken
+	})
 });
+router.get('/QNYcallback', function(req, res, next) {
+	res.json({
+		code: 200,
+		data: req.query
+	})
+});
+
 
 //通用图片上传
 router.post('/upload', function(req, res, next) {

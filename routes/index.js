@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');//post请求用
 var staticPath = require('express-static');//post请求用
 var router = express.Router();
 var app = express();
+var qiniu = require("qiniu");
 var formidable = require("formidable");
 var fs = require('fs');//文件
 const uuidv5 = require('uuid/v5');

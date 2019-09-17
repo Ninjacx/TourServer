@@ -7,6 +7,10 @@ var bodyParser = require('body-parser');//post请求用
 var staticPath = require('express-static');//post请求用
 var router = express.Router();
 var app = express();
+// const bodyParser = require('body-parser');
+app.use(bodyParser.json());//数据JSON类型
+app.use(bodyParser.urlencoded({ extended: false }));//解析post请求数据
+
 var qiniu = require("qiniu");
 var formidable = require("formidable");
 var fs = require('fs');//文件
@@ -88,14 +92,15 @@ router.get('/getPlateAll',(req, res, next)=>{
 });
 
 
-//通用图片上传
-router.get('/uploadQNY', function(req, res, next) {
+//获取七牛云凭证
+router.get('/qnyToken', function(req, res, next) {
 	var accessKey = 'E8sxauX_j1uhsQrJOIPI7JXqhLv5ysUxjaQcr7g_';
 	var secretKey = 'cRdesdlbE78qTlmwwdE0joQO-MViCgsVeccH2-7D';
 	var mac = new qiniu.auth.digest.Mac(accessKey, secretKey);	 
 	var options = {
 		scope: "tourimg",
-		callbackUrl: 'http://192.168.1.33/QNYcallback',
+		// callbackUrl: 'http://192.168.1.39/QNYcallback',
+		// callbackBody: '{"key":"$(key)","hash":"$(etag)","fsize":$(fsize),"bucket":"$(bucket)","name":"$(x:name)"}',
 	  };
 	  var putPolicy = new qiniu.rs.PutPolicy(options);
 	  var uploadToken=putPolicy.uploadToken(mac);
@@ -104,6 +109,44 @@ router.get('/uploadQNY', function(req, res, next) {
 		data: uploadToken
 	})
 });
+
+// 上传文件至千牛云
+router.post('/uploadQNY', function(req, res, next) {
+	// var uploadToken = req.body.uploadToken;
+	var form = new formidable.IncomingForm();
+	form.parse(req, function(err, params, files) {
+		// console.log(files.file.path);
+		// return false;
+		var {uploadToken} = params;
+		var config = new qiniu.conf.Config();
+		// 空间对应的机房
+		config.zone = qiniu.zone.Zone_z0;
+		// 是否使用https域名
+		//config.useHttpsDomain = true;
+		// 上传是否使用cdn加速
+		//config.useCdnDomain = true;
+		// var uploadToken = 'E8sxauX_j1uhsQrJOIPI7JXqhLv5ysUxjaQcr7g_:OoUJEk7esHu4CH3igdIRZut34wg=:eyJjYWxsYmFja1VybCI6Imh0dHA6Ly8xOTIuMTY4LjEuMzkvUU5ZY2FsbGJhY2siLCJzY29wZSI6InRvdXJpbWciLCJkZWFkbGluZSI6MTU2ODY5Mjg5OH0=';
+		var formUploader = new qiniu.form_up.FormUploader(config);
+		var putExtra = new qiniu.form_up.PutExtra();
+		// var key='test.txt';
+		// files.file.name
+		console.log(uploadToken);
+		formUploader.putFile(uploadToken, uuidv5(files.file.name, uuidv5.DNS),files.file.path, putExtra, function(respErr, respBody, respInfo) {
+			if (respErr) {
+				throw respErr;
+			}
+			if (respInfo.statusCode == 200) {
+				console.log(2000);
+				console.log(respBody);
+			} else {
+				console.log(respInfo.statusCode);
+				console.log(respBody);
+			}
+		});
+	});
+});
+
+// 上传完成回调
 router.get('/QNYcallback', function(req, res, next) {
 	res.json({
 		code: 200,

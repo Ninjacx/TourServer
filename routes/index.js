@@ -112,11 +112,29 @@ router.get('/qnyToken', function(req, res, next) {
 
 // 上传文件至千牛云
 router.post('/uploadQNY', function(req, res, next) {
+	console.log(123);
+	
 	// var uploadToken = req.body.uploadToken;
 	var form = new formidable.IncomingForm();
+	form.multiples=true;
+	var files=[];
+    //文件都将保存在files数组中
+    form.on('file', function (filed,file) {
+        files.push([filed,file]);
+	})
+	console.log(files);
 	form.parse(req, function(err, params, files) {
+		console.log(files);
+		return false;
+		for(var k=0;k<files.length;k++){
+			console.log(files[k]);
+            // var fileName=files.uuu[k].name;
+            // var fileUrl="./public/download/"+fileName.split('.')[0]+new Date().getTime()+'.'+fileName.split('.')[1];
+            // var useUrl="../../download/"+fileName.split('.')[0]+new Date().getTime()+'.'+fileName.split('.')[1];
+            // fs.renameSync(files.myfile.path,fileUrl);
+        }
+		return false;
 		// console.log(files.file.path);
-		// return false;
 		var {uploadToken} = params;
 		var config = new qiniu.conf.Config();
 		// 空间对应的机房

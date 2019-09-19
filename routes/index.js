@@ -125,15 +125,16 @@ router.post('/uploadQNY', function(req, res, next) {
 	console.log(files);
 	form.parse(req, function(err, params, files) {
 		console.log(files);
-		return false;
-		for(var k=0;k<files.length;k++){
-			console.log(files[k]);
+		// console.log(files);
+		// return false;
+		// for(var k=0;k<files.length;k++){
+		// 	console.log(files[k]);
             // var fileName=files.uuu[k].name;
             // var fileUrl="./public/download/"+fileName.split('.')[0]+new Date().getTime()+'.'+fileName.split('.')[1];
             // var useUrl="../../download/"+fileName.split('.')[0]+new Date().getTime()+'.'+fileName.split('.')[1];
             // fs.renameSync(files.myfile.path,fileUrl);
-        }
-		return false;
+        // }
+		// return false;
 		// console.log(files.file.path);
 		var {uploadToken} = params;
 		var config = new qiniu.conf.Config();
@@ -149,18 +150,24 @@ router.post('/uploadQNY', function(req, res, next) {
 		// var key='test.txt';
 		// files.file.name
 		console.log(uploadToken);
-		formUploader.putFile(uploadToken, uuidv5(files.file.name, uuidv5.DNS),files.file.path, putExtra, function(respErr, respBody, respInfo) {
-			if (respErr) {
-				throw respErr;
-			}
-			if (respInfo.statusCode == 200) {
-				console.log(2000);
-				console.log(respBody);
-			} else {
-				console.log(respInfo.statusCode);
-				console.log(respBody);
-			}
-		});
+		for(var fileObj in files){
+			// console.log(files[fileObj].name);
+			// files.file.name, uuidv5.DNS),files.file.path
+			formUploader.putFile(uploadToken, uuidv5(files[fileObj].name, uuidv5.DNS),files[fileObj].path, putExtra, function(respErr, respBody, respInfo) {
+				if (respErr) {
+					throw respErr;
+				}
+				if (respInfo.statusCode == 200) {
+					console.log(2000);
+					console.log(respBody);
+				} else {
+					console.log(respInfo.statusCode);
+					console.log(respBody);
+				}
+			});
+		}
+	 
+		
 	});
 });
 

@@ -21,7 +21,7 @@ const uuidv1 = require('uuid/v1');
 const checklogin = require('./checklogin');
 
 const common = require('./common');
-const serverIp = 'http://192.168.1.33/';
+const serverIp = 'http://192.168.1.39/';
 
 
 /** Tour - API */
@@ -112,19 +112,17 @@ router.get('/qnyToken', function(req, res, next) {
 
 // 上传文件至千牛云
 router.post('/uploadQNY', function(req, res, next) {
-	console.log(123);
-	
 	// var uploadToken = req.body.uploadToken;
 	var form = new formidable.IncomingForm();
 	form.multiples=true;
 	var files=[];
     //文件都将保存在files数组中
-    form.on('file', function (filed,file) {
-        files.push([filed,file]);
-	})
-	console.log(files);
+    // form.on('file', function (filed,file) {
+    //     files.push([filed,file]);
+	// })
+	// console.log(files);
 	form.parse(req, function(err, params, files) {
-		console.log(files);
+		// console.log(files);
 		// console.log(files);
 		// return false;
 		// for(var k=0;k<files.length;k++){
@@ -136,7 +134,10 @@ router.post('/uploadQNY', function(req, res, next) {
         // }
 		// return false;
 		// console.log(files.file.path);
-		var {uploadToken} = params;
+		var {uploadToken,fileArr} = params;
+		console.log(uploadToken);
+		// console.log();
+		// return false;
 		var config = new qiniu.conf.Config();
 		// 空间对应的机房
 		config.zone = qiniu.zone.Zone_z0;
@@ -152,7 +153,9 @@ router.post('/uploadQNY', function(req, res, next) {
 		console.log(uploadToken);
 		for(var fileObj in files){
 			// console.log(files[fileObj].name);
-			// files.file.name, uuidv5.DNS),files.file.path
+			// files.file.name, uuidv5.DNS),files.file.path  
+			// JSON.parse(fileArr)[0].Picture[0].uri
+			console.log(files[fileObj].path);
 			formUploader.putFile(uploadToken, uuidv5(files[fileObj].name, uuidv5.DNS),files[fileObj].path, putExtra, function(respErr, respBody, respInfo) {
 				if (respErr) {
 					throw respErr;
@@ -223,9 +226,6 @@ router.post('/upload', function(req, res, next) {
     });
 });
 
-router.get('/register', function(req, res, next) {
-	res.render('pc/register',{ hidden: 1});
-});
 // 用户登录接口 保存进session 前台获取保存 对比
 router.post('/login', function(req, res, next) {
   var {account,password}=req.body;
@@ -258,121 +258,7 @@ router.post('/logout', function(req, res, next) {
 	// location.reload();
 	res.redirect(req.session.page);
 })
-//获取订单信息
-router.get('/GetOrder',(req, res, next)=>{
 
-	var {id} = req.query;
-	// 提交订单
-	var Order = `select t_goods.title,t_size_accessories.size_name,t_goodssize_price.url,t_order.amount,t_order.createtime,t_goodssize_price.price,t_order_details.count from t_order
-						left join t_order_details on t_order.id = t_order_details.order_id
-						left join t_goodssize_price on t_goodssize_price.id = t_order_details.SizePrice_id
-						left join t_goods on t_goods.id = t_goodssize_price.goods_id
-						left join t_size_accessories on t_size_accessories.id = t_goodssize_price.size_id
-						where t_order.id in(${id})`;
-		 conf.query(Order,function(err,result){
-			if(result!=''&&result){
-				 res.json(result);
-			}
-		});
-
-});
-//获取订单列表
-router.get('/GetOrderList',(req, res, next)=>{
-	var  {uid,status} = req.query;
-	if(uid!=undefined&&status!=undefined){
-		var orderList = `SELECT * from t_order WHERE uid = ${uid}  and status = ${status}`;
-
-	// 提交订单
-	var orderDetailList = `select t_goods.title,t_size_accessories.size_name,t_goodssize_price.url,t_order.amount,t_order.createtime,t_goodssize_price.price,t_order_details.count,t_order_details.order_id from t_order
-						left join t_order_details on t_order.id = t_order_details.order_id
-						left join t_goodssize_price on t_goodssize_price.id = t_order_details.SizePrice_id
-						left join t_goods on t_goods.id = t_goodssize_price.goods_id
-						left join t_size_accessories on t_size_accessories.id = t_goodssize_price.size_id
-						where t_order.uid = ${uid} and status = ${status} order by t_order.createtime desc`;
-
-			   let oList = conf.quertPromise(orderList);
-			   let oDetailList = conf.quertPromise(orderDetailList);
-
-				var promise = Promise.all([oList,oDetailList]);//oList:res1,oDetailList:res2
-					promise.then(function([resOrder,resDetailOrder]) {
-						res.json({oList:resOrder,oDetailList:resDetailOrder});
-				}).catch(function(err) {
-					res.json(err);
-				  // ...
-				  //定义错误页面
-				});
-	}else{
-		res.json(-1);
-	}
-
-
-		/*conf.query(InsertOrder,function(err,result){
-			if(result!=''&&result){
-					res.json(result)
-			}
-      });*/
-});
-
-//提交订单
-router.get('/SetOrder',(req, res, next)=>{
-	var orderList = '';
-	if(req.query.orderList!=undefined&&req.query.orderList!=''){
-		 orderList = JSON.parse(req.query.orderList);
-	}
-	var {uid,count,id,amount} = req.query; //count,id,
-	// 是否添加过此商品到购物车 if(result!=''&&result){
-	//var isHave_Size=`select *from t_shop_car where uid = ${uid} and SizePrice_id = ${id} limit 1`;
-	// 提交订单
-	var InsertOrder = `INSERT INTO t_order(uid,amount,createtime)VALUES(${uid},${amount},now())`;
-		conf.query(InsertOrder,function(err,result){
-		 if(result!=''&&result){
-		   // 提交为购物车
-		   if(orderList.length){
-			orderList.forEach(function(item){
-			 let removeCarList = `UPDATE t_shop_car SET status = 1 WHERE id = ${item.car_id}`;	//清除购物车
-			 let InsertOrderList = `INSERT INTO t_order_details(SizePrice_id,order_id,count)VALUES(${item.id},${result.insertId},${item.count})`;
-			 let remove_CarList = conf.quertPromise(removeCarList);
-			 let Insert_OrderList = conf.quertPromise(InsertOrderList);
-
-				//var promise =
-				Promise.all([remove_CarList,Insert_OrderList]);
-				/*conf.query(InsertOrderList,function(err,resDs){
-					if(err){
-						res.json(err)
-					}
-				})*/
-			})
-				res.json(result);
-			}else{
-				// 单个产品
-				var InsertOrderDs = `INSERT INTO t_order_details(SizePrice_id,order_id,count)VALUES(${id},${result.insertId},${count})`;
-				conf.query(InsertOrderDs,function(err,resDs){
-					res.json(result);
-				})
-			}
-
-		 }
-      });
-});
-
-router.get('/pay', function(req, res, next) {
-    var url=  ali.webPay({
-        body: "ttt",
-        subject: "ttt1",
-        outTradeId: "201503200101010222",
-        timeout: '90m',
-        amount: "0.1",
-        sellerId: '',
-        product_code: 'FAST_INSTANT_TRADE_PAY',
-        goods_type: "1",
-        return_url:"127.0.0.1:300",
-    })
-
-    var url_API = 'https://openapi.alipay.com/gateway.do?'+url;
-    res.json({url:url_API})
-});
-
- 
 
 router.get('/', function(req, res, next) {
 	var deviceAgent = req.headers["user-agent"].toLowerCase();

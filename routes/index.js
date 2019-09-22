@@ -110,34 +110,60 @@ router.get('/qnyToken', function(req, res, next) {
 	})
 });
 
-// 上传文件至千牛云
+// 上传文件至千牛云 https://segmentfault.com/a/1190000005364299 base64
 router.post('/uploadQNY', function(req, res, next) {
-	// var uploadToken = req.body.uploadToken;
-	var form = new formidable.IncomingForm();
-	form.multiples=true;
-	var files=[];
-    //文件都将保存在files数组中
-    // form.on('file', function (filed,file) {
-    //     files.push([filed,file]);
-	// })
-	// console.log(files);
-	form.parse(req, function(err, params, files) {
-		// console.log(files);
-		// console.log(files);
+		// console.log(req.body);
 		// return false;
-		// for(var k=0;k<files.length;k++){
-		// 	console.log(files[k]);
-            // var fileName=files.uuu[k].name;
-            // var fileUrl="./public/download/"+fileName.split('.')[0]+new Date().getTime()+'.'+fileName.split('.')[1];
-            // var useUrl="../../download/"+fileName.split('.')[0]+new Date().getTime()+'.'+fileName.split('.')[1];
-            // fs.renameSync(files.myfile.path,fileUrl);
-        // }
+		// 思路： 1.插入帖子表，2.插入内容表后把ID 返回原数据集合中的内容，3. 上传图片回调的时候 找出对应内容相等的key 后 取出内容ID 保存进表
+		// var uploadToken = req.body.uploadToken;
+		var form = new formidable.IncomingForm();
+		form.multiples=true;
+		form.uploadDir = "./public/upload/content";
+		form.parse(req, function(err, params, files) {
+		
+		// console.log(files);
+		console.log(params);
 		// return false;
-		// console.log(files.file.path);
-		var {uploadToken,fileArr} = params;
-		console.log(uploadToken);
+		var {uploadToken,title,fileArr,TextArr,ImgTextId} = params;
+		var TextArr = JSON.parse(TextArr);
+		var addContentSql = `insert into t_content(title)values("${title}")`;
+		// 1.先插入一条帖子表数据返回帖子ID
+		conf.query(addContentSql,function(error,result){
+			// result.insertId
+		},res);
+		// console.log(TextArr);
+		// 内容List
+		 new Promise((resolve, reject) => {
+			TextArr.map((txt,txtIndex)=>{
+				var textImageSql = `insert into t_content_textimage(image_content)values("${txt.content}")`;
+				conf.query(textImageSql,function(error,result){
+					// console.log(`${txtIndex}-${result.insertId}`);
+						// console.log(TextArr.length);
+						// if(txtIndex == TextArr.length-1){
+							resolve(TextArr);
+						// }else{
+							TextArr[txtIndex].txtImgId = result.insertId;
+						// }
+				},res);
+			});
+		}).then((result)=>{
+			console.log(`-------`)
+			console.log(result);
+			console.log(`-------`)
+		})
+		
+		// console.log(newTxtArr);
+		return false;
+		// console.log(fileArr);
+		// 	fileArr.map((item)=>{
+		// 		conf.query('insert into t_content(title)values("${title}"),("${title}B")',function(error,result){})
+		// 	})
+		// 	// Result.insertId
+		// 	// 循环fileArr content
+		// return false;
+		// console.log(uploadToken);
 		// console.log();
-		// return false;
+		return false;
 		var config = new qiniu.conf.Config();
 		// 空间对应的机房
 		config.zone = qiniu.zone.Zone_z0;
@@ -150,13 +176,14 @@ router.post('/uploadQNY', function(req, res, next) {
 		var putExtra = new qiniu.form_up.PutExtra();
 		// var key='test.txt';
 		// files.file.name
-		console.log(uploadToken);
+		// console.log(uploadToken);
 		for(var fileObj in files){
 			// console.log(files[fileObj].name);
 			// files.file.name, uuidv5.DNS),files.file.path  
 			// JSON.parse(fileArr)[0].Picture[0].uri
-			console.log(files[fileObj].path);
-			formUploader.putFile(uploadToken, uuidv5(files[fileObj].name, uuidv5.DNS),files[fileObj].path, putExtra, function(respErr, respBody, respInfo) {
+			// console.log(files[fileObj].path);
+			// uuidv1 与contentId 要对应 想一下？
+			formUploader.putFile(uploadToken, uuidv1(),files[fileObj].path, putExtra, function(respErr, respBody, respInfo) {
 				if (respErr) {
 					throw respErr;
 				}

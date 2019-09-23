@@ -119,51 +119,31 @@ router.post('/uploadQNY', function(req, res, next) {
 		var form = new formidable.IncomingForm();
 		form.multiples=true;
 		form.uploadDir = "./public/upload/content";
-		form.parse(req, function(err, params, files) {
-		
-		// console.log(files);
-		console.log(params);
+	form.parse(req,async function(err, params, files) {
+		// console.log(params);
 		// return false;
 		var {uploadToken,title,fileArr,TextArr,ImgTextId} = params;
 		var TextArr = JSON.parse(TextArr);
+		var ImgTextId = JSON.parse(ImgTextId);
+		
 		var addContentSql = `insert into t_content(title)values("${title}")`;
 		// 1.先插入一条帖子表数据返回帖子ID
 		conf.query(addContentSql,function(error,result){
 			// result.insertId
 		},res);
-		// console.log(TextArr);
 		// 内容List
-		 new Promise((resolve, reject) => {
-			TextArr.map((txt,txtIndex)=>{
-				var textImageSql = `insert into t_content_textimage(image_content)values("${txt.content}")`;
+		 const InsertId = data => new Promise((resolve, reject) => {
+				var textImageSql = `insert into t_content_textimage(image_content)values("${data}")`;
 				conf.query(textImageSql,function(error,result){
-					// console.log(`${txtIndex}-${result.insertId}`);
-						// console.log(TextArr.length);
-						// if(txtIndex == TextArr.length-1){
-							resolve(TextArr);
-						// }else{
-							TextArr[txtIndex].txtImgId = result.insertId;
-						// }
+							resolve(result.insertId);
 				},res);
-			});
-		}).then((result)=>{
-			console.log(`-------`)
-			console.log(result);
-			console.log(`-------`)
-		})
-		
-		// console.log(newTxtArr);
-		return false;
-		// console.log(fileArr);
-		// 	fileArr.map((item)=>{
-		// 		conf.query('insert into t_content(title)values("${title}"),("${title}B")',function(error,result){})
-		// 	})
-		// 	// Result.insertId
-		// 	// 循环fileArr content
-		// return false;
-		// console.log(uploadToken);
-		// console.log();
-		return false;
+		 });
+		for (let index = 0; index < TextArr.length; index++) {
+			TextArr[index].txtImgId =  await InsertId(TextArr[index].content);
+		}
+
+			// 内容对应 数据库内容ID
+			// console.log(TextArr); txtImgId:
 		var config = new qiniu.conf.Config();
 		// 空间对应的机房
 		config.zone = qiniu.zone.Zone_z0;
@@ -176,19 +156,36 @@ router.post('/uploadQNY', function(req, res, next) {
 		var putExtra = new qiniu.form_up.PutExtra();
 		// var key='test.txt';
 		// files.file.name
-		// console.log(uploadToken);
-		for(var fileObj in files){
-			// console.log(files[fileObj].name);
-			// files.file.name, uuidv5.DNS),files.file.path  
-			// JSON.parse(fileArr)[0].Picture[0].uri
-			// console.log(files[fileObj].path);
-			// uuidv1 与contentId 要对应 想一下？
-			formUploader.putFile(uploadToken, uuidv1(),files[fileObj].path, putExtra, function(respErr, respBody, respInfo) {
+		// console.log();
+		// return false
+
+		var insertStr = '';
+		console.log(TextArr);
+		// return false;
+		for (let index = 0; index < files.file.length; index++) {
+			var fileName = uuidv1();
+			//  关联图片是属于哪条内容的ID
+			for (let j = 0; j < TextArr.length; j++) {
+				if(ImgTextId[index] == j){
+					console.log(TextArr[j].txtImgId);
+					insertStr+=`("pxpj5ppl8.bkt.clouddn.com/${fileName}","${TextArr[j].txtImgId}"),`;
+				}
+			}
+			
+			// console.log(`-----${ImgTextId[index]}-----`);
+			// 保存上传图片路径
+			// insert into t_content_image(image_url,content_text_id)values("1","1"),("2","2")
+			
+
+			// console.log(files.file[index]);
+
+			formUploader.putFile(uploadToken, fileName, files.file[index].path, putExtra, function(respErr, respBody, respInfo) {
 				if (respErr) {
 					throw respErr;
 				}
 				if (respInfo.statusCode == 200) {
 					console.log(2000);
+					
 					console.log(respBody);
 				} else {
 					console.log(respInfo.statusCode);
@@ -196,6 +193,33 @@ router.post('/uploadQNY', function(req, res, next) {
 				}
 			});
 		}
+		console.log(insertStr);
+		var insetImg = `insert into t_content_image(image_url,content_text_id)values("1","3"),("2","3")`;
+			conf.query(insetImg,function(error,result){
+				console.log(result);
+			},res);
+		return false;
+
+		// for(var fileObj in files.file){
+		// 	console.log(fileObj);
+			// console.log(files[fileObj].name);
+			// files.file.name, uuidv5.DNS),files.file.path  
+			// JSON.parse(fileArr)[0].Picture[0].uri
+			// console.log(files[fileObj].path);
+			// uuidv1 与contentId 要对应 想一下？
+				// formUploader.putFile(uploadToken, uuidv1(),files[fileObj].path, putExtra, function(respErr, respBody, respInfo) {
+				// 	if (respErr) {
+				// 		throw respErr;
+				// 	}
+				// 	if (respInfo.statusCode == 200) {
+				// 		console.log(2000);
+				// 		console.log(respBody);
+				// 	} else {
+				// 		console.log(respInfo.statusCode);
+				// 		console.log(respBody);
+				// 	}
+				// });
+		// }
 	 
 		
 	});

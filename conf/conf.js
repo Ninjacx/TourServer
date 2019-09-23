@@ -18,7 +18,6 @@ function query(sql,callback,routerRes){
   pool.getConnection(function (err, connection){
       if (err) console.log("POOL ==> " + err);
       connection.query(sql,function(err,res){
-        
           if (err){
             // err处理？
             // callback(err,{code: 0,msg: error});
@@ -37,6 +36,28 @@ function query(sql,callback,routerRes){
   });
 }
 
+// function sql(sql){
+  function queryPromise(sql,callback,routerRes){
+    return new Promise((resolve, reject) => {
+      pool.getConnection(function (err, connection){
+          if (err) console.log("POOL ==> " + err);
+          connection.query(sql,function(err,res){
+              if (err){
+                routerRes.json({
+                  code: -1,
+                  msg: err
+                })
+                connection.release();
+                return false;
+              } else{
+                resolve(res);
+              }
+              connection.release();
+          });
+      });
+    })
+  }
+
 //执行多条sql promise
 function quertPromise(sql){
   return new Promise((resolve, reject) => {
@@ -47,6 +68,9 @@ function quertPromise(sql){
            resolve(result);
          });
   });
+  // .then(返回值=>{
+    //这里接着写
+    // })
 }
 /*
 var selectSQL = 'select * from t_goods limit 4';

@@ -135,9 +135,10 @@ router.post('/uploadQNY', function(req, res, next) {
 		 const InsertId = data => new Promise((resolve, reject) => {
 				var textImageSql = `insert into t_content_textimage(image_content)values("${data}")`;
 				conf.query(textImageSql,function(error,result){
-							resolve(result.insertId);
+					resolve(result.insertId);
 				},res);
 		 });
+		// 执行插入 内容数据至表并返回内容ID 
 		for (let index = 0; index < TextArr.length; index++) {
 			TextArr[index].txtImgId =  await InsertId(TextArr[index].content);
 		}
@@ -179,6 +180,7 @@ router.post('/uploadQNY', function(req, res, next) {
 
 			// console.log(files.file[index]);
 
+			// 上传到七牛云
 			formUploader.putFile(uploadToken, fileName, files.file[index].path, putExtra, function(respErr, respBody, respInfo) {
 				if (respErr) {
 					throw respErr;
@@ -192,9 +194,13 @@ router.post('/uploadQNY', function(req, res, next) {
 					console.log(respBody);
 				}
 			});
+			// 放开 end
 		}
-		console.log(insertStr);
-		var insetImg = `insert into t_content_image(image_url,content_text_id)values("1","3"),("2","3")`;
+		// 去除拼接字符串最后一个逗号 执行insert
+		insertStr = insertStr.slice(0,insertStr.length-1);
+		
+		
+		var insetImg = `insert into t_content_image(image_url,content_text_id)values${insertStr}`;
 			conf.query(insetImg,function(error,result){
 				console.log(result);
 			},res);

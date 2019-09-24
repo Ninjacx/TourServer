@@ -119,7 +119,7 @@ router.post('/uploadQNY', function(req, res, next) {
 		var form = new formidable.IncomingForm();
 		form.multiples=true;
 		form.uploadDir = "./public/upload/content";
-	form.parse(req,async function(err, params, files) {
+	form.parse(req, function(err, params, files) {
 		// console.log(params);
 		// return false;
 		var {uploadToken,title,fileArr,TextArr,ImgTextId} = params;
@@ -128,106 +128,73 @@ router.post('/uploadQNY', function(req, res, next) {
 		
 		var addContentSql = `insert into t_content(title)values("${title}")`;
 		// 1.先插入一条帖子表数据返回帖子ID
-		conf.query(addContentSql,function(error,result){
-			// result.insertId
-		},res);
+
+		 new Promise((resolve, reject)=>{
+			conf.query(addContentSql,function(error,result){
+				resolve(result.insertId)
+			},res);
+		 }).then(async (contentId)=>{
+
+			console.log(`contentId${contentId}`);
+			// 执行插入 内容数据至表并返回内容ID 
+			for (let index = 0; index < TextArr.length; index++) {
+				TextArr[index].txtImgId =  await InsertId(TextArr[index].content,contentId);
+			}
+
+			// 内容对应 数据库内容ID
+			var config = new qiniu.conf.Config();
+			// 空间对应的机房
+			config.zone = qiniu.zone.Zone_z0;
+			// 是否使用https域名
+			//config.useHttpsDomain = true;
+			// 上传是否使用cdn加速
+			//config.useCdnDomain = true;
+			// var uploadToken = 'E8sxauX_j1uhsQrJOIPI7JXqhLv5ysUxjaQcr7g_:OoUJEk7esHu4CH3igdIRZut34wg=:eyJjYWxsYmFja1VybCI6Imh0dHA6Ly8xOTIuMTY4LjEuMzkvUU5ZY2FsbGJhY2siLCJzY29wZSI6InRvdXJpbWciLCJkZWFkbGluZSI6MTU2ODY5Mjg5OH0=';
+			var formUploader = new qiniu.form_up.FormUploader(config);
+			var putExtra = new qiniu.form_up.PutExtra();
+			var insertStr = '';
+			// console.log(TextArr);
+			// return false;
+			// 循环上传图片
+			for (let index = 0; index < files.file.length; index++) {
+				var fileName = uuidv1();
+				//  关联图片是属于哪条内容的ID
+					for (let j = 0; j < TextArr.length; j++) {
+						if(ImgTextId[index] == j){
+							console.log(TextArr[j].txtImgId);
+							insertStr+=`("pxpj5ppl8.bkt.clouddn.com/${fileName}","${TextArr[j].txtImgId}"),`;
+						}
+					}
+					// 上传到七牛云
+					formUploader.putFile(uploadToken, fileName, files.file[index].path, putExtra, function(respErr, respBody, respInfo) {
+						if (respErr) {
+							throw respErr;
+						}
+						if (respInfo.statusCode == 200) {
+							console.log(2000);
+							console.log(respBody);
+						} else {
+							console.log(respInfo.statusCode);
+							console.log(respBody);
+						}
+					});
+				// 放开 end
+				}
+				// 去除拼接字符串最后一个逗号 执行insert
+				insertStr = insertStr.slice(0,insertStr.length-1);
+				
+				var insetImg = `insert into t_content_image(image_url,content_text_id)values${insertStr}`;
+				conf.query(insetImg,function(error,result){
+					console.log(result);
+				},res);
+		 })
 		// 内容List
-		 const InsertId = data => new Promise((resolve, reject) => {
-				var textImageSql = `insert into t_content_textimage(image_content)values("${data}")`;
+		 const InsertId = (data,contentId) => new Promise((resolve, reject) => {
+				var textImageSql = `insert into t_content_textimage(image_content,content_id)values("${data}","${contentId}")`;
 				conf.query(textImageSql,function(error,result){
 					resolve(result.insertId);
 				},res);
 		 });
-		// 执行插入 内容数据至表并返回内容ID 
-		for (let index = 0; index < TextArr.length; index++) {
-			TextArr[index].txtImgId =  await InsertId(TextArr[index].content);
-		}
-
-			// 内容对应 数据库内容ID
-			// console.log(TextArr); txtImgId:
-		var config = new qiniu.conf.Config();
-		// 空间对应的机房
-		config.zone = qiniu.zone.Zone_z0;
-		// 是否使用https域名
-		//config.useHttpsDomain = true;
-		// 上传是否使用cdn加速
-		//config.useCdnDomain = true;
-		// var uploadToken = 'E8sxauX_j1uhsQrJOIPI7JXqhLv5ysUxjaQcr7g_:OoUJEk7esHu4CH3igdIRZut34wg=:eyJjYWxsYmFja1VybCI6Imh0dHA6Ly8xOTIuMTY4LjEuMzkvUU5ZY2FsbGJhY2siLCJzY29wZSI6InRvdXJpbWciLCJkZWFkbGluZSI6MTU2ODY5Mjg5OH0=';
-		var formUploader = new qiniu.form_up.FormUploader(config);
-		var putExtra = new qiniu.form_up.PutExtra();
-		// var key='test.txt';
-		// files.file.name
-		// console.log();
-		// return false
-
-		var insertStr = '';
-		console.log(TextArr);
-		// return false;
-		for (let index = 0; index < files.file.length; index++) {
-			var fileName = uuidv1();
-			//  关联图片是属于哪条内容的ID
-			for (let j = 0; j < TextArr.length; j++) {
-				if(ImgTextId[index] == j){
-					console.log(TextArr[j].txtImgId);
-					insertStr+=`("pxpj5ppl8.bkt.clouddn.com/${fileName}","${TextArr[j].txtImgId}"),`;
-				}
-			}
-			
-			// console.log(`-----${ImgTextId[index]}-----`);
-			// 保存上传图片路径
-			// insert into t_content_image(image_url,content_text_id)values("1","1"),("2","2")
-			
-
-			// console.log(files.file[index]);
-
-			// 上传到七牛云
-			formUploader.putFile(uploadToken, fileName, files.file[index].path, putExtra, function(respErr, respBody, respInfo) {
-				if (respErr) {
-					throw respErr;
-				}
-				if (respInfo.statusCode == 200) {
-					console.log(2000);
-					
-					console.log(respBody);
-				} else {
-					console.log(respInfo.statusCode);
-					console.log(respBody);
-				}
-			});
-			// 放开 end
-		}
-		// 去除拼接字符串最后一个逗号 执行insert
-		insertStr = insertStr.slice(0,insertStr.length-1);
-		
-		
-		var insetImg = `insert into t_content_image(image_url,content_text_id)values${insertStr}`;
-			conf.query(insetImg,function(error,result){
-				console.log(result);
-			},res);
-		return false;
-
-		// for(var fileObj in files.file){
-		// 	console.log(fileObj);
-			// console.log(files[fileObj].name);
-			// files.file.name, uuidv5.DNS),files.file.path  
-			// JSON.parse(fileArr)[0].Picture[0].uri
-			// console.log(files[fileObj].path);
-			// uuidv1 与contentId 要对应 想一下？
-				// formUploader.putFile(uploadToken, uuidv1(),files[fileObj].path, putExtra, function(respErr, respBody, respInfo) {
-				// 	if (respErr) {
-				// 		throw respErr;
-				// 	}
-				// 	if (respInfo.statusCode == 200) {
-				// 		console.log(2000);
-				// 		console.log(respBody);
-				// 	} else {
-				// 		console.log(respInfo.statusCode);
-				// 		console.log(respBody);
-				// 	}
-				// });
-		// }
-	 
-		
 	});
 });
 

@@ -162,7 +162,7 @@ router.post('/uploadQNY', function(req, res, next) {
 					for (let j = 0; j < TextArr.length; j++) {
 						if(ImgTextId[index] == j){
 							console.log(TextArr[j].txtImgId);
-							insertStr+=`("pxpj5ppl8.bkt.clouddn.com/${fileName}","${TextArr[j].txtImgId}"),`;
+							insertStr+=`("pxpj5ppl8.bkt.clouddn.com/${fileName}","${TextArr[j].txtImgId}","${contentId}"),`;
 						}
 					}
 					// 上传到七牛云
@@ -183,14 +183,14 @@ router.post('/uploadQNY', function(req, res, next) {
 				// 去除拼接字符串最后一个逗号 执行insert
 				insertStr = insertStr.slice(0,insertStr.length-1);
 				
-				var insetImg = `insert into t_content_image(image_url,content_text_id)values${insertStr}`;
+				var insetImg = `insert into t_content_image(image_url,content_text_id,content_id)values${insertStr}`;
 				conf.query(insetImg,function(error,result){
 					console.log(result);
 				},res);
 		 })
 		// 内容List
 		 const InsertId = (data,contentId) => new Promise((resolve, reject) => {
-				var textImageSql = `insert into t_content_textimage(image_content,content_id)values("${data}","${contentId}")`;
+				var textImageSql = `insert into t_content_text(image_content,content_id)values("${data}","${contentId}")`;
 				conf.query(textImageSql,function(error,result){
 					resolve(result.insertId);
 				},res);

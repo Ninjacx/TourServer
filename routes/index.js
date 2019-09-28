@@ -1,6 +1,7 @@
 var express = require('express');
 var conf = require('../conf/conf');
 var url = require('url');
+var path=require('path'); 
 // const fs = require('fs');//文件
 // const multer = require('multer')({ dest: 'www/upload' });
 var bodyParser = require('body-parser');//post请求用
@@ -21,7 +22,7 @@ const uuidv1 = require('uuid/v1');
 const checklogin = require('./checklogin');
 
 const common = require('./common');
-const serverIp = 'http://192.168.1.39/';
+const serverIp = 'http://localhost/';//'http://192.168.1.33/';
 
 
 /** Tour - API */
@@ -122,7 +123,8 @@ router.post('/uploadQNY', function(req, res, next) {
 	form.parse(req, function(err, params, files) {
 		// console.log(params);
 		// return false;
-		var {uploadToken,title,fileArr,TextArr,ImgTextId} = params;
+		// fileArr
+		var {uploadToken,title,TextArr,ImgTextId} = params;
 		var TextArr = JSON.parse(TextArr);
 		var ImgTextId = JSON.parse(ImgTextId);
 		
@@ -134,13 +136,11 @@ router.post('/uploadQNY', function(req, res, next) {
 				resolve(result.insertId)
 			},res);
 		 }).then(async (contentId)=>{
-
 			console.log(`contentId${contentId}`);
 			// 执行插入 内容数据至表并返回内容ID 
 			for (let index = 0; index < TextArr.length; index++) {
 				TextArr[index].txtImgId =  await InsertId(TextArr[index].content,contentId);
 			}
-
 			// 内容对应 数据库内容ID
 			var config = new qiniu.conf.Config();
 			// 空间对应的机房
@@ -157,16 +157,21 @@ router.post('/uploadQNY', function(req, res, next) {
 			// return false;
 			// 循环上传图片
 			for (let index = 0; index < files.file.length; index++) {
+				
+				var imagePath = path.extname(files.file[index].name);	 
+				// console.log(imagePath);
 				var fileName = uuidv1();
 				//  关联图片是属于哪条内容的ID
 					for (let j = 0; j < TextArr.length; j++) {
 						if(ImgTextId[index] == j){
 							console.log(TextArr[j].txtImgId);
-							insertStr+=`("pxpj5ppl8.bkt.clouddn.com/${fileName}","${TextArr[j].txtImgId}","${contentId}"),`;
+							insertStr+=`("http://pxpj5ppl8.bkt.clouddn.com/${fileName}${imagePath}","${TextArr[j].txtImgId}","${contentId}"),`;
 						}
 					}
 					// 上传到七牛云
-					formUploader.putFile(uploadToken, fileName, files.file[index].path, putExtra, function(respErr, respBody, respInfo) {
+					// console.log(fileName+imagePath);
+					// return false;
+					formUploader.putFile(uploadToken, fileName+imagePath, files.file[index].path, putExtra, function(respErr, respBody, respInfo) {
 						if (respErr) {
 							throw respErr;
 						}

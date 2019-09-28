@@ -172,7 +172,13 @@ router.get('/getContentDetetail',(req, res, next)=>{
       from t_content 
         left join t_plate_second on t_content.plateSeconde_id = t_plate_second.id
         left join t_user on t_user.id = t_content.user_id where t_content.id = ${id} and t_content.is_del = 0`;
+
+
+    // 图片内容
+    var selectText = `select id,image_content from t_content_text where  content_id = ${id} and is_del = 0 `;
+    // 图片集合    
     var selectForumImg = `select image_url from t_content_image where content_id = ${id} and is_del = 0`;
+
     var selectSupport = `select t_user.nick_name from t_support left join t_content on t_support.content_id = t_content.id and t_support.is_del = 0 left join t_user on t_support.user_id = t_user.id where t_support.content_id = ${id} and t_support.is_support = 1 order by update_time desc`;
     var selectuserIsSupport = `select t_support.is_support from t_support left join t_user on t_support.user_id = t_user.id 
         where t_support.content_id = ${id} and t_user.token  = "${token}"`;
@@ -184,15 +190,18 @@ router.get('/getContentDetetail',(req, res, next)=>{
 
     // 点赞用户显示
     var sqlforum = conf.quertPromise(selectForum);
+    
+    var sqlText = conf.quertPromise(selectText);
     var sqlforumImg = conf.quertPromise(selectForumImg);
     // var sqlComment = conf.quertPromise(selectComment);
     var sqlSupport = conf.quertPromise(selectSupport);
     var sqlUserIsSupport = conf.quertPromise(selectuserIsSupport);
     var sqlUserIsFocus = conf.quertPromise(selectIsFocus);
 
-    var promise = Promise.all([sqlforum,sqlforumImg,sqlSupport,sqlUserIsSupport,sqlUserIsFocus]);//sqlComment
+    var promise = Promise.all([sqlforum,sqlText,sqlforumImg,sqlSupport,sqlUserIsSupport,sqlUserIsFocus]);//sqlComment
 
-    promise.then(function([resforum,resforumImg,resSupport,resUserIsSupport,resUserIsFocus]) { //resComment
+    promise.then(function([resforum,resText,resforumImg,resSupport,resUserIsSupport,resUserIsFocus]) { //resComment
+      console.log(resText);
       res.json({
             code: 200,
             data: {

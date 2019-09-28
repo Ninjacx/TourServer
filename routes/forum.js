@@ -201,7 +201,15 @@ router.get('/getContentDetetail',(req, res, next)=>{
     var promise = Promise.all([sqlforum,sqlText,sqlforumImg,sqlSupport,sqlUserIsSupport,sqlUserIsFocus]);//sqlComment
 
     promise.then(function([resforum,resText,resforumImg,resSupport,resUserIsSupport,resUserIsFocus]) { //resComment
+
       console.log(resText);
+
+      // 内容中包图片集合调整
+      resText.map((item)=>{
+        resforumImg.map((item2)=>{
+
+        })
+      })
       res.json({
             code: 200,
             data: {

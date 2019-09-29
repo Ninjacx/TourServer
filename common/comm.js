@@ -5,7 +5,7 @@
 
 // exports.RRD=RRD;
 const Tools = {
-    isError: function(err,res,data){
+    isError: function(err,res,data) {
        if(err){
           res.json({ code: -1,msg: "请稍后再试"} );
        }else{

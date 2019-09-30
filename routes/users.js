@@ -20,7 +20,7 @@ router.get('/isLogin', function(req, res, next) {
         }else{
           res.json({code: -2,msg: "请重新登录"});
         }
-    });
+    },res);
 });
 
 /**用户账号登录*/
@@ -79,8 +79,8 @@ router.post('/login', function(req, res, next) {
                    conf.query(userSql,function(err,NewResult){
                     console.log(NewResult);
                     res.json({code: 200,data: NewResult[0],msg: isCreateSqlRes.insertId>0?'注册成功':"登录成功"});
-                  });
-              })
+                  },res);
+              },res)
           }else if(state == 2){
             //
           }else{
@@ -90,7 +90,7 @@ router.post('/login', function(req, res, next) {
         }else{
           res.json({code: -1,msg: msg});
         }
-    });
+    },res);
 });
 
 
@@ -111,8 +111,8 @@ router.post('/changeUserInfo',checklogin.AuthMiddleware, function(req, res, next
         conf.query(sql,function(){
           conf.query(sqlUser,function(err,result){
             res.json({code: 200,data: result[0],msg: "修改成功"});
-          });
-       });
+          },res);
+       },res);
 });
 
 /** 用户粉丝列表 */
@@ -127,7 +127,7 @@ router.get('/fans',checklogin.AuthMiddlewareGet, function(req, res, next) {
             order by t_fans.update_time desc limit 10 offset ${offSets}`;
             conf.query(sqlFans,function(err,result){
                checklogin.result(res,result,true);
-            });
+            },res);
 });
 
 /** 用户关注列表 */
@@ -139,7 +139,7 @@ router.get('/focus',checklogin.AuthMiddlewareGet, function(req, res, next) {
                     and t_focus.focus_state = 1 order by t_focus.update_time desc limit 10 offset ${offSets}`;
             conf.query(sqlFocus,function(err,result){
               checklogin.result(res,result,true);
-            });
+            },res);
 });
 
 // 更新用户关注的人
@@ -151,30 +151,29 @@ router.post('/changeFocusState',checklogin.AuthMiddleware, function(req, res, ne
                           where  t_focus.id = ${focusId} and t_user.token = "${token}"`;
                           conf.query(updateFocus,function(err,result){
                             checklogin.result(res,result);
-                          });
+                          },res);
         }else{
               // userFans 关注哪个用户的ID
               var insertFocus = `insert into t_focus(user_id,user_focus)values(${userId},${userFans})`;
                           conf.query(insertFocus,function(err,result){
                             // console.log(result.insertId);
                             checklogin.result(res,result,true);
-                          });
+                          },res);
         }
        
 });
 
 // 用户详情信息
-router.get('/userDetail', function(req, res, next) {
-  var {token,focusId,userFans,focusState,userId} = req.query;
-  // 基本信息
-  var basic = `select case sex when '1' THEN '男生' when '0' THEN '女生' END as sexName,t_member.member_name,nick_name,DATE_FORMAT(t_user.create_time,"%Y-%m-%d")as createTime from t_user 
-  left join t_member on t_user.member_id = t_member.id where  t_user.id = ${userId}`
-  // 用户发的帖子
-  var userContent = `select * from t_content where user_id = ${userId}`;
-  // 用户的评论
-  var userComment = `select * from t_content_comment left join t_content on t_content_comment.content_id = t_content.id where t_content_comment.user_id = ${userId}`;
-  
-});
+// router.get('/userDetail', function(req, res, next) {
+//   var {token,focusId,userFans,focusState,userId} = req.query;
+//   // 基本信息
+//   var basic = `select case sex when '1' THEN '男生' when '0' THEN '女生' END as sexName,t_member.member_name,nick_name,DATE_FORMAT(t_user.create_time,"%Y-%m-%d")as createTime from t_user 
+//   left join t_member on t_user.member_id = t_member.id where  t_user.id = ${userId}`
+//   // 用户发的帖子
+//   var userContent = `select * from t_content where user_id = ${userId}`;
+//   // 用户的评论
+//   var userComment = `select * from t_content_comment left join t_content on t_content_comment.content_id = t_content.id where t_content_comment.user_id = ${userId}`;
+// });
 
 
 /***********************************************TourEnd */

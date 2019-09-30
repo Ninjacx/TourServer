@@ -22,10 +22,12 @@ function query(sql,callback,routerRes){
             // err处理？
             // callback(err,{code: 0,msg: error});
             // next(err)
+            console.log(err);
             routerRes.json({
               code: -1,
-              msg: err
+              msg: "请稍后再试"
             })
+            // insert error log
             connection.release();
             return false;
           } else{
@@ -63,8 +65,8 @@ function quertPromise(sql){
   return new Promise((resolve, reject) => {
     // console.log(reject);
     query(sql,function(err,result){
-           var result=JSON.stringify(result);
-             result=JSON.parse(result);
+          //  var result=JSON.stringify(result);
+          //    result=JSON.parse(result);
            resolve(result);
          });
   });

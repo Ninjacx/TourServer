@@ -43,7 +43,7 @@ WHEN 0 THEN '今天' WHEN 1 then '昨天' WHEN 2 then '前天' ELSE DATE_FORMAT(
 	console.log(contentsql);		
 	// 查询10条数据第N页 这样不需要查询图片表中所有数据 则增加效率
 	var contentImg = `SELECT * from t_content_image LEFT JOIN (SELECT id from t_content where is_del = 0 ${userId} order by create_time LIMIT 10 OFFSET ${offSets}) as t_content 
-					  on t_content_image.content_id = t_content.id where t_content_image.is_del=0`;
+					  on t_content_image.content_id = t_content.id where t_content_image.is_del=0 `;
 	conf.query(contentsql,function(err,result1){
 		if(result1.length>0){
 			// var list = [];
@@ -52,7 +52,8 @@ WHEN 0 THEN '今天' WHEN 1 then '昨天' WHEN 2 then '前天' ELSE DATE_FORMAT(
 				result1.map((item1)=>{
 					item1.imgList = [];
 					result2.map((item2)=>{
-						if(item1.id == item2.content_id){
+						// 此处图片首页最多显示9张
+						if(item1.id == item2.content_id&&item1.imgList.length<9){
 							item1.imgList.push(item2.image_url);
 						}
 					})
@@ -124,13 +125,15 @@ router.post('/uploadQNY', function(req, res, next) {
 		// console.log(params);
 		// return false;
 		// fileArr
-		var {uploadToken,title,TextArr,ImgTextId} = params;
+		var {uploadToken,title,TextArr,ImgTextId,plateSeconde_id} = params;
+		
 		var TextArr = JSON.parse(TextArr);
 		var ImgTextId = JSON.parse(ImgTextId);
 		
-		var addContentSql = `insert into t_content(title)values("${title}")`;
-		// 1.先插入一条帖子表数据返回帖子ID
+		// user_id 发帖用户
+		var addContentSql = `insert into t_content(title,plateSeconde_id,user_id)values("${title}","${plateSeconde_id}","3")`;
 
+		 // 1.先插入一条帖子表数据返回帖子ID
 		 new Promise((resolve, reject)=>{
 			conf.query(addContentSql,function(error,result){
 				resolve(result.insertId)
@@ -179,6 +182,7 @@ router.post('/uploadQNY', function(req, res, next) {
 							console.log(2000);
 							console.log(respBody);
 						} else {
+							// 设置日志表
 							console.log(respInfo.statusCode);
 							console.log(respBody);
 						}
@@ -190,7 +194,7 @@ router.post('/uploadQNY', function(req, res, next) {
 				
 				var insetImg = `insert into t_content_image(image_url,content_text_id,content_id)values${insertStr}`;
 				conf.query(insetImg,function(error,result){
-					console.log(result);
+					checklogin.result(res,result,false,"发布成功");
 				},res);
 		 })
 		// 内容List

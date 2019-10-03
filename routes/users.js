@@ -2,7 +2,10 @@ var express = require('express');
 var router = express.Router();
 var conf = require('../conf/conf');
 const uuidv1 = require('uuid/v1');
+const uuidv4 = require('uuid/v4');
 const uuidv5 = require('uuid/v5');
+
+const tools = require('../common/tools');
 
 /*验证登录*/
 const checklogin = require('./checklogin');
@@ -58,7 +61,8 @@ router.post('/login', function(req, res, next) {
               if(result[0].phone){
                 isCreateSql= `update t_user set token = "${uuidv1()}" where phone = "${phone}"`;	//有账号则代表登录，生成新的token
               }else{
-                isCreateSql= `insert into t_user(nick_name,signature,token,phone,icon)values("旅行的乌龟","一只喜欢慢悠悠旅行的乌龟","${uuidv1()}","${phone}","${serverIp}static/App/user/userIcon.png")`;
+                // uuidv4(); 生成key 用
+                isCreateSql= `insert into t_user(nick_name,signature,token,userKey,phone,icon)values("旅行的乌龟","一只喜欢慢悠悠旅行的乌龟","${uuidv1()}","${uuidv4()}","${phone}","${serverIp}static/App/user/userIcon.png")`;
               }
               // console.log(isCreateSql);
               conf.query(isCreateSql,function(err,isCreateSqlRes){

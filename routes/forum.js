@@ -15,7 +15,7 @@ const uuidv1 = require('uuid/v1');
 /*验证登录*/
 const checklogin = require('./checklogin');
 
-const common = require('./common');
+const tools = require('../common/tools');
 
 /** Tour - API */
 // 查出菜单 
@@ -29,7 +29,7 @@ router.get('/getMenu',(req, res, next)=>{
       });
 });
 
-// 点赞功能
+// 点赞功能 checklogin.AuthMiddlewareGet  要传入token
 router.get('/support',(req, res, next)=>{
   // 传入groups = 1 则加条件，不然就查全部
     var {userId,isSupport,contentId} = req.query;
@@ -52,11 +52,10 @@ router.get('/support',(req, res, next)=>{
       });
 });
 
-// 类目展示列表数据 
+// 帖子列表数据（和首页列表差不多） 
 router.get('/forumList',(req, res, next)=> {
 	var {page,plateSecond_id}=req.query;
   var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
-  
   var plateSeconde_id = req.query.plateSeconde_id?`and t_content.plateSeconde_id = ${req.query.plateSeconde_id}`:"";
 	// var offSets = ((page?page:1)- 1) * 10;
 	var contentsql = `select t_content.*,DATE_FORMAT(t_content.create_time,"%Y-%m-%d")as create_time,t_user.nick_name,icon from t_content 
@@ -65,30 +64,26 @@ router.get('/forumList',(req, res, next)=> {
 	var contentImg = `SELECT * from t_content_image left join (SELECT id from t_content where is_del=0 ${plateSeconde_id} limit 10 offset ${offSets}) as t_content 
 					on t_content_image.content_id = t_content.id where t_content_image.is_del=0`;
 	conf.query(contentsql,function(err,result1){
-		if(result1.length>0){
-			var list = [];
+    checklogin.resultFn(res,result1,()=>{
 			conf.query(contentImg,function(err,result2){
-				// console.log(result2);
-				result1.map((item1)=>{
-					item1.imgList = [];
-					result2.map((item2)=>{
-						if(item1.id == item2.content_id){
-							item1.imgList.push(item2.image_url);
-						}
-					})
-				})
-				// return false;
-				res.json({
-					code: 200,
-					basicData: result1,
-				});
+				checklogin.resultFn(res,result2,()=>{
+            result1.map((item1)=>{
+              item1.imgList = [];
+              result2.map((item2)=>{
+                if(item1.id == item2.content_id){
+                  item1.imgList.push(item2.image_url);
+                }
+              })
+            })
+            res.json({
+              code: 200,
+              basicData: result1,
+            });
+        })
 			})
-		}else{
-			res.json({
-				code: -1,
-				msg: "没有数据了"
-			});
-		}
+    })
+		
+	 
 	})
 });
 
@@ -105,20 +100,17 @@ router.get('/getBanner',(req, res, next)=>{
 
 // 搜索 用户、帖子
 router.get('/search',(req, res, next)=>{
-  var searchVal = req.query.searchVal?common.trim(req.query.searchVal):null;
+  var searchVal = req.query.searchVal?tools.trim(req.query.searchVal):null;
   var {page} = req.query;
   var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
   var searchContentSQL = `
-          select 
-            CASE (DATE_FORMAT(now(),"%y%m%d")-DATE_FORMAT(t_content.create_time,"%y%m%d"))
-            WHEN 0 THEN  CONCAT('今天',DATE_FORMAT(t_content.create_time,'%T')) 
-            WHEN 1 then CONCAT('昨天',DATE_FORMAT(t_content.create_time,'%T'))
-            WHEN 2 then CONCAT('前天',DATE_FORMAT(t_content.create_time,'%T'))
-            ELSE DATE_FORMAT(t_content.create_time,"20%y-%m-%d") END as dateTime,t_plate_second.plate_name,t_user.nick_name,t_content.title
+          select ${tools.setDateTime('t_content.create_time')} ,
+            t_plate_second.plate_name,t_user.nick_name,t_content.title
             from t_content 
             left join t_user on t_content.user_id = t_user.id 
             left join t_plate_second on t_content.plateSeconde_id= t_plate_second.id 
-          where title like  "%${searchVal}%" limit 5`;
+            where title like  "%${searchVal}%" limit 5`;
+
     var searchUserSQL = `select id,nick_name,icon from t_user where nick_name like  "%${searchVal}%" limit 10`;
     var sqlContent = conf.quertPromise(searchContentSQL);
     var sqlUser = conf.quertPromise(searchUserSQL);
@@ -164,15 +156,11 @@ router.get('/getContentDetetail',(req, res, next)=>{
     // 帖子信息详情
     var selectForum = `select 
     (select count(content_id) from t_content_comment where content_id = ${id} and is_del = 0 GROUP BY content_id)as AllcommentCount,
-        CASE (DATE_FORMAT(now(),"%y%m%d")-DATE_FORMAT(t_content.create_time,"%y%m%d"))
-        WHEN 0 THEN  CONCAT('今天',DATE_FORMAT(t_content.create_time,'%T')) 
-        WHEN 1 then CONCAT('昨天',DATE_FORMAT(t_content.create_time,'%T'))
-        WHEN 2 then CONCAT('前天',DATE_FORMAT(t_content.create_time,'%T'))
-        ELSE DATE_FORMAT(t_content.create_time,"20%y-%m-%d") END as dateTime ,t_content.*,t_user.nick_name,t_user.icon ,t_plate_second.plate_name
+        ${tools.setDateTime('t_content.create_time')}
+        ,t_content.*,t_user.nick_name,t_user.icon ,t_plate_second.plate_name
       from t_content 
         left join t_plate_second on t_content.plateSeconde_id = t_plate_second.id
         left join t_user on t_user.id = t_content.user_id where t_content.id = ${id} and t_content.is_del = 0`;
-
 
     // 图片内容
     var selectText = `select id,image_content from t_content_text where  content_id = ${id} and is_del = 0 `;
@@ -237,7 +225,7 @@ router.get('/getContentDetetail',(req, res, next)=>{
     });
 });
 
-// 查出P帖子详情的评论（上拉加载）
+// 查出帖子详情的评论（上拉加载）
 router.get('/getComment',(req, res, next)=>{
   // 传入groups = 1 则加条件，不然就查全部
     var {id,page,userId} = req.query;
@@ -246,33 +234,21 @@ router.get('/getComment',(req, res, next)=>{
     var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
     id = id?id:0;
     sqlComment = `select count(r.comment_id) as replyCount,a.*,b.comment as reply,t_user.nick_name as commentNickName,u.nick_name as replyNickName,t_user.icon, 
-                  CASE (DATE_FORMAT(now(),"%y%m%d")-DATE_FORMAT(a.create_time,"%y%m%d"))
-                  WHEN 0 THEN  CONCAT('今天',DATE_FORMAT(a.create_time,'%T')) 
-                  WHEN 1 then CONCAT('昨天',DATE_FORMAT(a.create_time,'%T'))
-                  WHEN 2 then CONCAT('前天',DATE_FORMAT(a.create_time,'%T'))
-                  ELSE DATE_FORMAT(a.create_time,"20%y-%m-%d") END as dateTime 
-    from t_content_comment  as a 
-    left join t_user on a.user_id = t_user.id
-    left join t_content_comment as b on b.id = a.commentId_user 
-    left join t_user u on u.id = b.user_id 
-    left join t_content_reply  as r  on r.comment_id = a.id and r.is_del=0 where ${whereStr} and a.is_del = 0  group by a.id order by a.create_time desc limit 10 offset ${offSets}`;
+      ${tools.setDateTime('a.create_time')}
+      from t_content_comment  as a 
+      left join t_user on a.user_id = t_user.id
+      left join t_content_comment as b on b.id = a.commentId_user 
+      left join t_user u on u.id = b.user_id 
+      left join t_content_reply  as r  on r.comment_id = a.id and r.is_del=0 where ${whereStr} and a.is_del = 0  group by a.id order by a.create_time desc limit 10 offset ${offSets}`;
     // GROUP BY a.id order by a.create_time desc limit 10
-    conf.query(sqlComment,function(err,result){
-      if(!result.length){
-        res.json({
-          code: -1,
-          data: []
-        });
-        return false;
-      }
-      res.json({
-        code: 200,
-        data: result
-      });
+    // console.log(sqlComment);
+    // return flase;
+    conf.query(sqlComment,(err,result)=>{
+      checklogin.result(res,result,true);
     },res);
 });
 
-// 发表评论+回复通用 回复多commentId_user 
+// 发表评论+回复通用 回复多commentId_user  checklogin.AuthMiddleware 要传入token
 router.post('/addComment',(req, res, next)=>{
     var {userId,contentId,comment,commentIdUser} = req.body;
     commentIdUser?commentIdUser:null
@@ -288,6 +264,47 @@ router.post('/addComment',(req, res, next)=>{
             checklogin.result(res,result,false,"评论成功");
         }
       });
+});
+
+
+// 用户发布的帖子（上拉加载）  要测试
+router.get('/userContent',(req, res, next)=>{
+  var {page,userKey}=req.query;
+	// 1. token 查登录的自己的用户 2. userKey 查其它用户 
+	var userParams = `and t_content.user_id = (select id from t_user where userKey = "${userKey}" )`;
+	console.log(userParams);
+	var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
+	// var offSets = ((page?page:1)- 1) * 10;
+  var contentsql = `select t_plate.plate_name,t_plate_second.plate_name as secondPlate_name,t_content.*,
+            ${tools.setDateTime('t_content.create_time')}
+            ,t_user.nick_name,t_user.icon from t_content 
+						left join t_plate_second on t_plate_second.id = t_content.plateSeconde_id
+						left join t_plate on t_plate.id = t_plate_second.plate_id
+						left join t_user on t_content.user_id = t_user.id where t_content.is_del = 0 ${userParams} order by t_content.create_time limit 10 offset ${offSets}`;
+	// 查询10条数据第N页 这样不需要查询图片表中所有数据 则增加效率
+	var contentImg = `select content_id,image_url from t_content_image LEFT JOIN (SELECT id from t_content where is_del = 0 ${userParams} order by create_time LIMIT 10 OFFSET ${offSets}) as t_content 
+					  on t_content_image.content_id = t_content.id where t_content_image.is_del=0 `;
+	conf.query(contentsql,function(err,result1){
+		checklogin.resultFn(res,result1,()=>{
+			conf.query(contentImg,(err,result2)=>{
+				checklogin.resultFn(res,result2,()=>{
+					result1.map((item1)=>{
+						item1.imgList = [];
+						result2.map((item2)=>{
+							// 此处图片首页最多显示9张
+							if(item1.id == item2.content_id&&item1.imgList.length<9){
+								item1.imgList.push(item2.image_url);
+							}
+						})
+					})
+					res.json({
+						code: 200,
+						data: result1,
+					});
+				});
+			},res)
+		})
+	},res)
 });
 
 // 

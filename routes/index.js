@@ -21,8 +21,8 @@ const uuidv1 = require('uuid/v1');
 
 const checklogin = require('./checklogin');
 
-const common = require('./common');
-const serverIp = 'http://localhost/';//'http://192.168.1.33/';
+const tools = require('../common/tools');
+const serverIp = 'http://192.168.1.33/';//'http://192.168.1.33/';
 
 
 /** Tour - API */
@@ -35,41 +35,38 @@ WHEN 0 THEN '今天' WHEN 1 then '昨天' WHEN 2 then '前天' ELSE DATE_FORMAT(
 	var {page,userId}=req.query;
 	// 查看用户详情中帖子传入用户ID 需要用到
 	var userId = userId?`and t_content.user_id = ${userId}`: "";
-	console.log(userId);
+	// console.log(userId);
 	var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
 	// var offSets = ((page?page:1)- 1) * 10;
-	var contentsql = `select t_content.*,DATE_FORMAT(t_content.create_time,"%Y-%m-%d")as create_time,t_user.nick_name,icon from t_content 
-					  left join t_user on t_content.user_id = t_user.id where t_content.is_del = 0 ${userId} order by create_time limit 10 offset ${offSets}`;
-	console.log(contentsql);		
+	var contentsql = `select t_plate.plate_name,t_plate_second.plate_name as secondPlate_name,t_content.*,
+						${tools.setDateTime('t_content.create_time')}
+						,t_user.nick_name,t_user.icon from t_content 
+						left join t_plate_second on t_plate_second.id = t_content.plateSeconde_id
+						left join t_plate on t_plate.id = t_plate_second.plate_id
+						left join t_user on t_content.user_id = t_user.id where t_content.is_del = 0 ${userId} order by t_content.create_time limit 10 offset ${offSets}`;
 	// 查询10条数据第N页 这样不需要查询图片表中所有数据 则增加效率
-	var contentImg = `SELECT * from t_content_image LEFT JOIN (SELECT id from t_content where is_del = 0 ${userId} order by create_time LIMIT 10 OFFSET ${offSets}) as t_content 
+	var contentImg = `select content_id,image_url from t_content_image LEFT JOIN (SELECT id from t_content where is_del = 0 ${userId} order by create_time LIMIT 10 OFFSET ${offSets}) as t_content 
 					  on t_content_image.content_id = t_content.id where t_content_image.is_del=0 `;
 	conf.query(contentsql,function(err,result1){
-		if(result1.length>0){
-			// var list = [];
-			conf.query(contentImg,function(err,result2){
-				// console.log(result2);
-				result1.map((item1)=>{
-					item1.imgList = [];
-					result2.map((item2)=>{
-						// 此处图片首页最多显示9张
-						if(item1.id == item2.content_id&&item1.imgList.length<9){
-							item1.imgList.push(item2.image_url);
-						}
+		checklogin.resultFn(res,result1,()=>{
+			conf.query(contentImg,(err,result2)=>{
+				checklogin.resultFn(res,result2,()=>{
+					result1.map((item1)=>{
+						item1.imgList = [];
+						result2.map((item2)=>{
+							// 此处图片首页最多显示9张
+							if(item1.id == item2.content_id&&item1.imgList.length<9){
+								item1.imgList.push(item2.image_url);
+							}
+						})
 					})
-				})
-				// return false;
-				res.json({
-					code: 200,
-					data: result1,
+					res.json({
+						code: 200,
+						data: result1,
+					});
 				});
 			},res)
-		}else{
-			res.json({
-				code: -1,
-				msg: "没有数据了"
-			});
-		}
+		})
 	},res)
 });
 
@@ -208,18 +205,18 @@ router.post('/uploadQNY', function(req, res, next) {
 });
 
 // 上传完成回调
-router.get('/QNYcallback', function(req, res, next) {
-	res.json({
-		code: 200,
-		data: req.query
-	})
-});
+// router.get('/QNYcallback', function(req, res, next) {
+// 	res.json({
+// 		code: 200,
+// 		data: req.query
+// 	})
+// });
 
 
-//通用图片上传
+//上传用户头像
 router.post('/upload', function(req, res, next) {
 	var form = new formidable.IncomingForm();
-	var token = req.body.token;
+	// var token = req.body.token;
 	// console.log(req.body);
 	// console.log(`token=${token}`);
     //设置文件上传存放地址（需要先把这个文件夹，在项目中建好）
@@ -241,15 +238,14 @@ router.post('/upload', function(req, res, next) {
 					 var userSql = `select t_user.*,t_member.member_name,DATE_FORMAT(t_user.create_time,"%Y-%m-%d")as createTime 
 					 from t_user left join t_member on t_user.member_id = t_member.id where t_user.is_del = 0 and is_freeze = 0 and token = "${token}"`
 					 conf.query(updateIconSQL,function(error,updateResult){
-						 if(!error){
+						checklogin.resultFn(res,updateResult,()=>{
+							// console.log(updateResult);
 							conf.query(userSql,function(err,result){
-								if(!err){
-									res.json({code:200,data: result[0]});
-								}
+								checklogin.result(res,result,true,"上传成功");
 							 });
-						 }else{
-							 res.json({code: -1,msg: "请稍后再试"});
-						 }
+						})
+							
+						 
 						
 					 });
 					

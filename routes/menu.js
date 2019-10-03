@@ -15,7 +15,7 @@ const uuidv1 = require('uuid/v1');
 /*验证登录*/
 // const AuthMiddleware = require('./checklogin');
 
-const common = require('./common');
+const tools = require('../common/tools');
 
 /** Tour - API */
 // 查出菜单 

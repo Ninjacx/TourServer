@@ -142,7 +142,7 @@ router.get('/search',(req, res, next)=>{
 });
 
 // 查出APP帖子详情
-router.get('/getContentDetetail',(req, res, next)=>{
+router.get('/getContentDetail',(req, res, next)=>{
   // 传入groups = 1 则加条件，不然就查全部
     var {id,token} = req.query;
     id = id?id:null;
@@ -228,12 +228,21 @@ router.get('/getContentDetetail',(req, res, next)=>{
 // 查出帖子详情的评论（上拉加载）
 router.get('/getComment',(req, res, next)=>{
   // 传入groups = 1 则加条件，不然就查全部
-    var {id,page,userId} = req.query;
-    var whereStr = id?`a.content_id= ${id}`:`a.user_id=${userId}`;
-
+    var {id,page,state,userKey} = req.query;
+    var whereStr = "";
+    // 1. 帖子下的评论 2. 用户下的评论
+    if(state == 1){
+      id = id?id:0;
+      whereStr = `a.content_id = "${id}"`;
+    }else{
+      whereStr = `a.user_id = (select id from t_user where userKey = "${userKey}")`;
+    }
+    // console.log(whereStr);
+    
     var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
-    id = id?id:0;
-    sqlComment = `select count(r.comment_id) as replyCount,a.*,b.comment as reply,t_user.nick_name as commentNickName,u.nick_name as replyNickName,t_user.icon, 
+    
+    //t_user.userKey, 
+    sqlComment = `select count(r.comment_id) as replyCount,a.*,b.comment as reply,t_user.nick_name as commentNickName,u.nick_name as replyNickName,t_user.icon,t_user.userKey,
       ${tools.setDateTime('a.create_time')}
       from t_content_comment  as a 
       left join t_user on a.user_id = t_user.id

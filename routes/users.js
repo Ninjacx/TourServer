@@ -167,17 +167,20 @@ router.post('/changeFocusState',checklogin.AuthMiddleware, function(req, res, ne
        
 });
 
-// 用户详情信息
-// router.get('/userDetail', function(req, res, next) {
-//   var {token,focusId,userFans,focusState,userId} = req.query;
-//   // 基本信息
-//   var basic = `select case sex when '1' THEN '男生' when '0' THEN '女生' END as sexName,t_member.member_name,nick_name,DATE_FORMAT(t_user.create_time,"%Y-%m-%d")as createTime from t_user 
-//   left join t_member on t_user.member_id = t_member.id where  t_user.id = ${userId}`
-//   // 用户发的帖子
-//   var userContent = `select * from t_content where user_id = ${userId}`;
-//   // 用户的评论
-//   var userComment = `select * from t_content_comment left join t_content on t_content_comment.content_id = t_content.id where t_content_comment.user_id = ${userId}`;
-// });
+// 用户基本信息
+router.get('/userDetail', function(req, res, next) {
+  var {token, userKey} = req.query;
+  // 基本信息
+  var basic = `select t_focus.focus_state,icon,t_user.signature, (TO_DAYS(NOW()) - TO_DAYS(t_user.create_time)) as days,case sex when '1' THEN '男生' when '0' THEN '女生' END as sexName,
+  t_member.member_name,nick_name,DATE_FORMAT(t_user.create_time,"%Y-%m-%d")as createTime from t_user 
+  left join t_member on t_user.member_id = t_member.id 
+	left join t_focus on t_focus.user_focus = t_user.id and t_focus.user_id = (select id from t_user where token = "${token}")
+where  t_user.id = (select id from t_user where userKey = "${userKey}")`
+  // console.log(basic);
+  conf.query(basic,function(err,result){
+    checklogin.result(res,result,true);
+  },res);
+});
 
 
 /***********************************************TourEnd */

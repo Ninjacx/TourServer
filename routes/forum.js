@@ -242,9 +242,10 @@ router.get('/getComment',(req, res, next)=>{
     var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
     
     //t_user.userKey, 
-    sqlComment = `select count(r.comment_id) as replyCount,a.*,b.comment as reply,t_user.nick_name as commentNickName,u.nick_name as replyNickName,t_user.icon,t_user.userKey,
+    sqlComment = `select t_content.title,count(r.comment_id) as replyCount,a.comment,b.comment as reply,t_user.nick_name as commentNickName,u.nick_name as replyNickName,t_user.icon,t_user.userKey,
       ${tools.setDateTime('a.create_time')}
       from t_content_comment  as a 
+      left join t_content on t_content.id = a.content_id
       left join t_user on a.user_id = t_user.id
       left join t_content_comment as b on b.id = a.commentId_user 
       left join t_user u on u.id = b.user_id 

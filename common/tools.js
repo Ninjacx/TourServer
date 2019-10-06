@@ -21,9 +21,9 @@
     },
     setDateTime: function(time){
        return `CASE (DATE_FORMAT(now(),"%y%m%d")-DATE_FORMAT(${time},"%y%m%d"))
-       WHEN 0 THEN  CONCAT('今天',DATE_FORMAT(${time},'%T')) 
-       WHEN 1 then CONCAT('昨天',DATE_FORMAT(${time},'%T'))
-       WHEN 2 then CONCAT('前天',DATE_FORMAT(${time},'%T'))
+       WHEN 0 THEN  CONCAT('今天 ',DATE_FORMAT(${time},'%T')) 
+       WHEN 1 then CONCAT('昨天 ',DATE_FORMAT(${time},'%T'))
+       WHEN 2 then CONCAT('前天 ',DATE_FORMAT(${time},'%T'))
        ELSE DATE_FORMAT(${time},"20%y-%m-%d") END as dateTime`;
     }
  }

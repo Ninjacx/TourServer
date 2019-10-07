@@ -32,20 +32,20 @@ router.get('/homeData',(req, res, next)=>{
 	/**select CASE (DATE_FORMAT(now(),"%y%m%d")-DATE_FORMAT(t_content.create_time,"%y%m%d"))
 WHEN 0 THEN '今天' WHEN 1 then '昨天' WHEN 2 then '前天' ELSE DATE_FORMAT(t_content.create_time,"20%y-%m-%d") END as dataTime from t_content 
  */
-	var {page,userId}=req.query;
+	var {page}=req.query;
 	// 查看用户详情中帖子传入用户ID 需要用到
-	var userId = userId?`and t_content.user_id = ${userId}`: "";
+	// var userId = userId?`and t_content.user_id = ${userId}`: "";
 	// console.log(userId);
 	var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
 	// var offSets = ((page?page:1)- 1) * 10;
 	var contentsql = `select t_plate.plate_name,t_plate_second.plate_name as secondPlate_name,t_content.*,
 						${tools.setDateTime('t_content.create_time')}
-						,t_user.nick_name,t_user.icon from t_content 
+						,t_user.nick_name,t_user.icon,t_user.userKey from t_content
 						left join t_plate_second on t_plate_second.id = t_content.plateSeconde_id
 						left join t_plate on t_plate.id = t_plate_second.plate_id
-						left join t_user on t_content.user_id = t_user.id where t_content.is_del = 0 ${userId} order by t_content.create_time limit 10 offset ${offSets}`;
+						left join t_user on t_content.user_id = t_user.id where t_content.is_del = 0  order by t_content.create_time limit 10 offset ${offSets}`;
 	// 查询10条数据第N页 这样不需要查询图片表中所有数据 则增加效率
-	var contentImg = `select content_id,image_url from t_content_image LEFT JOIN (SELECT id from t_content where is_del = 0 ${userId} order by create_time LIMIT 10 OFFSET ${offSets}) as t_content 
+	var contentImg = `select content_id,image_url from t_content_image LEFT JOIN (SELECT id from t_content where is_del = 0  order by create_time LIMIT 10 OFFSET ${offSets}) as t_content 
 					  on t_content_image.content_id = t_content.id where t_content_image.is_del=0 `;
 	conf.query(contentsql,function(err,result1){
 		checklogin.resultFn(res,result1,()=>{

@@ -157,7 +157,7 @@ router.get('/getContentDetail',(req, res, next)=>{
     var selectForum = `select 
     (select count(content_id) from t_content_comment where content_id = ${id} and is_del = 0 GROUP BY content_id)as AllcommentCount,
         ${tools.setDateTime('t_content.create_time')}
-        ,t_content.*,t_user.nick_name,t_user.icon ,t_plate_second.plate_name
+        ,t_content.*,t_user.userKey,t_user.nick_name,t_user.icon ,t_plate_second.plate_name
       from t_content 
         left join t_plate_second on t_content.plateSeconde_id = t_plate_second.id
         left join t_user on t_user.id = t_content.user_id where t_content.id = ${id} and t_content.is_del = 0`;
@@ -242,7 +242,7 @@ router.get('/getComment',(req, res, next)=>{
     var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
     
     //t_user.userKey, 
-    sqlComment = `select t_content.title,count(r.comment_id) as replyCount,a.comment,b.comment as reply,t_user.nick_name as commentNickName,u.nick_name as replyNickName,t_user.icon,t_user.userKey,
+    sqlComment = `select t_content.title,count(r.comment_id) as replyCount,a.id as comment_id,a.comment,b.comment as reply,t_user.nick_name as commentNickName,u.nick_name as replyNickName,t_user.icon,t_user.userKey,
       ${tools.setDateTime('a.create_time')}
       from t_content_comment  as a 
       left join t_content on t_content.id = a.content_id
@@ -259,21 +259,27 @@ router.get('/getComment',(req, res, next)=>{
 });
 
 // 发表评论+回复通用 回复多commentId_user  checklogin.AuthMiddleware 要传入token
-router.post('/addComment',(req, res, next)=>{
-    var {userId,contentId,comment,commentIdUser} = req.body;
+router.post('/addComment',checklogin.AuthMiddleware,(req, res, next)=>{
+    var {token,contentId,comment,commentIdUser} = req.body;
+  
     commentIdUser?commentIdUser:null
-    var sqlComment = `insert into t_content_comment(content_id,comment,user_id,commentId_user)values("${contentId}","${comment}","${userId}","${commentIdUser}")`;
+
+    var sqlComment = `insert into t_content_comment(content_id,comment,user_id,commentId_user) 
+                      select "${contentId}","${comment}",id,"${commentIdUser}" from t_user where token = "${token}"`;
     conf.query(sqlComment,function(err,result){
-        if(commentIdUser){
-          var sqlreply = `insert into t_content_reply(user_id,comment_id,reply)values("${userId}","${commentIdUser}","${comment}")`;
-          // 插入reply表 
-          conf.query(sqlreply,function(err,replyResult){
-            checklogin.result(res,replyResult,false,"回复成功");
-          })
-        }else{
-            checklogin.result(res,result,false,"评论成功");
-        }
-      });
+        checklogin.resultFn(res,result,()=>{
+          if(commentIdUser){// values("${token}","${commentIdUser}","${comment}");
+            var sqlreply = `insert into t_content_reply(user_id,comment_id,reply) 
+                            select id,"${result.insertId}","${comment}" from t_user where token = "${token}"`;
+            // 插入reply表 
+            conf.query(sqlreply,function(err,replyResult){
+              checklogin.result(res,replyResult,false,"回复成功");
+            },res)
+          }else{
+              checklogin.result(res,result,false,"评论成功");
+          }
+        });
+     },res);
 });
 
 

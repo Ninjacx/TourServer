@@ -109,8 +109,8 @@ router.get('/qnyToken', function(req, res, next) {
 	})
 });
 
-// 上传文件至千牛云 https://segmentfault.com/a/1190000005364299 base64
-router.post('/uploadQNY', function(req, res, next) {
+// 上传文件至千牛云 https://segmentfault.com/a/1190000005364299 base64 checklogin.AuthMiddleware, 
+router.post('/uploadQNY',function(req, res, next) {
 		// console.log(req.body);
 		// return false;
 		// 思路： 1.插入帖子表，2.插入内容表后把ID 返回原数据集合中的内容，3. 上传图片回调的时候 找出对应内容相等的key 后 取出内容ID 保存进表
@@ -122,18 +122,22 @@ router.post('/uploadQNY', function(req, res, next) {
 		// console.log(params);
 		// return false;
 		// fileArr
-		var {uploadToken,title,TextArr,ImgTextId,plateSeconde_id} = params;
+		var {uploadToken,title,TextArr,ImgTextId,plateSeconde_id,token} = params;
 		
 		var TextArr = JSON.parse(TextArr);
 		var ImgTextId = JSON.parse(ImgTextId);
 		
-		// user_id 发帖用户
-		var addContentSql = `insert into t_content(title,plateSeconde_id,user_id)values("${title}","${plateSeconde_id}","3")`;
-
+		// user_id 发帖用户 ${title}","${plateSeconde_id}
+		var addContentSql = `insert into t_content(title,plateSeconde_id,user_id) select "${title}","${plateSeconde_id}",id from t_user where token = "${token}"`;
+		console.log(addContentSql);
+		// return false;
 		 // 1.先插入一条帖子表数据返回帖子ID
 		 new Promise((resolve, reject)=>{
 			conf.query(addContentSql,function(error,result){
-				resolve(result.insertId)
+				// 只有执行成功添加返回ID 才继续执行，否则直接返回错误
+				checklogin.resultFn(res,result,()=>{
+					resolve(result.insertId);
+				})
 			},res);
 		 }).then(async (contentId)=>{
 			console.log(`contentId${contentId}`);
@@ -155,7 +159,10 @@ router.post('/uploadQNY', function(req, res, next) {
 			var insertStr = '';
 			// console.log(TextArr);
 			// return false;
-			// 循环上传图片
+			// 循环上传图片  
+			
+			// 不为空才走上传！！！！！！！！！！！！！files.file
+			
 			for (let index = 0; index < files.file.length; index++) {
 				
 				var imagePath = path.extname(files.file[index].name);	 

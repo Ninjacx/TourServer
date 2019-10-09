@@ -26,7 +26,7 @@ router.get('/getMenu',(req, res, next)=>{
       conf.query(selectSQL,function(err,result){
         var result=JSON.stringify(result);
         res.json(result);
-      });
+      },res);
 });
 
 // 查出APP 展示的商家广告位 与 APP 其它展示图
@@ -37,7 +37,7 @@ router.get('/getBanner',(req, res, next)=>{
       conf.query(selectSQL,function(err,result){
         var result=JSON.stringify(result);
         res.json(result);
-      });
+      },res);
 });
 
 module.exports = router;

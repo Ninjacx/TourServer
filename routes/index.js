@@ -77,15 +77,16 @@ router.get('/getPlateAll',(req, res, next)=>{
 	  var selectPlate = `select * from t_plate`;
 	  var selectPlate2 = `select t_plate_second.*,t_collect.collect_state from t_plate_second 
 	  left join t_collect  on t_plate_second.id = t_collect.type_id 
-	  and t_collect.user_id = (select id from t_user where token = "${token}" ) and type = 1 
+	  and t_collect.user_id = (select id from t_user where token = "${token}" ) and type = 2 
 	  order by t_plate_second.id`;
+	  console.log(selectPlate2);
 	  var oPlate = conf.quertPromise(selectPlate);
 	  var oPlate2 = conf.quertPromise(selectPlate2);
 		var promise = Promise.all([oPlate,oPlate2]);//oList:res1,oDetailList:res2
 			promise.then(function([resPlate1,resPlate2]) {
 			res.json({code: 200,resPlate1,resPlate2});
 		}).catch(function(err) {
-				res.json({code: -1,msg: "您的网络好像有点问题"});
+				res.json({code: -1,msg: "请稍后再试"});
 				 //定义错误页面
 		});
 });
@@ -249,12 +250,12 @@ router.post('/upload', function(req, res, next) {
 							// console.log(updateResult);
 							conf.query(userSql,function(err,result){
 								checklogin.result(res,result,true,"上传成功");
-							 });
+							 },res);
 						})
 							
 						 
 						
-					 });
+					 },res);
 					
                     // res.json({code:200,data: '/upload/'+extname}) //返回图片路径，让前端展示
 				}
@@ -284,7 +285,7 @@ router.post('/login', function(req, res, next) {
 			}else{
 				res.json({code:-1,msg: "账号或密码错误"});
 			}
-    });
+    },res);
 });
 
 // 退出

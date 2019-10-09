@@ -26,31 +26,55 @@ router.get('/getMenu',(req, res, next)=>{
       conf.query(selectSQL,function(err,result){
         var result=JSON.stringify(result);
         res.json(result);
-      });
+      },res);
 });
 
 // 点赞功能 checklogin.AuthMiddlewareGet  要传入token
-router.get('/support',(req, res, next)=>{
+router.post('/support',checklogin.AuthMiddleware,(req, res, next)=>{
   // 传入groups = 1 则加条件，不然就查全部
-    var {userId,isSupport,contentId} = req.query;
+    var {token,isSupport,contentId} = req.body;
     // 验证是否有此条点赞
-    var selectSQL = `select id from t_support where user_id = ${userId} and is_del = 0 and content_id=${contentId}`;
-    var insertSupport = `insert into t_support(user_id,is_support,content_id)values("${userId}","${isSupport}","${contentId}")`;
-    var updateSupport = `update t_support set is_support = ${isSupport} where user_id = ${userId} and content_id = "${contentId}"`;
+    var selectSQL = `select id from t_support where user_id = (select id from t_user where token = "${token}") and is_del = 0 and content_id="${contentId}"`;
+    var insertSupport = `insert into t_support(user_id,is_support,content_id) select id,"${isSupport}","${contentId}"from t_user where token = "${token}"`;
+    var updateSupport = `update t_support set is_support = "${isSupport}" where user_id = (select id from t_user where token = "${token}") and content_id = "${contentId}"`;
       conf.query(selectSQL,function(err,result){
         if(result.length){
            // 已有则更新点赞状态
            conf.query(updateSupport,function(err,result){
-            res.json({code: 200})
-          })
+             checklogin.result(res,result);
+          },res)
         }else{
           // 没有记录则新增一条点赞记录
           conf.query(insertSupport,function(err,result){
-            res.json({code: 200})
-          })
+            checklogin.result(res,result);
+          },res)
         }
-      });
+      },res);
 });
+// 收藏功能 checklogin.AuthMiddleware  要传入token
+router.post('/collect',checklogin.AuthMiddleware,(req, res, next)=>{
+  // 传入groups = 1 则加条件，不然就查全部
+    var {token,type_id,type,collect_state} = req.body;
+    // console.log({token,type_id,type,collect_state});
+    // 验证是否有此条点赞
+    var selectSQL = `select id from t_collect where user_id = (select id from t_user where token = "${token}") and type = ${type} and type_id="${type_id}"`;
+    var insertCollect = `insert into t_collect(user_id,collect_state,type_id,type) select id,"${collect_state}","${type_id}","${type}" from t_user where token = "${token}"`;
+    var updateCollect = `update t_collect set collect_state = "${collect_state}" where user_id = (select id from t_user where token = "${token}") and type="${type}" and type_id = "${type_id}"`;
+      conf.query(selectSQL,function(err,result){
+        if(result.length){
+           // 已有则更新点赞状态
+           conf.query(updateCollect,function(err,result){
+             checklogin.result(res,result);
+          },res)
+        }else{
+          // 没有记录则新增一条点赞记录
+          conf.query(insertCollect,function(err,result){
+            checklogin.result(res,result);
+          },res)
+        }
+      },res);
+});
+
 
 // 帖子列表数据（和首页列表差不多） 
 router.get('/forumList',(req, res, next)=> {
@@ -80,11 +104,9 @@ router.get('/forumList',(req, res, next)=> {
               basicData: result1,
             });
         })
-			})
+			},res)
     })
-		
-	 
-	})
+	},res)
 });
 
 // 查出APP 展示的商家广告位 与 APP 其它展示图
@@ -95,7 +117,7 @@ router.get('/getBanner',(req, res, next)=>{
       conf.query(selectSQL,function(err,result){
         var result=JSON.stringify(result);
         res.json(result);
-      });
+      },res);
 });
 
 // 搜索 用户、帖子

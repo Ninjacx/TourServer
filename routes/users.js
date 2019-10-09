@@ -111,7 +111,7 @@ router.post('/changeUserInfo',checklogin.AuthMiddleware, function(req, res, next
   var sql = `update t_user set ${typeName} = "${value}" where token = "${token}"`;
   // 更新完毕后 查询最新用户数据
   var sqlUser = `select t_user.*,t_member.member_name,DATE_FORMAT(t_user.create_time,"%Y-%m-%d")as createTime 
-  from t_user left join t_member on t_user.member_id = t_member.id where t_user.is_del = 0 and is_freeze = 0 and token = "${token}"`;
+                from t_user left join t_member on t_user.member_id = t_member.id where t_user.is_del = 0 and is_freeze = 0 and token = "${token}"`;
         conf.query(sql,function(){
           conf.query(sqlUser,function(err,result){
             res.json({code: 200,data: result[0],msg: "修改成功"});

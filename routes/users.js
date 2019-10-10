@@ -47,7 +47,7 @@ router.get('/collect',checklogin.AuthMiddlewareGet, function(req, res, next) {
   var sqlCollect = "";
   // 帖子列表
   if(type == 1){
-    sqlCollect = `select t_content.title,t_content.content,t_plate.plate_name as pname1,t_plate_second.plate_name as pname2,t_content_image.image_url from t_collect 
+    sqlCollect = `select t_content.title,t_content.content,t_content.id as contentId,t_plate.plate_name as pname1,t_plate_second.plate_name as pname2,t_content_image.image_url from t_collect 
       left join t_content on type_id = t_content.id 
       left join t_plate_second on t_content.plateSeconde_id = t_plate_second.id
       left join t_plate on t_plate_second.plate_id = t_plate.id

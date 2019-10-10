@@ -61,14 +61,14 @@ function query(sql,callback,routerRes){
   }
 
 //执行多条sql promise
-function quertPromise(sql){
+function quertPromise(sql,routerRes){
   return new Promise((resolve, reject) => {
     // console.log(reject);
     query(sql,function(err,result){
           //  var result=JSON.stringify(result);
           //    result=JSON.parse(result);
            resolve(result);
-         });
+    },routerRes);
   });
   // .then(返回值=>{
     //这里接着写

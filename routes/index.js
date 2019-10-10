@@ -25,7 +25,7 @@ const tools = require('../common/tools');
 const serverIp = 'http://192.168.1.33/';//'http://192.168.1.33/';
 
 
-/** Tour - API */
+/**---------------------------------1.获取---------------------------------------------*/
 // 首页展示的数据 
 router.get('/homeData',(req, res, next)=>{
 	// 显示发帖时间例子
@@ -80,8 +80,8 @@ router.get('/getPlateAll',(req, res, next)=>{
 	  and t_collect.user_id = (select id from t_user where token = "${token}" ) and type = 2 
 	  order by t_plate_second.id`;
 	  console.log(selectPlate2);
-	  var oPlate = conf.quertPromise(selectPlate);
-	  var oPlate2 = conf.quertPromise(selectPlate2);
+	  var oPlate = conf.quertPromise(selectPlate,res);
+	  var oPlate2 = conf.quertPromise(selectPlate2,res);
 		var promise = Promise.all([oPlate,oPlate2]);//oList:res1,oDetailList:res2
 			promise.then(function([resPlate1,resPlate2]) {
 			res.json({code: 200,resPlate1,resPlate2});
@@ -110,6 +110,8 @@ router.get('/qnyToken', function(req, res, next) {
 	})
 });
 
+
+/**---------------------------------2.操作---------------------------------------------*/
 // 上传文件至千牛云 https://segmentfault.com/a/1190000005364299 base64 checklogin.AuthMiddleware, 
 router.post('/uploadQNY',function(req, res, next) {
 		// console.log(req.body);
@@ -264,37 +266,34 @@ router.post('/upload', function(req, res, next) {
 });
 
 // 用户登录接口 保存进session 前台获取保存 对比
-router.post('/login', function(req, res, next) {
-  var {account,password}=req.body;
-  var psw = uuidv5(password, uuidv5.DNS);
-  var selectSQL = `select * from t_user where account = '${account}' and pwd = '${psw}' limit 1`;
-
-
-  // var answer = -1;
-  conf.query(selectSQL,function(err,result){
-			if(result!=''&&result){
-				var token = uuidv1(); // 登录成功token
-				req.session.token = token;
-				req.session.nickName = result[0].nick_name;
-				var page = req.session.page; // 记录上次点击的页面登录成功后跳转
-				// 将token 保存到表中，以便之后验证
-				var InsertToken = `INSERT INTO t_token_log(uid,token,createtime)VALUES(${result[0].id},"${token}",now())`;
-				conf.query(InsertToken,function(){});
-				// console.log(page);
-				res.json({code: 200,msg: "登录成功",page: page==undefined?'/':page});
-			}else{
-				res.json({code:-1,msg: "账号或密码错误"});
-			}
-    },res);
-});
+// router.post('/login', function(req, res, next) {
+//   var {account,password}=req.body;
+//   var psw = uuidv5(password, uuidv5.DNS);
+//   var selectSQL = `select * from t_user where account = '${account}' and pwd = '${psw}' limit 1`;
+//   // var answer = -1;
+//   conf.query(selectSQL,function(err,result){
+// 			if(result!=''&&result){
+// 				var token = uuidv1(); // 登录成功token
+// 				req.session.token = token;
+// 				req.session.nickName = result[0].nick_name;
+// 				var page = req.session.page; // 记录上次点击的页面登录成功后跳转
+// 				// 将token 保存到表中，以便之后验证
+// 				var InsertToken = `INSERT INTO t_token_log(uid,token,createtime)VALUES(${result[0].id},"${token}",now())`;
+// 				conf.query(InsertToken,function(){});
+// 				// console.log(page);
+// 				res.json({code: 200,msg: "登录成功",page: page==undefined?'/':page});
+// 			}else{
+// 				res.json({code:-1,msg: "账号或密码错误"});
+// 			}
+//     },res);
+// });
 
 // 退出
-router.post('/logout', function(req, res, next) {
-	req.session.token = null;
-
-	// location.reload();
-	res.redirect(req.session.page);
-})
+// router.post('/logout', function(req, res, next) {
+// 	req.session.token = null;
+// 	// location.reload();
+// 	res.redirect(req.session.page);
+// })
 
 
 router.get('/', function(req, res, next) {
@@ -303,7 +302,7 @@ router.get('/', function(req, res, next) {
     if(agentID){
         res.sendFile(`${process.cwd()}/public/index.html`, {title:''});
     }else{
-				req.session.page = '/';
+		req.session.page = '/';
         res.render('pc/index', { hidden: 1});
     }
 });

@@ -17,7 +17,7 @@ const uuidv1 = require('uuid/v1');
 
 const tools = require('../common/tools');
 
-/** Tour - API */
+/**---------------------------------1.获取---------------------------------------------*/
 // 查出菜单 
 router.get('/getMenu',(req, res, next)=>{
   // 传入groups = 1 则加条件，不然就查全部

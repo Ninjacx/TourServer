@@ -1,6 +1,6 @@
 /**
  * @name checklogin
- * @description 检查用户是否登录的中间件
+ * @description 检查用户是否登录的一些中间件 等 
  * @author Sky
  */
 var conf = require('../conf/conf');

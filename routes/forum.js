@@ -14,10 +14,11 @@ const uuidv1 = require('uuid/v1');
 
 /*验证登录*/
 const checklogin = require('./checklogin');
-
 const tools = require('../common/tools');
 
-/** Tour - API */
+
+/**---------------------------------1.获取---------------------------------------------*/
+
 // 查出菜单 
 router.get('/getMenu',(req, res, next)=>{
   // 传入groups = 1 则加条件，不然就查全部
@@ -28,53 +29,6 @@ router.get('/getMenu',(req, res, next)=>{
         res.json(result);
       },res);
 });
-
-// 点赞功能 checklogin.AuthMiddlewareGet  要传入token
-router.post('/support',checklogin.AuthMiddleware,(req, res, next)=>{
-  // 传入groups = 1 则加条件，不然就查全部
-    var {token,isSupport,contentId} = req.body;
-    // 验证是否有此条点赞
-    var selectSQL = `select id from t_support where user_id = (select id from t_user where token = "${token}") and is_del = 0 and content_id="${contentId}"`;
-    var insertSupport = `insert into t_support(user_id,is_support,content_id) select id,"${isSupport}","${contentId}"from t_user where token = "${token}"`;
-    var updateSupport = `update t_support set is_support = "${isSupport}" where user_id = (select id from t_user where token = "${token}") and content_id = "${contentId}"`;
-      conf.query(selectSQL,function(err,result){
-        if(result.length){
-           // 已有则更新点赞状态
-           conf.query(updateSupport,function(err,result){
-             checklogin.result(res,result);
-          },res)
-        }else{
-          // 没有记录则新增一条点赞记录
-          conf.query(insertSupport,function(err,result){
-            checklogin.result(res,result);
-          },res)
-        }
-      },res);
-});
-// 收藏功能 checklogin.AuthMiddleware  要传入token
-router.post('/collect',checklogin.AuthMiddleware,(req, res, next)=>{
-  // 传入groups = 1 则加条件，不然就查全部
-    var {token,type_id,type,collect_state} = req.body;
-    // console.log({token,type_id,type,collect_state});
-    // 验证是否有此条点赞
-    var selectSQL = `select id from t_collect where user_id = (select id from t_user where token = "${token}") and type = ${type} and type_id="${type_id}"`;
-    var insertCollect = `insert into t_collect(user_id,collect_state,type_id,type) select id,"${collect_state}","${type_id}","${type}" from t_user where token = "${token}"`;
-    var updateCollect = `update t_collect set collect_state = "${collect_state}" where user_id = (select id from t_user where token = "${token}") and type="${type}" and type_id = "${type_id}"`;
-      conf.query(selectSQL,function(err,result){
-        if(result.length){
-           // 已有则更新点赞状态
-           conf.query(updateCollect,function(err,result){
-             checklogin.result(res,result);
-          },res)
-        }else{
-          // 没有记录则新增一条点赞记录
-          conf.query(insertCollect,function(err,result){
-            checklogin.result(res,result);
-          },res)
-        }
-      },res);
-});
-
 
 // 帖子列表数据（和首页列表差不多） 
 router.get('/forumList',(req, res, next)=> {
@@ -134,8 +88,8 @@ router.get('/search',(req, res, next)=>{
             where title like  "%${searchVal}%" limit 5`;
 
     var searchUserSQL = `select id,nick_name,icon from t_user where nick_name like  "%${searchVal}%" limit 10`;
-    var sqlContent = conf.quertPromise(searchContentSQL);
-    var sqlUser = conf.quertPromise(searchUserSQL);
+    var sqlContent = conf.quertPromise(searchContentSQL,res);
+    var sqlUser = conf.quertPromise(searchUserSQL,res);
     var promise = Promise.all([sqlContent,sqlUser]);
           promise.then(function([resContent,resUser]) {
             if(!resContent.length&&!resUser.length) {
@@ -188,8 +142,10 @@ router.get('/getContentDetail',(req, res, next)=>{
     var selectText = `select id,image_content from t_content_text where  content_id = ${id} and is_del = 0 `;
     // 图片集合    
     var selectForumImg = `select image_url,content_text_id from t_content_image where content_id = ${id} and is_del = 0`;
-
-    var selectSupport = `select t_user.nick_name from t_support left join t_content on t_support.content_id = t_content.id and t_support.is_del = 0 left join t_user on t_support.user_id = t_user.id where t_support.content_id = ${id} and t_support.is_support = 1 order by update_time desc`;
+    // 点赞用户列表
+    var selectSupport = `select t_user.nick_name from t_support left join t_content on t_support.content_id = t_content.id and t_support.is_del = 0 
+    left join t_user on t_support.user_id = t_user.id where t_support.content_id = ${id} and t_support.is_support = 1 order by t_support.update_time desc`;
+    // 当前登录用户是否点赞过
     var selectuserIsSupport = `select t_support.is_support from t_support left join t_user on t_support.user_id = t_user.id 
         where t_support.content_id = ${id} and t_user.token  = "${token}"`;
     // 查询此用户是否关注了此帖和此用户
@@ -199,14 +155,14 @@ router.get('/getContentDetail',(req, res, next)=>{
      where t_content.id = ${id} `;
 
     // 点赞用户显示
-    var sqlforum = conf.quertPromise(selectForum);
+    var sqlforum = conf.quertPromise(selectForum,res);
     
-    var sqlText = conf.quertPromise(selectText);
-    var sqlforumImg = conf.quertPromise(selectForumImg);
+    var sqlText = conf.quertPromise(selectText,res);
+    var sqlforumImg = conf.quertPromise(selectForumImg,res);
     // var sqlComment = conf.quertPromise(selectComment);
-    var sqlSupport = conf.quertPromise(selectSupport);
-    var sqlUserIsSupport = conf.quertPromise(selectuserIsSupport);
-    var sqlUserIsFocus = conf.quertPromise(selectIsFocus);
+    var sqlSupport = conf.quertPromise(selectSupport,res);
+    var sqlUserIsSupport = conf.quertPromise(selectuserIsSupport,res);
+    var sqlUserIsFocus = conf.quertPromise(selectIsFocus,res);
 
     var promise = Promise.all([sqlforum,sqlText,sqlforumImg,sqlSupport,sqlUserIsSupport,sqlUserIsFocus]);//sqlComment
 
@@ -262,7 +218,6 @@ router.get('/getComment',(req, res, next)=>{
     // console.log(whereStr);
     
     var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
-    
     //t_user.userKey, 
     sqlComment = `select t_content.title,count(r.comment_id) as replyCount,a.id as comment_id,a.comment,b.comment as reply,t_user.nick_name as commentNickName,u.nick_name as replyNickName,t_user.icon,t_user.userKey,
       ${tools.setDateTime('a.create_time')}
@@ -278,30 +233,6 @@ router.get('/getComment',(req, res, next)=>{
     conf.query(sqlComment,(err,result)=>{
       checklogin.result(res,result,true);
     },res);
-});
-
-// 发表评论+回复通用 回复多commentId_user  checklogin.AuthMiddleware 要传入token
-router.post('/addComment',checklogin.AuthMiddleware,(req, res, next)=>{
-    var {token,contentId,comment,commentIdUser} = req.body;
-  
-    commentIdUser?commentIdUser:null
-
-    var sqlComment = `insert into t_content_comment(content_id,comment,user_id,commentId_user) 
-                      select "${contentId}","${comment}",id,"${commentIdUser}" from t_user where token = "${token}"`;
-    conf.query(sqlComment,function(err,result){
-        checklogin.resultFn(res,result,()=>{
-          if(commentIdUser){// values("${token}","${commentIdUser}","${comment}");
-            var sqlreply = `insert into t_content_reply(user_id,comment_id,reply) 
-                            select id,"${result.insertId}","${comment}" from t_user where token = "${token}"`;
-            // 插入reply表 
-            conf.query(sqlreply,function(err,replyResult){
-              checklogin.result(res,replyResult,false,"回复成功");
-            },res)
-          }else{
-              checklogin.result(res,result,false,"评论成功");
-          }
-        });
-     },res);
 });
 
 
@@ -344,6 +275,79 @@ router.get('/userContent',(req, res, next)=>{
 		})
 	},res)
 });
+
+
+/**---------------------------------2.操作---------------------------------------------*/
+
+// 点赞功能 checklogin.AuthMiddlewareGet  要传入token
+router.post('/support',checklogin.AuthMiddleware,(req, res, next)=>{
+  // 传入groups = 1 则加条件，不然就查全部
+    var {token,isSupport,contentId} = req.body;
+    // 验证是否有此条点赞
+    var selectSQL = `select id from t_support where user_id = (select id from t_user where token = "${token}") and is_del = 0 and content_id="${contentId}"`;
+    var insertSupport = `insert into t_support(user_id,is_support,content_id) select id,"${isSupport}","${contentId}"from t_user where token = "${token}"`;
+    var updateSupport = `update t_support set is_support = "${isSupport}" where user_id = (select id from t_user where token = "${token}") and content_id = "${contentId}"`;
+      conf.query(selectSQL,function(err,result){
+        if(result.length){
+           // 已有则更新点赞状态
+           conf.query(updateSupport,function(err,result){
+             checklogin.result(res,result);
+          },res)
+        }else{
+          // 没有记录则新增一条点赞记录
+          conf.query(insertSupport,function(err,result){
+            checklogin.result(res,result);
+          },res)
+        }
+      },res);
+});
+// 收藏功能 type=1 帖子, type=2 板块
+router.post('/collect',checklogin.AuthMiddleware,(req, res, next)=>{
+  // 传入groups = 1 则加条件，不然就查全部
+    var {token,type_id,type,collect_state} = req.body;
+    // console.log({token,type_id,type,collect_state});
+    // 验证是否有此条点赞
+    var selectSQL = `select id from t_collect where user_id = (select id from t_user where token = "${token}") and type = ${type} and type_id="${type_id}"`;
+    var insertCollect = `insert into t_collect(user_id,collect_state,type_id,type) select id,"${collect_state}","${type_id}","${type}" from t_user where token = "${token}"`;
+    var updateCollect = `update t_collect set collect_state = "${collect_state}" where user_id = (select id from t_user where token = "${token}") and type="${type}" and type_id = "${type_id}"`;
+      conf.query(selectSQL,function(err,result){
+        if(result.length){
+           // 已有则更新点赞状态
+           conf.query(updateCollect,function(err,result){
+             checklogin.result(res,result);
+          },res)
+        }else{
+          // 没有记录则新增一条点赞记录
+          conf.query(insertCollect,function(err,result){
+            checklogin.result(res,result);
+          },res)
+        }
+      },res);
+});
+
+// 发表评论+回复通用 回复多commentId_user  checklogin.AuthMiddleware 要传入token
+router.post('/addComment',checklogin.AuthMiddleware,(req, res, next)=>{
+    var {token,contentId,comment,commentIdUser} = req.body;
+    commentIdUser?commentIdUser:null;
+    var sqlComment = `insert into t_content_comment(content_id,comment,user_id,commentId_user) 
+                      select "${contentId}","${comment}",id,"${commentIdUser}" from t_user where token = "${token}"`;
+    conf.query(sqlComment,function(err,result){
+        checklogin.resultFn(res,result,()=>{
+          if(commentIdUser){// values("${token}","${commentIdUser}","${comment}");
+            var sqlreply = `insert into t_content_reply(user_id,comment_id,reply) 
+                            select id,"${result.insertId}","${comment}" from t_user where token = "${token}"`;
+            // 插入reply表 
+            conf.query(sqlreply,function(err,replyResult){
+              checklogin.result(res,replyResult,false,"回复成功");
+            },res)
+          }else{
+              checklogin.result(res,result,false,"评论成功");
+          }
+        });
+     },res);
+});
+
+
 
 // 
 

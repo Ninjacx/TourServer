@@ -19,17 +19,6 @@ const tools = require('../common/tools');
 
 /**---------------------------------1.获取---------------------------------------------*/
 
-// 查出菜单 
-router.get('/getMenu',(req, res, next)=>{
-  // 传入groups = 1 则加条件，不然就查全部
-    var groups = req.query.groups?`and groups = ${req.query.groups}`:"";
-    var selectSQL = `select name,icon,groups from t_menu where is_del = 0 ${groups}`;
-      conf.query(selectSQL,function(err,result){
-        var result=JSON.stringify(result);
-        res.json(result);
-      },res);
-});
-
 // 帖子列表数据（和首页列表差不多） 
 router.get('/forumList',(req, res, next)=> {
 	var {page,plateSecond_id}=req.query;

@@ -47,7 +47,7 @@ router.get('/collect',checklogin.AuthMiddlewareGet, function(req, res, next) {
   var sqlCollect = "";
   // 帖子列表
   if(type == 1){
-    sqlCollect = `select t_content.title,t_content.content,t_content.id as contentId,t_plate.plate_name as pname1,t_plate_second.plate_name as pname2,t_content_image.image_url,
+    sqlCollect = `select t_content.title,t_plate_second.id as type_id,t_content.content,t_content.id as contentId,t_plate.plate_name as pname1,t_plate_second.plate_name as pname2,t_content_image.image_url,
       ${tools.setDateTime('t_collect.update_time')},t_collect.collect_state from t_collect 
       left join t_content on type_id = t_content.id 
       left join t_plate_second on t_content.plateSeconde_id = t_plate_second.id
@@ -57,7 +57,7 @@ router.get('/collect',checklogin.AuthMiddlewareGet, function(req, res, next) {
       group by t_content.id order by t_collect.update_time desc limit 10 offset ${offSets}`;
   // 板块列表
   }else if(type == 2){
-    sqlCollect = `select t_plate.plate_name as pname1,t_plate_second.plate_name as pname2,t_plate_second.description,t_plate_second.icon,t_collect.collect_state  from t_collect 
+    sqlCollect = `select t_plate.plate_name as pname1,t_plate_second.id as type_id,t_plate_second.plate_name as pname2,t_plate_second.description,t_plate_second.icon,t_collect.collect_state  from t_collect 
       left join t_plate_second on t_collect.type_id = t_plate_second.id
       left join t_plate on t_plate_second.plate_id = t_plate.id
       where t_collect.user_id = (select id from t_user where token = "${token}") and t_collect.type = 2 and t_collect.collect_state = 1 

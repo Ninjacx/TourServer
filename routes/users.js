@@ -32,7 +32,7 @@ where  t_user.id = (select id from t_user where userKey = "${userKey}")`
 router.get('/focus',checklogin.AuthMiddlewareGet, function(req, res, next) {
   var {token,page} = req.query;
   var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
-  var sqlFocus = `select t_focus.id,t_user.nick_name,t_user.signature,t_user.icon,t_focus.focus_state  from t_focus left join t_user on t_focus.user_focus = t_user.id 
+  var sqlFocus = `select t_focus.user_focus,t_user.nick_name,t_user.signature,t_user.icon,t_focus.focus_state  from t_focus left join t_user on t_focus.user_focus = t_user.id 
                     where t_focus.user_id = (select id from t_user where token = "${token}") 
                     and t_focus.focus_state = 1 order by t_focus.update_time desc limit 10 offset ${offSets}`;
             conf.query(sqlFocus,function(err,result){
@@ -200,22 +200,24 @@ router.post('/changeUserInfo',checklogin.AuthMiddleware, function(req, res, next
 
 // 更新用户关注的人
 router.post('/changeFocusState',checklogin.AuthMiddleware, function(req, res, next) {
-  var {token,focusId,userFans,focusState} = req.body;
-  // 有关注人的数据则更新否则插入一条数据
-  if(focusId){
-    var updateFocus = `update t_focus  left join t_user  on t_focus.user_id = t_user.id SET t_focus.focus_state = "${focusState}"
-                    where  t_focus.id = "${focusId}" and t_user.token = "${token}"`;
-                    conf.query(updateFocus,function(err,result){
-                      checklogin.result(res,result);
-                    },res);
-  }else{
+  var {token,userFocus,focusState} = req.body;
+  var selectSQL = `select nick_name from t_focus left join t_user on t_focus.user_id = t_user.id where t_user.token = "${token}" and user_focus = "${userFocus}"`;
+  conf.query(selectSQL,function(err,result){
+    if(result.length){
+      var updateFocus = `update t_focus  left join t_user  on t_focus.user_id = t_user.id SET t_focus.focus_state = "${focusState}"
+      where  t_focus.user_focus = "${userFocus}" and t_user.token = "${token}"`;
+      conf.query(updateFocus,function(err,result){
+        checklogin.result(res,result);
+      },res);
+    }else{
         // userFans 关注哪个用户的ID
-        var insertFocus = `insert into t_focus(user_id,user_focus) select id,"${userFans}" from t_user where token = "${token}"`;//values("${userId}","${userFans}")`;
-                    conf.query(insertFocus,function(err,result){
-                      // console.log(result.insertId);
-                      checklogin.result(res,result,true);
-                    },res);
-  }
+        var insertFocus = `insert into t_focus(user_id,user_focus) select id,"${userFocus}" from t_user where token = "${token}"`;//values("${userId}","${userFans}")`;
+        conf.query(insertFocus,function(err,result){
+          // console.log(result.insertId);
+          checklogin.result(res,result,true);
+        },res);
+    }
+  },res);
 });
 
 /** 操作 */

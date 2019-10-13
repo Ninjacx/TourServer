@@ -76,7 +76,7 @@ router.get('/search',(req, res, next)=>{
             left join t_plate_second on t_content.plateSeconde_id= t_plate_second.id 
             where title like  "%${searchVal}%" limit 5`;
 
-    var searchUserSQL = `select id,nick_name,icon from t_user where nick_name like  "%${searchVal}%" limit 10`;
+    var searchUserSQL = `select userKey,nick_name,icon from t_user where nick_name like  "%${searchVal}%" limit 10`;
     var sqlContent = conf.quertPromise(searchContentSQL,res);
     var sqlUser = conf.quertPromise(searchUserSQL,res);
     var promise = Promise.all([sqlContent,sqlUser]);

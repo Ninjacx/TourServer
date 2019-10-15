@@ -200,20 +200,28 @@ router.post('/changeUserInfo',checklogin.AuthMiddleware, function(req, res, next
 
 // 更新用户关注的人
 router.post('/changeFocusState',checklogin.AuthMiddleware, function(req, res, next) {
-  var {token,userFocus,focusState} = req.body;
-  var selectSQL = `select nick_name from t_focus left join t_user on t_focus.user_id = t_user.id where t_user.token = "${token}" and user_focus = "${userFocus}"`;
+  var {token,userFocus,focusState, userKey} = req.body;
+  var selectAnd,insertAnd,updateAnd = '';
+  
+  if(userKey){
+    selectAnd = `and t_focus.user_focus = (select id from t_user where userKey = "${userKey}")`;
+  }else if(userFocus) {
+    selectAnd = `and t_focus.user_focus = "${userFocus}"`;
+  }
+
+  var selectSQL = `select nick_name from t_focus left join t_user on t_focus.user_id = t_user.id where t_user.token = "${token}" ${selectAnd} `;
+  // console.log(selectSQL);
   conf.query(selectSQL,function(err,result){
     if(result.length){
       var updateFocus = `update t_focus  left join t_user  on t_focus.user_id = t_user.id SET t_focus.focus_state = "${focusState}"
-      where  t_focus.user_focus = "${userFocus}" and t_user.token = "${token}"`;
+      where 1=1 ${selectAnd} and t_user.token = "${token}"`;
       conf.query(updateFocus,function(err,result){
         checklogin.result(res,result);
       },res);
     }else{
         // userFans 关注哪个用户的ID
-        var insertFocus = `insert into t_focus(user_id,user_focus) select id,"${userFocus}" from t_user where token = "${token}"`;//values("${userId}","${userFans}")`;
+        var insertFocus = `insert into t_focus(user_id,user_focus) select id,(select id from t_user where userKey = "${userKey}") from t_user where token = "${token}"`;//values("${userId}","${userFans}")`;
         conf.query(insertFocus,function(err,result){
-          // console.log(result.insertId);
           checklogin.result(res,result,true);
         },res);
     }

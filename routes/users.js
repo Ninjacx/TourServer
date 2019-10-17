@@ -50,7 +50,7 @@ router.get('/collect',checklogin.AuthMiddlewareGet, function(req, res, next) {
     sqlCollect = `select t_content.title,t_plate_second.id as type_id,t_content.content,t_content.id as contentId,t_plate.plate_name as pname1,t_plate_second.plate_name as pname2,t_content_image.image_url,
       ${tools.setDateTime('t_collect.update_time')},t_collect.collect_state from t_collect 
       left join t_content on type_id = t_content.id 
-      left join t_plate_second on t_content.plateSeconde_id = t_plate_second.id
+      left join t_plate_second on t_content.plateSecond_id = t_plate_second.id
       left join t_plate on t_plate_second.plate_id = t_plate.id
       left join t_content_image on t_content_image.content_id = t_content.id
       where t_collect.user_id = (select id from t_user where token = "${token}") and t_collect.type = 1 and t_collect.collect_state = 1 

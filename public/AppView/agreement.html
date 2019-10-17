@@ -1,14 +1,36 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no,upgrade-insecure-requests">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta http-equiv="Content-Language" content="zh-cn" />
-    <title></title>
+	<link href="css/base.css?vid=1" rel="stylesheet" type="text/css" />
+	<link href="css/comm.css" rel="stylesheet" type="text/css" />
+    <title>用户协议</title>
+	
+
+	
+	
+	
+	
+    <script>
+		new function (){
+			var _self = this;
+			_self.width = 750;//设置默认最大宽度
+			_self.fontSize = 100;//默认字体大小
+			_self.widthProportion = function(){var p = (document.body&&document.body.clientWidth||document.getElementsByTagName("html")[0].offsetWidth)/_self.width;return p>1?1:p;};
+			_self.changePage = function(){
+				document.getElementsByTagName("html")[0].setAttribute("style","font-size:"+_self.widthProportion()*_self.fontSize+"px !important");
+			}
+			_self.changePage();
+			window.addEventListener('resize',function(){_self.changePage();},false);
+		};
+   </script>
   </head>
   <body>
-       <div>用户协议</div>
+	 <div class="fs29 mlr20">
+       <div class="tCenter mtb20" style="font-size:.35rem">用户协议</div>
        <div>欢迎注册并使用XXXX所提供的服务。本协议是由XXXX公司（以下简称我公司）与用户（指注册、登录、使用本服务的个人，以下有时称为“您”）
         就XXXX（以下简称“本产品”）提供的服务所订立的相关权利义务规范。</div>
        
@@ -56,20 +78,6 @@
 我们会采取合理的实际及电子手段以及规程保障措施来保护您的个人信息。 虽然通过因特网信息传输数据并非100% 安全，但我们已经采取并将继续采取商业范畴内合理的努力来确保您的个人信息得到保护。 6、未成年人隐私保护 
 我公司重视对未成年人个人隐私信息的保护。我公司将依赖用户提供的个人信息判断用户是否为未成年人。任何18岁以下的未成年人注册账号或使用本服务应事先取得家长或其法定监护人（以下简称“监护人”）的书面同意。除根据法律法规的规定及有权机关的指示披露外，我公司不会使用向任何第三方透露未成年人的个人隐私信息。
         </div>
-        <div>
-          
-        </div>
-        <div>
-          
-        </div>
-        <div>
-          
-        </div>
-        <div>
-          
-        </div>
-        <div>
-          
-        </div>
+	</div>
   </body>
 </html>

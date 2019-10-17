@@ -23,12 +23,12 @@ const tools = require('../common/tools');
 router.get('/forumList',(req, res, next)=> {
 	var {page,plateSecond_id}=req.query;
   var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
-  var plateSeconde_id = req.query.plateSeconde_id?`and t_content.plateSeconde_id = ${req.query.plateSeconde_id}`:"";
+  var plateSecond_id = plateSecond_id?`and t_content.plateSecond_id = ${plateSecond_id}`:"";
 	// var offSets = ((page?page:1)- 1) * 10;
 	var contentsql = `select t_content.*,DATE_FORMAT(t_content.create_time,"%Y-%m-%d")as create_time,t_user.nick_name,icon from t_content 
-					left join t_user on t_content.user_id = t_user.id where t_content.is_del=0  ${plateSeconde_id} limit 10 offset ${offSets}`;
+					left join t_user on t_content.user_id = t_user.id where t_content.is_del=0  ${plateSecond_id} limit 10 offset ${offSets}`;
 	// 查询10条数据第N页 这样不需要查询图片表中所有数据 则增加效率
-	var contentImg = `SELECT * from t_content_image left join (SELECT id from t_content where is_del=0 ${plateSeconde_id} limit 10 offset ${offSets}) as t_content 
+	var contentImg = `SELECT * from t_content_image left join (SELECT id from t_content where is_del=0 ${plateSecond_id} limit 10 offset ${offSets}) as t_content 
 					on t_content_image.content_id = t_content.id where t_content_image.is_del=0`;
 	conf.query(contentsql,function(err,result1){
     checklogin.resultFn(res,result1,()=>{
@@ -65,18 +65,19 @@ router.get('/getBanner',(req, res, next)=>{
 
 // 搜索 用户、帖子
 router.get('/search',(req, res, next)=>{
-  var searchVal = req.query.searchVal?tools.trim(req.query.searchVal):null;
-  var {page} = req.query;
-  var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
+  var {searchVal} = req.query;
+       searchVal = searchVal?tools.trim(searchVal):null;
+  
+  // var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
   var searchContentSQL = `
           select ${tools.setDateTime('t_content.create_time')} ,
-            t_plate_second.plate_name,t_user.nick_name,t_content.title
+            t_plate_second.plate_name,t_user.nick_name,t_content.title,t_content.id as contentId
             from t_content 
             left join t_user on t_content.user_id = t_user.id 
-            left join t_plate_second on t_content.plateSeconde_id= t_plate_second.id 
-            where title like  "%${searchVal}%" limit 5`;
+            left join t_plate_second on t_content.plateSecond_id= t_plate_second.id 
+            where title like  "%${searchVal}%" limit 6`;
 
-    var searchUserSQL = `select userKey,nick_name,icon from t_user where nick_name like  "%${searchVal}%" limit 10`;
+    var searchUserSQL = `select userKey,nick_name,icon from t_user where nick_name like  "%${searchVal}%" limit 11`;
     var sqlContent = conf.quertPromise(searchContentSQL,res);
     var sqlUser = conf.quertPromise(searchUserSQL,res);
     var promise = Promise.all([sqlContent,sqlUser]);
@@ -84,7 +85,8 @@ router.get('/search',(req, res, next)=>{
             if(!resContent.length&&!resUser.length) {
               res.json({
                 code: -1,
-                msg: "没有数据"
+                msg: "没有数据",
+                data: []
               })
             }else{
               res.json({
@@ -124,7 +126,7 @@ router.get('/getContentDetail',(req, res, next)=>{
         ${tools.setDateTime('t_content.create_time')}
         ,t_content.*,t_user.userKey,t_user.nick_name,t_user.icon ,t_plate_second.plate_name
       from t_content 
-        left join t_plate_second on t_content.plateSeconde_id = t_plate_second.id
+        left join t_plate_second on t_content.plateSecond_id = t_plate_second.id
         left join t_user on t_user.id = t_content.user_id where t_content.id = ${id} and t_content.is_del = 0`;
 
     // 图片内容
@@ -236,7 +238,7 @@ router.get('/userContent',(req, res, next)=>{
   var contentsql = `select t_plate.plate_name,t_plate_second.plate_name as secondPlate_name,t_content.*,
             ${tools.setDateTime('t_content.create_time')}
             ,t_user.nick_name,t_user.icon from t_content 
-						left join t_plate_second on t_plate_second.id = t_content.plateSeconde_id
+						left join t_plate_second on t_plate_second.id = t_content.plateSecond_id
 						left join t_plate on t_plate.id = t_plate_second.plate_id
 						left join t_user on t_content.user_id = t_user.id where t_content.is_del = 0 ${userParams} order by t_content.create_time limit 10 offset ${offSets}`;
 	// 查询10条数据第N页 这样不需要查询图片表中所有数据 则增加效率

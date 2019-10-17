@@ -41,7 +41,7 @@ WHEN 0 THEN '今天' WHEN 1 then '昨天' WHEN 2 then '前天' ELSE DATE_FORMAT(
 	var contentsql = `select t_plate.plate_name,t_plate_second.plate_name as secondPlate_name,t_content.*,
 						${tools.setDateTime('t_content.create_time')}
 						,t_user.nick_name,t_user.icon,t_user.userKey from t_content
-						left join t_plate_second on t_plate_second.id = t_content.plateSeconde_id
+						left join t_plate_second on t_plate_second.id = t_content.plateSecond_id
 						left join t_plate on t_plate.id = t_plate_second.plate_id
 						left join t_user on t_content.user_id = t_user.id where t_content.is_del = 0  order by t_content.create_time limit 10 offset ${offSets}`;
 	// 查询10条数据第N页 这样不需要查询图片表中所有数据 则增加效率
@@ -125,13 +125,13 @@ router.post('/uploadQNY',function(req, res, next) {
 		// console.log(params);
 		// return false;
 		// fileArr
-		var {uploadToken,title,TextArr,ImgTextId,plateSeconde_id,token} = params;
+		var {uploadToken,title,TextArr,ImgTextId,plateSecond_id,token} = params;
 		
 		var TextArr = JSON.parse(TextArr);
 		var ImgTextId = JSON.parse(ImgTextId);
 		
-		// user_id 发帖用户 ${title}","${plateSeconde_id}
-		var addContentSql = `insert into t_content(title,plateSeconde_id,user_id) select "${title}","${plateSeconde_id}",id from t_user where token = "${token}"`;
+		// user_id 发帖用户 ${title}","${plateSecond_id}
+		var addContentSql = `insert into t_content(title,plateSecond_id,user_id) select "${title}","${plateSecond_id}",id from t_user where token = "${token}"`;
 		console.log(addContentSql);
 		// return false;
 		 // 1.先插入一条帖子表数据返回帖子ID

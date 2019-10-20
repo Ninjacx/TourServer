@@ -8,7 +8,7 @@
  const tools = {
    isNull: function(str,message,res) {
       /*验证字符串是否为空*/
-      if(Boolean(str.replace(/(^\s*)|(\s*$)/g, ""))){
+      if(!Boolean(str.replace(/(^\s*)|(\s*$)/g, ""))){
          res.json({
             code: -1,
             msg: message,

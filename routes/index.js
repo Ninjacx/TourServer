@@ -28,14 +28,8 @@ const serverIp = 'http://192.168.1.33/';//'http://192.168.1.33/';
 /**---------------------------------1.获取---------------------------------------------*/
 // 首页展示的数据 
 router.get('/homeData',(req, res, next)=>{
-	// 显示发帖时间例子
-	/**select CASE (DATE_FORMAT(now(),"%y%m%d")-DATE_FORMAT(t_content.create_time,"%y%m%d"))
-WHEN 0 THEN '今天' WHEN 1 then '昨天' WHEN 2 then '前天' ELSE DATE_FORMAT(t_content.create_time,"20%y-%m-%d") END as dataTime from t_content 
- */
 	var {page}=req.query;
-	// 查看用户详情中帖子传入用户ID 需要用到
-	// var userId = userId?`and t_content.user_id = ${userId}`: "";
-	// console.log(userId);
+	
 	var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
 	// var offSets = ((page?page:1)- 1) * 10;
 	var contentsql = `select t_plate.plate_name,t_plate_second.plate_name as secondPlate_name,t_content.*,

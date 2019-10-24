@@ -25,8 +25,10 @@ router.get('/forumList',(req, res, next)=> {
   var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
   var plateSecond_id = plateSecond_id?`and t_content.plateSecond_id = ${plateSecond_id}`:"";
 	// var offSets = ((page?page:1)- 1) * 10;
-	var contentsql = `select t_content.*,${tools.setDateTime('t_content.create_time')} ,t_user.nick_name,t_user.userKey,icon from t_content 
-					left join t_user on t_content.user_id = t_user.id where t_content.is_del=0  ${plateSecond_id} order by t_content.create_time desc limit 10 offset ${offSets}`;
+	var contentsql = `select t_plate.plate_name,t_plate_second.plate_name as secondPlate_name, t_content.*,${tools.setDateTime('t_content.create_time')} ,t_user.nick_name,t_user.userKey,t_user.icon from t_content 
+        left join t_plate_second on t_plate_second.id = t_content.plateSecond_id
+        left join t_plate on t_plate.id = t_plate_second.plate_id
+        left join t_user on t_content.user_id = t_user.id where t_content.is_del=0  ${plateSecond_id} order by t_content.create_time desc limit 10 offset ${offSets}`;
 	// 查询10条数据第N页 这样不需要查询图片表中所有数据 则增加效率
 	var contentImg = `SELECT * from t_content_image left join (SELECT id from t_content where is_del=0 ${plateSecond_id} order by t_content.create_time desc limit 10 offset ${offSets}) as t_content 
 					on t_content_image.content_id = t_content.id where t_content_image.is_del=0`;

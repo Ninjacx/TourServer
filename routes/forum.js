@@ -122,6 +122,7 @@ router.get('/getContentDetail',(req, res, next)=>{
     // left join t_content_comment as b on b.id = a.commentId_user 
     // left join t_user u on u.id = b.user_id 
     // left join t_content_reply  as r  on r.comment_id = a.id and r.is_del=0 where a.content_id= ${id} and a.is_del = 0  GROUP BY a.id`;
+    
     // 帖子信息详情
     var selectForum = `select 
     (select count(content_id) from t_content_comment where content_id = ${id} and is_del = 0 GROUP BY content_id)as AllcommentCount,
@@ -131,6 +132,11 @@ router.get('/getContentDetail',(req, res, next)=>{
         left join t_plate_second on t_content.plateSecond_id = t_plate_second.id
         left join t_user on t_user.id = t_content.user_id where t_content.id = ${id} and t_content.is_del = 0`;
 
+    // 帖子 一些菜单信息等 价格、联系微信、联系电话等
+    var selectType = `select t_platesecond_type.title,t_content_type.content from  t_content_type
+        left join t_platesecond_type on t_content_type.platesecond_type_id = t_platesecond_type.id
+        where t_content_type.content_id =  313`;//${id}
+    
     // 图片内容
     var selectText = `select id,image_content from t_content_text where  content_id = ${id} and is_del = 0 `;
     // 图片集合    
@@ -156,10 +162,11 @@ router.get('/getContentDetail',(req, res, next)=>{
     var sqlSupport = conf.quertPromise(selectSupport,res);
     var sqlUserIsSupport = conf.quertPromise(selectuserIsSupport,res);
     var sqlUserIsFocus = conf.quertPromise(selectIsFocus,res);
+    
+    var sqlType = conf.quertPromise(selectType,res);
+    var promise = Promise.all([sqlforum,sqlText,sqlforumImg,sqlSupport,sqlUserIsSupport,sqlUserIsFocus,sqlType]);//sqlComment
 
-    var promise = Promise.all([sqlforum,sqlText,sqlforumImg,sqlSupport,sqlUserIsSupport,sqlUserIsFocus]);//sqlComment
-
-    promise.then(function([resforum,resText,resforumImg,resSupport,resUserIsSupport,resUserIsFocus]) { //resComment
+    promise.then(function([resforum,resText,resforumImg,resSupport,resUserIsSupport,resUserIsFocus,resType]) { //resComment
 
       // console.log(resText);
 
@@ -176,6 +183,7 @@ router.get('/getContentDetail',(req, res, next)=>{
             code: 200,
             data: {
               detail: resforum,
+              typeList: resType,
               // forumImg: resforumImg,
               resText: resText,
               support: resSupport,

@@ -110,6 +110,18 @@ router.get('/search',(req, res, next)=>{
           });
 });
 
+// 查询出发帖中的类型菜单
+router.get('/contentWriteType',(req, res, next)=>{
+  var {plateSecondId} = req.query;
+
+  var selectWriteType = `select t_platesecond_type.title from t_platesecond_join_type 
+        left join t_plate_second on t_platesecond_join_type.plateSecond_id  = t_plate_second.id
+        left join t_platesecond_type on t_platesecond_join_type.plateSecond_type_id  = t_platesecond_type.id
+        where t_plate_second.id = ${plateSecondId}`;
+        conf.query(selectWriteType,(err,result)=> {
+          checklogin.result(res,result,true);
+        },res);
+})
 // 查出APP帖子详情
 router.get('/getContentDetail',(req, res, next)=>{
   // 传入groups = 1 则加条件，不然就查全部
@@ -135,7 +147,7 @@ router.get('/getContentDetail',(req, res, next)=>{
     // 帖子 一些菜单信息等 价格、联系微信、联系电话等
     var selectType = `select t_platesecond_type.title,t_content_type.content from  t_content_type
         left join t_platesecond_type on t_content_type.platesecond_type_id = t_platesecond_type.id
-        where t_content_type.content_id =  313`;//${id}
+        where t_content_type.content_id =  ${id}`;
     
     // 图片内容
     var selectText = `select id,image_content from t_content_text where  content_id = ${id} and is_del = 0 `;

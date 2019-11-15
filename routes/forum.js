@@ -114,7 +114,7 @@ router.get('/search',(req, res, next)=>{
 router.get('/contentWriteType',(req, res, next)=>{
   var {plateSecondId} = req.query;
 
-  var selectWriteType = `select t_platesecond_type.title from t_platesecond_join_type 
+  var selectWriteType = `select t_platesecond_type.title,t_platesecond_type.id from t_platesecond_join_type 
         left join t_plate_second on t_platesecond_join_type.plateSecond_id  = t_plate_second.id
         left join t_platesecond_type on t_platesecond_join_type.plateSecond_type_id  = t_platesecond_type.id
         where t_plate_second.id = ${plateSecondId}`;

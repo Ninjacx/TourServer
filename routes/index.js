@@ -119,10 +119,21 @@ router.post('/uploadQNY',function(req, res, next) {
 		// console.log(params);
 		// return false;
 		// fileArr
-		var {uploadToken,title,TextArr,ImgTextId,plateSecond_id,token} = params;
+		var {uploadToken,title,typeList,TextArr,ImgTextId,plateSecond_id,token} = params;
 		
 		var TextArr = JSON.parse(TextArr);
 		var ImgTextId = JSON.parse(ImgTextId);
+		// 帖子类型的填写，手机，微信，价格等
+		var typeList = JSON.parse(typeList);
+
+		//  关联图片是属于哪条内容的ID
+		for (let index = 0; index < typeList.length; index++) {
+			// if(ImgTextId[index] == j){
+			// 	console.log(TextArr[j].txtImgId);
+			// 	insertStr+=`("http://pzg1wfdg2.bkt.clouddn.com/${fileName}${imagePath}","${TextArr[j].txtImgId}","${contentId}"),`;
+			// }
+		}
+		
 		
 		// user_id 发帖用户 ${title}","${plateSecond_id}
 		var addContentSql = `insert into t_content(title,plateSecond_id,user_id) select "${title}","${plateSecond_id}",id from t_user where token = "${token}"`;
@@ -137,11 +148,21 @@ router.post('/uploadQNY',function(req, res, next) {
 				})
 			},res);
 		 }).then(async (contentId)=>{
-			console.log(`contentId${contentId}`);
-			// 执行插入 内容数据至表并返回内容ID 
-			for (let index = 0; index < TextArr.length; index++) {
-				TextArr[index].txtImgId =  await InsertId(TextArr[index].content,contentId);
-			}
+			 // 执行插入 内容数据至表并返回内容ID 
+			// console.log(`contentId${contentId}`);
+
+			// 插入帖子类型数据 ，微信，手机，价格等
+			// var TypeListStr = "";
+			// for (let index = 0; index < typeList.length; index++) {
+			// 	// TextArr[index].txtImgId =  await InsertId(TextArr[index].content,contentId);
+			// 	TypeListStr+=`("${contentId}}","${typeList[index].id}","${typeList[index].id}"),`;
+			// }
+			// TypeListStr = TypeListStr.slice(0,TypeListStr.length-1);
+			// var addTypeList = `insert into t_content_platesecond_type(content_id,plateSecondType_id,type_content)values${TypeListStr}`;
+			// console.log(addTypeList);
+
+
+
 			// 内容对应 数据库内容ID
 			var config = new qiniu.conf.Config();
 			// 空间对应的机房
@@ -153,19 +174,16 @@ router.post('/uploadQNY',function(req, res, next) {
 			// var uploadToken = 'E8sxauX_j1uhsQrJOIPI7JXqhLv5ysUxjaQcr7g_:OoUJEk7esHu4CH3igdIRZut34wg=:eyJjYWxsYmFja1VybCI6Imh0dHA6Ly8xOTIuMTY4LjEuMzkvUU5ZY2FsbGJhY2siLCJzY29wZSI6InRvdXJpbWciLCJkZWFkbGluZSI6MTU2ODY5Mjg5OH0=';
 			var formUploader = new qiniu.form_up.FormUploader(config);
 			var putExtra = new qiniu.form_up.PutExtra();
-			var insertStr = '';
-			// console.log(TextArr);
-			// return false;
+			
 			// 循环上传图片  
-			
 			// 不为空才走上传！！！！！！！！！！！！！files.file
-			
+
+			var insertStr = "";
 			for (let index = 0; index < files.file.length; index++) {
-				
 				var imagePath = path.extname(files.file[index].name);	 
 				// console.log(imagePath);
 				var fileName = uuidv1();
-				//  关联图片是属于哪条内容的ID
+					//  关联图片是属于哪条内容的ID
 					for (let j = 0; j < TextArr.length; j++) {
 						if(ImgTextId[index] == j){
 							console.log(TextArr[j].txtImgId);

@@ -119,10 +119,11 @@ router.post('/uploadQNY',function(req, res, next) {
 		// console.log(params);
 		// return false;
 		// fileArr
-		var {uploadToken,title,TextArr,ImgTextId,plateSecond_id,token} = params;
+		var {uploadToken,title,TextArr,typeList,ImgTextId,plateSecond_id,token} = params;
 		
 		var TextArr = JSON.parse(TextArr);
 		var ImgTextId = JSON.parse(ImgTextId);
+		var typeList = JSON.parse(typeList);
 		
 		// user_id 发帖用户 ${title}","${plateSecond_id}
 		var addContentSql = `insert into t_content(title,plateSecond_id,user_id) select "${title}","${plateSecond_id}",id from t_user where token = "${token}"`;
@@ -140,16 +141,16 @@ router.post('/uploadQNY',function(req, res, next) {
 			console.log(`contentId${contentId}`);
 			// 插入帖子类型数据 ，微信，手机，价格等
 			console.log(`------------`);
-//             var TypeListStr = "";
-//             for (let index = 0; index < typeList.length; index++) {
-//                 // TextArr[index].txtImgId =  await InsertId(TextArr[index].content,contentId);
-//                 TypeListStr+=`("${contentId}","${typeList[index].id}","${typeList[index].content}"),`;
-//             }
-//             TypeListStr = TypeListStr.slice(0,TypeListStr.length-1);
-//             var addTypeList = `insert into t_content_platesecond_type(content_id,plateSecondType_id,type_content)values${TypeListStr}`;
-//             conf.query(addTypeList,function(error,result){
-//                 checklogin.result(res,result,false);
-//             },res);
+            var TypeListStr = "";
+            for (let index = 0; index < typeList.length; index++) {
+                TypeListStr+=`("${contentId}","${typeList[index].id}","${typeList[index].content}"),`;
+            }
+            TypeListStr = TypeListStr.slice(0,TypeListStr.length-1);
+			console.log(TypeListStr);
+            var addTypeList = `insert into t_content_platesecond_type(content_id,plateSecondType_id,type_content)values${TypeListStr}`;//"insert into t_content_platesecond_type(content_id,plateSecondType_id,type_content)values$"+TypeListStr;
+            conf.query(addTypeList,function(error,result){
+				checklogin.resultFn(res,result,false);
+            },res);
 
 
 			// 执行插入 内容数据至表并返回内容ID 

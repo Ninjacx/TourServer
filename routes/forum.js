@@ -144,7 +144,7 @@ router.get('/getContentDetail',(req, res, next)=>{
         left join t_plate_second on t_content.plateSecond_id = t_plate_second.id
         left join t_user on t_user.id = t_content.user_id where t_content.id = ${id} and t_content.is_del = 0`;
 
-    // 帖子 一些菜单信息等 价格、联系微信、联系电话等
+    // 帖子 一些菜单信息等 价格、联系微信、联系电话等(要修改 取出，t_content_platesecond_type)
     var selectType = `select t_platesecond_type.title,t_content_type.content from  t_content_type
         left join t_platesecond_type on t_content_type.platesecond_type_id = t_platesecond_type.id
         where t_content_type.content_id =  ${id}`;

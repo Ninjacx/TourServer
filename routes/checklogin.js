@@ -63,7 +63,9 @@ const checklogin = {
     var successMsg = successMsg ? successMsg : "操作成功";
     var failMsg = failMsg ? failMsg : "请稍后再试";
     if (result.length || result.changedRows || result.insertId) {
-      resFn();
+      if(resFn){
+        resFn();
+      }
     } else {
       resJson.json({ code: -1, msg: failMsg });
     }

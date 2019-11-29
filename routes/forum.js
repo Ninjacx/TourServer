@@ -262,9 +262,9 @@ router.get('/userContent',(req, res, next)=>{
             ,t_user.nick_name,t_user.icon from t_content 
 						left join t_plate_second on t_plate_second.id = t_content.plateSecond_id
 						left join t_plate on t_plate.id = t_plate_second.plate_id
-						left join t_user on t_content.user_id = t_user.id where t_content.is_del = 0 ${userParams} order by t_content.create_time limit 10 offset ${offSets}`;
+						left join t_user on t_content.user_id = t_user.id where t_content.is_del = 0 ${userParams} order by t_content.create_time desc limit 10 offset ${offSets}`;
 	// 查询10条数据第N页 这样不需要查询图片表中所有数据 则增加效率
-	var contentImg = `select content_id,image_url from t_content_image LEFT JOIN (SELECT id from t_content where is_del = 0 ${userParams} order by create_time LIMIT 10 OFFSET ${offSets}) as t_content 
+	var contentImg = `select content_id,image_url from t_content_image LEFT JOIN (SELECT id from t_content where is_del = 0 ${userParams} order by create_time desc LIMIT 10 OFFSET ${offSets}) as t_content 
 					  on t_content_image.content_id = t_content.id where t_content_image.is_del=0 `;
 	conf.query(contentsql,function(err,result1){
 		checklogin.resultFn(res,result1,()=>{

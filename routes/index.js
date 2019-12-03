@@ -39,7 +39,7 @@ router.get('/homeData',(req, res, next)=>{
 						left join t_plate on t_plate.id = t_plate_second.plate_id
 						left join t_user on t_content.user_id = t_user.id where t_content.is_del = 0  order by t_content.create_time desc limit 10 offset ${offSets}`;
 	// 查询10条数据第N页 这样不需要查询图片表中所有数据 则增加效率
-	var contentImg = `select content_id,image_url from t_content_image LEFT JOIN (SELECT id from t_content where is_del = 0  order by create_time desc LIMIT 10 OFFSET ${offSets}) as t_content 
+	var contentImg = `select content_id,image_url,is_video from t_content_image LEFT JOIN (SELECT id from t_content where is_del = 0  order by create_time desc LIMIT 10 OFFSET ${offSets}) as t_content 
 					  on t_content_image.content_id = t_content.id where t_content_image.is_del=0 `;
 	conf.query(contentsql,function(err,result1){
 		checklogin.resultFn(res,result1,()=>{
@@ -49,7 +49,7 @@ router.get('/homeData',(req, res, next)=>{
 						item1.imgList = [];
 						result2.map((item2)=>{
 							// 此处图片首页最多显示9张
-							if(item1.id == item2.content_id&&item1.imgList.length<9){
+							if(item1.id == item2.content_id && item1.imgList.length<9 && item2.is_video !=1){
 								item1.imgList.push(item2.image_url);
 							}
 						})

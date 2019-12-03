@@ -152,7 +152,7 @@ router.get('/getContentDetail',(req, res, next)=>{
     // 图片内容
     var selectText = `select id,image_content from t_content_text where  content_id = ${id} and is_del = 0 `;
     // 图片集合    
-    var selectForumImg = `select image_url,content_text_id from t_content_image where content_id = ${id} and is_del = 0`;
+    var selectForumImg = `select image_url,content_text_id,is_video from t_content_image where content_id = ${id} and is_del = 0`;
     // 点赞用户列表
     var selectSupport = `select t_user.nick_name from t_support left join t_content on t_support.content_id = t_content.id and t_support.is_del = 0 
     left join t_user on t_support.user_id = t_user.id where t_support.content_id = ${id} and t_support.is_support = 1 order by t_support.update_time desc`;
@@ -187,7 +187,7 @@ router.get('/getContentDetail',(req, res, next)=>{
         resText[i].imageList = [];
           resforumImg.map((item2)=>{
             if(item.id == item2.content_text_id){
-              resText[i].imageList.push(item2.image_url);
+              resText[i].imageList.push({image_url: item2.image_url,is_video: item2.is_video});
             }
           })
       });

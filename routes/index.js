@@ -141,16 +141,22 @@ router.post('/uploadQNY',function(req, res, next) {
 			console.log(`contentId${contentId}`);
 			// 插入帖子类型数据 ，微信，手机，价格等
 			console.log(`------------`);
-            var TypeListStr = "";
-            for (let index = 0; index < typeList.length; index++) {
-                TypeListStr+=`("${contentId}","${typeList[index].id}","${typeList[index].content}"),`;
-            }
-            TypeListStr = TypeListStr.slice(0,TypeListStr.length-1);
-			console.log(TypeListStr);
-            var addTypeList = `insert into t_content_platesecond_type(content_id,plateSecondType_id,type_content)values${TypeListStr}`;//"insert into t_content_platesecond_type(content_id,plateSecondType_id,type_content)values$"+TypeListStr;
-            conf.query(addTypeList,function(error,result){
-				checklogin.resultFn(res,result,false);
-            },res);
+
+			// 类型有数据才加
+			if(typeList.length) {
+				var TypeListStr = "";
+	            for (let index = 0; index < typeList.length; index++) {
+	                TypeListStr+=`("${contentId}","${typeList[index].id}","${typeList[index].content}"),`;
+	            }
+	            TypeListStr = TypeListStr.slice(0,TypeListStr.length-1);
+				console.log(TypeListStr);
+	            var addTypeList = `insert into t_content_platesecond_type(content_id,plateSecondType_id,type_content)values${TypeListStr}`;//"insert into t_content_platesecond_type(content_id,plateSecondType_id,type_content)values$"+TypeListStr;
+	            conf.query(addTypeList,function(error,result){
+					checklogin.resultFn(res,result,false);
+	            },res);
+			}
+            
+
 
 
 			// 执行插入 内容数据至表并返回内容ID 

@@ -141,7 +141,6 @@ router.post('/uploadQNY',function(req, res, next) {
 			console.log(`contentId${contentId}`);
 			// 插入帖子类型数据 ，微信，手机，价格等
 			console.log(`------------`);
-
 			// 类型有数据才加
 			if(typeList.length) {
 				var TypeListStr = "";
@@ -156,9 +155,6 @@ router.post('/uploadQNY',function(req, res, next) {
 	            },res);
 			}
             
-
-
-
 			// 执行插入 内容数据至表并返回内容ID 
 			for (let index = 0; index < TextArr.length; index++) {
 				TextArr[index].txtImgId =  await InsertId(TextArr[index].content,contentId);
@@ -171,16 +167,13 @@ router.post('/uploadQNY',function(req, res, next) {
 			//config.useHttpsDomain = true;
 			// 上传是否使用cdn加速
 			//config.useCdnDomain = true;
-			// var uploadToken = 'E8sxauX_j1uhsQrJOIPI7JXqhLv5ysUxjaQcr7g_:OoUJEk7esHu4CH3igdIRZut34wg=:eyJjYWxsYmFja1VybCI6Imh0dHA6Ly8xOTIuMTY4LjEuMzkvUU5ZY2FsbGJhY2siLCJzY29wZSI6InRvdXJpbWciLCJkZWFkbGluZSI6MTU2ODY5Mjg5OH0=';
 			var formUploader = new qiniu.form_up.FormUploader(config);
 			var putExtra = new qiniu.form_up.PutExtra();
-			
 			// 循环上传图片  
 			// 不为空才走上传！！！！！！！！！！！！！files.file
 			var insertStr = '';
 			for (let index = 0; index < files.file.length; index++) {
 				var imagePath = path.extname(files.file[index].name);	 
-				// console.log(imagePath);
 				var fileName = uuidv1();
 				//  关联图片是属于哪条内容的ID
 					for (let j = 0; j < TextArr.length; j++) {
@@ -190,8 +183,6 @@ router.post('/uploadQNY',function(req, res, next) {
 						}
 					}
 					// 上传到七牛云
-					// console.log(fileName+imagePath);
-					// return false;
 					formUploader.putFile(uploadToken, fileName+imagePath, files.file[index].path, putExtra, function(respErr, respBody, respInfo) {
 						if (respErr) {
 							throw respErr;
@@ -209,7 +200,6 @@ router.post('/uploadQNY',function(req, res, next) {
 				}
 				// 去除拼接字符串最后一个逗号 执行insert
 				insertStr = insertStr.slice(0,insertStr.length-1);
-				
 				var insetImg = `insert into t_content_image(image_url,content_text_id,content_id)values${insertStr}`;
 				conf.query(insetImg,function(error,result){
 					checklogin.result(res,result,false,"发布成功");
@@ -232,7 +222,6 @@ router.post('/uploadQNY',function(req, res, next) {
 // 		data: req.query
 // 	})
 // });
-
 
 //上传用户头像
 router.post('/upload', function(req, res, next) {
@@ -265,11 +254,7 @@ router.post('/upload', function(req, res, next) {
 								checklogin.result(res,result,true,"上传成功");
 							 },res);
 						})
-							
-						 
-						
 					 },res);
-					
                     // res.json({code:200,data: '/upload/'+extname}) //返回图片路径，让前端展示
 				}
             });

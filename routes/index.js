@@ -32,12 +32,12 @@ router.get('/homeData',(req, res, next)=>{
 	
 	var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
 	// var offSets = ((page?page:1)- 1) * 10;
-	var contentsql = `select t_plate.plate_name,t_plate_second.plate_name as secondPlate_name,t_content.*,
+	var contentsql = `select count(t_support.id) as supportCount,t_plate.plate_name,t_plate_second.plate_name as secondPlate_name,t_content.*,
 						${tools.setDateTime('t_content.create_time')}
-						,t_user.nick_name,t_user.icon,t_user.userKey from t_content
+						,t_user.nick_name,t_user.icon,t_user.userKey from t_content left join t_support on t_content.id = t_support.content_id and t_support.is_support = 1 and t_support.is_del = 0
 						left join t_plate_second on t_plate_second.id = t_content.plateSecond_id
 						left join t_plate on t_plate.id = t_plate_second.plate_id
-						left join t_user on t_content.user_id = t_user.id where t_content.is_del = 0  order by t_content.create_time desc limit 10 offset ${offSets}`;
+						left join t_user on t_content.user_id = t_user.id where t_content.is_del = 0 group by t_content.id order by t_content.create_time desc limit 10 offset ${offSets}`;
 	// 查询10条数据第N页 这样不需要查询图片表中所有数据 则增加效率
 	var contentImg = `select content_id,image_url,is_video from t_content_image LEFT JOIN (SELECT id from t_content where is_del = 0  order by create_time desc LIMIT 10 OFFSET ${offSets}) as t_content 
 					  on t_content_image.content_id = t_content.id where t_content_image.is_del=0 `;

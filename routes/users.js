@@ -76,7 +76,7 @@ router.get('/collect',checklogin.AuthMiddlewareGet, function(req, res, next) {
 router.get('/fans',checklogin.AuthMiddlewareGet, function(req, res, next) {
   var {token,page} = req.query;
   var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
-  var sqlFans = `select t_fans.user_fans,t_focus.id,t_user.nick_name,t_user.signature,t_user.icon,t_focus.focus_state  from t_fans  
+  var sqlFans = `select t_fans.user_fans,t_focus.id,t_user.nick_name,t_user.signature,t_user.icon,t_user.userKey,t_focus.focus_state  from t_fans  
             left join t_user on t_fans.user_fans = t_user.id 
             left join t_focus on t_fans.user_fans = t_focus.user_focus
             and t_focus.user_id = (select id from t_user where token = "${token}") 
@@ -202,7 +202,7 @@ router.post('/changeUserInfo',checklogin.AuthMiddleware, function(req, res, next
 router.post('/changeFocusState',checklogin.AuthMiddleware, function(req, res, next) {
   var {token,userFocus,focusState, userKey} = req.body;
   var selectAnd,insertAnd,updateAnd = '';
-  
+  console.log(userKey);
   if(userKey){
     selectAnd = `and t_focus.user_focus = (select id from t_user where userKey = "${userKey}")`;
   }else if(userFocus) {
@@ -221,6 +221,7 @@ router.post('/changeFocusState',checklogin.AuthMiddleware, function(req, res, ne
     }else{
         // userFans 关注哪个用户的ID
         var insertFocus = `insert into t_focus(user_id,user_focus) select id,(select id from t_user where userKey = "${userKey}") from t_user where token = "${token}"`;//values("${userId}","${userFans}")`;
+        console.log(insertFocus);
         conf.query(insertFocus,function(err,result){
           checklogin.result(res,result,true);
         },res);

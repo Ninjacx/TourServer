@@ -32,7 +32,7 @@ router.get('/getMenu',(req, res, next)=>{
 router.get('/getBanner',(req, res, next)=>{
   // 传入groups = 1 则加条件，不然就查全部
     var type = req.query.type?`and type = ${req.query.type}`:"";
-    var selectSQL = `select image,type from t_banner where is_del = 0 ${type}`;
+    var selectSQL = `select title,url,image,type from t_banner where is_del = 0 ${type}`;
       conf.query(selectSQL,function(err,result){
         checklogin.result(res,result,true);
       },res);

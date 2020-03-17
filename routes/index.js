@@ -45,11 +45,11 @@ router.get('/homeData',(req, res, next)=>{
 		checklogin.resultFn(res,result1,()=>{
 			conf.query(contentImg,(err,result2)=>{
 				checklogin.resultFn(res,result2,()=>{
-					result1.map((item1)=>{
+					result1.map((item1)=> {
 						item1.imgList = [];
 						result2.map((item2)=>{
 							// 此处图片首页最多显示9张
-							if(item1.id == item2.content_id && item1.imgList.length<9 && item2.is_video !=1){
+							if(item1.id  == item2.content_id && item1.imgList.length<9 && item2.is_video !=1){
 								item1.imgList.push(item2.image_url);
 							}
 						})

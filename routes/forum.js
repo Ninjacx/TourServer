@@ -239,10 +239,8 @@ router.get('/getComment',(req, res, next)=>{
       left join t_user on a.user_id = t_user.id
       left join t_content_comment as b on b.id = a.commentId_user 
       left join t_user u on u.id = b.user_id 
-      left join t_content_reply  as r  on r.comment_id = a.id and r.is_del=0 where ${whereStr} and a.is_del = 0  group by a.id order by a.create_time desc limit 10 offset ${offSets}`;
+      left join t_content_reply  as r  on r.comment_id = a.id and r.is_del=0 where ${whereStr} and a.is_del = 0  group by a.id limit 10 offset ${offSets}`;
     // GROUP BY a.id order by a.create_time desc limit 10
-    // console.log(sqlComment);
-    // return flase;
     conf.query(sqlComment,(err,result)=>{
       checklogin.result(res,result,true);
     },res);

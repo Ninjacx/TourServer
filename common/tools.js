@@ -5,10 +5,20 @@
  */
 
 
- const tools = {
+const tools = {
    isNull: function(str,message,res) {
       /*验证字符串是否为空*/
       if(!Boolean(str.replace(/(^\s*)|(\s*$)/g, ""))){
+         res.json({
+            code: -1,
+            msg: message,
+         });
+      }
+    },
+    resultError: function(data,message,res) {
+      /*验证字符串是否为空*/
+      var strData = typeof(data) == "string"? this.trim(data): data;
+      if(strData =="" || data.length ==0 ||data==null ||data== "null" || data== undefined || data== "undefined"){
          res.json({
             code: -1,
             msg: message,

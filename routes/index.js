@@ -120,14 +120,26 @@ router.post('/uploadQNY',function(req, res, next) {
 		// return false;
 		// fileArr
 		var {uploadToken,title,TextArr,typeList,ImgTextId,plateSecond_id,token} = params;
-		
+
+		// json 字符串转json 对象
 		var TextArr = JSON.parse(TextArr);
 		var ImgTextId = JSON.parse(ImgTextId);
 		var typeList = JSON.parse(typeList);
+
+		tools.resultError(title,"请填写标题",res);
+		tools.resultError(TextArr,"请重试",res); // 没有任何内容（直接请求接口的拦截）
+		
+		// 验证是否用户添加的栏都有内容，没有直接返回
+		if(TextArr.length){
+			for (var index = 0; index < TextArr.length; index++) {
+				// console.log(TextArr[index].content);
+				tools.resultError(TextArr[index].content,"请填写空缺内容",res);
+			}
+		}
 		
 		// user_id 发帖用户 ${title}","${plateSecond_id}
 		var addContentSql = `insert into t_content(title,plateSecond_id,user_id) select "${title}","${plateSecond_id}",id from t_user where token = "${token}"`;
-		console.log(addContentSql);
+		// console.log(addContentSql);
 		// return false;
 		 // 1.先插入一条帖子表数据返回帖子ID
 		 new Promise((resolve, reject)=>{

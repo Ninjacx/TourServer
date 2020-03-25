@@ -150,9 +150,9 @@ router.post('/uploadQNY',function(req, res, next) {
 				})
 			},res);
 		 }).then(async (contentId)=>{
-			console.log(`contentId${contentId}`);
+			// console.log(`contentId${contentId}`);
 			// 插入帖子类型数据 ，微信，手机，价格等
-			console.log(`------------`);
+			// console.log(`------------`);
 			// 类型有数据才加
 			if(typeList.length) {
 				var TypeListStr = "";
@@ -171,7 +171,8 @@ router.post('/uploadQNY',function(req, res, next) {
 			for (let index = 0; index < TextArr.length; index++) {
 				TextArr[index].txtImgId =  await InsertId(TextArr[index].content,contentId);
 			}
-			// 内容对应 数据库内容ID
+			if(Object.keys(files).length){
+				// 内容对应 数据库内容ID
 			var config = new qiniu.conf.Config();
 			// 空间对应的机房
 			config.zone = qiniu.zone.Zone_z0;
@@ -216,6 +217,11 @@ router.post('/uploadQNY',function(req, res, next) {
 				conf.query(insetImg,function(error,result){
 					checklogin.result(res,result,false,"发布成功");
 				},res);
+			}else{
+				// 此处是没有上传图片直接上传成功
+				checklogin.result(res,"1",false,"发布成功");
+			}
+			
 		 })
 		// 内容List
 		 const InsertId = (data,contentId) => new Promise((resolve, reject) => {

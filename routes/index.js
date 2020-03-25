@@ -108,8 +108,6 @@ router.get('/qnyToken', function(req, res, next) {
 /**---------------------------------2.操作---------------------------------------------*/
 // 上传文件至千牛云 https://segmentfault.com/a/1190000005364299 base64 checklogin.AuthMiddleware, 
 router.post('/uploadQNY',function(req, res, next) {
-		// console.log(req.body);
-		// return false;
 		// 思路： 1.插入帖子表，2.插入内容表后把ID 返回原数据集合中的内容，3. 上传图片回调的时候 找出对应内容相等的key 后 取出内容ID 保存进表
 		// var uploadToken = req.body.uploadToken;
 		var form = new formidable.IncomingForm();
@@ -131,12 +129,20 @@ router.post('/uploadQNY',function(req, res, next) {
 		
 		// 验证是否用户添加的栏都有内容，没有直接返回
 		if(TextArr.length){
+			console.log(TextArr);
+			var isTextArr = 0;
 			for (var index = 0; index < TextArr.length; index++) {
-				// console.log(TextArr[index].content);
-				tools.resultError(TextArr[index].content,"请填写空缺内容",res);
+				if(tools.isNull2(TextArr[index].content)){
+					isTextArr =1;
+				}
+			}
+			// 用户有一格内容未填写直接返回无法继续
+			if(isTextArr == 1){
+				tools.resultError([],"请填写空缺内容",res);
+				return false;
 			}
 		}
-		
+
 		// user_id 发帖用户 ${title}","${plateSecond_id}
 		var addContentSql = `insert into t_content(title,plateSecond_id,user_id) select "${title}","${plateSecond_id}",id from t_user where token = "${token}"`;
 		// console.log(addContentSql);
@@ -150,9 +156,7 @@ router.post('/uploadQNY',function(req, res, next) {
 				})
 			},res);
 		 }).then(async (contentId)=>{
-			// console.log(`contentId${contentId}`);
 			// 插入帖子类型数据 ，微信，手机，价格等
-			// console.log(`------------`);
 			// 类型有数据才加
 			if(typeList.length) {
 				var TypeListStr = "";
@@ -160,7 +164,6 @@ router.post('/uploadQNY',function(req, res, next) {
 	                TypeListStr+=`("${contentId}","${typeList[index].id}","${typeList[index].content}"),`;
 	            }
 	            TypeListStr = TypeListStr.slice(0,TypeListStr.length-1);
-				console.log(TypeListStr);
 	            var addTypeList = `insert into t_content_platesecond_type(content_id,plateSecondType_id,type_content)values${TypeListStr}`;//"insert into t_content_platesecond_type(content_id,plateSecondType_id,type_content)values$"+TypeListStr;
 	            conf.query(addTypeList,function(error,result){
 					checklogin.resultFn(res,result,false);
@@ -215,7 +218,8 @@ router.post('/uploadQNY',function(req, res, next) {
 				insertStr = insertStr.slice(0,insertStr.length-1);
 				var insetImg = `insert into t_content_image(image_url,content_text_id,content_id)values${insertStr}`;
 				conf.query(insetImg,function(error,result){
-					checklogin.result(res,result,false,"发布成功");
+				// 	checklogin.result(res,result,false,"发布成功");
+					checklogin.result(res,"1",false,"发布成功");
 				},res);
 			}else{
 				// 此处是没有上传图片直接上传成功

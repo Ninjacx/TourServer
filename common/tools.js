@@ -15,6 +15,12 @@ const tools = {
          });
       }
     },
+    isNull2: function(str,message,res) {
+      /*验证字符串是否为空*/
+      if(!Boolean(str.replace(/(^\s*)|(\s*$)/g, ""))){
+         return true;
+      }
+    },
     resultError: function(data,message,res) {
       /*验证字符串是否为空*/
       var strData = typeof(data) == "string"? this.trim(data): data;

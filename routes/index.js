@@ -185,11 +185,17 @@ router.post('/uploadQNY',function(req, res, next) {
 			//config.useCdnDomain = true;
 			var formUploader = new qiniu.form_up.FormUploader(config);
 			var putExtra = new qiniu.form_up.PutExtra();
-			// 循环上传图片  
-			// 不为空才走上传！！！！！！！！！！！！！files.file
+			
 			var insertStr = '';
+			// 此处处理单张图片不是为数组的报错问题（单张图片过来的是个json 放入一个空数组中）
+			if(!Array.isArray(files.file)){
+				var fileArr = [];
+				fileArr.push(files.file);
+				files.file = fileArr;
+			}
 			for (let index = 0; index < files.file.length; index++) {
-				var imagePath = path.extname(files.file[index].name);	 
+				var imagePath = path.extname(files.file[index].name);	
+				
 				var fileName = uuidv1();
 				//  关联图片是属于哪条内容的ID
 					for (let j = 0; j < TextArr.length; j++) {

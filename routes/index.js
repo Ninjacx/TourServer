@@ -41,16 +41,22 @@ router.get('/homeData',(req, res, next)=>{
 	// 查询10条数据第N页 这样不需要查询图片表中所有数据 则增加效率
 	var contentImg = `select content_id,image_url,is_video from t_content_image LEFT JOIN (SELECT id,type from t_content where is_del = 0 ${type} order by create_time desc LIMIT 10 OFFSET ${offSets}) as t_content 
 					  on t_content_image.content_id = t_content.id where t_content_image.is_del=0 ${type}`;
+					  console.log(contentImg);
 	conf.query(contentsql,function(err,result1){
 		checklogin.resultFn(res,result1,()=>{
 			conf.query(contentImg,(err,result2)=>{
 				checklogin.resultFn(res,result2,()=>{
 					result1.map((item1)=> {
 						item1.imgList = [];
+						// 统计照片的总数
+						item1.imgCount = 0;
 						result2.map((item2)=>{
-							// 此处图片首页最多显示9张
-							if(item1.id  == item2.content_id && item1.imgList.length<9 && item2.is_video !=1){
-								item1.imgList.push(item2.image_url);
+							// 此处图片首页最多显示6张
+							if(item1.id  == item2.content_id  && item2.is_video !=1){
+								if(item1.imgList.length < 6){
+									item1.imgList.push(item2.image_url);
+								}
+								item1.imgCount++;
 							}
 						})
 					})
@@ -92,7 +98,7 @@ router.get('/qnyToken', function(req, res, next) {
 	var secretKey = 'cRdesdlbE78qTlmwwdE0joQO-MViCgsVeccH2-7D';
 	var mac = new qiniu.auth.digest.Mac(accessKey, secretKey);	 
 	var options = {
-		scope: "tour20200226",
+		scope: "new-tour",
 		// callbackUrl: 'http://192.168.1.39/QNYcallback',
 		// callbackBody: '{"key":"$(key)","hash":"$(etag)","fsize":$(fsize),"bucket":"$(bucket)","name":"$(x:name)"}',
 	  };
@@ -201,7 +207,7 @@ router.post('/uploadQNY',function(req, res, next) {
 					for (let j = 0; j < TextArr.length; j++) {
 						if(ImgTextId[index] == j){
 							console.log(TextArr[j].txtImgId);
-							insertStr+=`("http://q6aivyr7l.bkt.clouddn.com/${fileName}${imagePath}","${TextArr[j].txtImgId}","${contentId}"),`;
+							insertStr+=`("http://q7u21gw3s.bkt.clouddn.com/${fileName}${imagePath}","${TextArr[j].txtImgId}","${contentId}"),`;
 						}
 					}
 					// 上传到七牛云

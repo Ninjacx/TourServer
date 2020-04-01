@@ -36,14 +36,20 @@ router.get('/forumList',(req, res, next)=> {
     checklogin.resultFn(res,result1,()=>{
 			conf.query(contentImg,function(err,result2){
 				checklogin.resultFn(res,result2,()=>{
-            result1.map((item1)=>{
-              item1.imgList = [];
-              result2.map((item2)=>{
-                if(item1.id == item2.content_id && item1.imgList.length<9){
-                  item1.imgList.push(item2.image_url);
-                }
-              })
-            })
+          result1.map((item1)=> {
+						item1.imgList = [];
+						// 统计照片的总数
+						item1.imgCount = 0;
+						result2.map((item2)=>{
+							// 此处图片首页最多显示6张
+							if(item1.id  == item2.content_id  && item2.is_video !=1){
+								if(item1.imgList.length < 6){
+									item1.imgList.push(item2.image_url);
+								}
+								item1.imgCount++;
+							}
+						})
+					})
             res.json({
               code: 200,
               data: result1,

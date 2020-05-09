@@ -28,13 +28,14 @@ function query(sql,callback,routerRes){
               msg: "请稍后再试"
             })
             // insert error log
-            connection.release();
+            // connection.release();
             return false;
           } else{
             callback(err,res);
           }
-          connection.release();
+          // connection.release();
       });
+      connection.release();
   });
 }
 

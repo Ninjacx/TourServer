@@ -323,8 +323,6 @@ router.post('/upload', function(req, res, next) {
 // 	// location.reload();
 // 	res.redirect(req.session.page);
 // })
-
-
 router.get('/', function(req, res, next) {
 	var deviceAgent = req.headers["user-agent"].toLowerCase();
     var agentID = deviceAgent.match(/(iphone|ipod|ipad|android)/);

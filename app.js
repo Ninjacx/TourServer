@@ -11,6 +11,9 @@ var forumRouter = require('./routes/forum'); // 关于帖子的接口
 
 var usersRouter = require('./routes/users');
 // var system = require('./routes/system');
+
+var activeRouter = require('./routes/active');
+
 var session =require("express-session");
 
 var app = express();
@@ -57,6 +60,10 @@ app.use('/menu', menuRouter);
 app.use('/forum', forumRouter);
 
 app.use('/users', usersRouter);
+
+// H5中的接口汇总
+app.use('/activeRouter', activeRouter);
+
 // app.use('/system', system);
 app.use(express.static(path.join(__dirname, 'public')));
 //app.use('/static',express.static('/public'));

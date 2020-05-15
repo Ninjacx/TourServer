@@ -364,8 +364,16 @@ router.post('/addComment',checklogin.AuthMiddleware,(req, res, next)=>{
      },res);
 });
 
-
-
-// 
+// 用户操作删除帖子 改变标中state状态，审核后把is_del = 1
+router.post('/userDelContent',checklogin.AuthMiddleware,(req, res, next)=>{
+  // 传入groups = 1 则加条件，不然就查全部
+    var {token,id} = req.body;
+    // console.log({token,type_id,type,collect_state});
+    // 验证是否有此条点赞
+    var updateDelContent = `update t_content set state = 2 where user_id = (select id from t_user where token = "${token}") and t_content.id="${id}"`;
+      conf.query(updateDelContent,function(err,result){
+          checklogin.result(res,result,false,"已提交审核");
+      },res);
+});
 
 module.exports = router;

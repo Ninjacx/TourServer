@@ -98,7 +98,7 @@ router.get('/qnyToken', function(req, res, next) {
 	var secretKey = 'cRdesdlbE78qTlmwwdE0joQO-MViCgsVeccH2-7D';
 	var mac = new qiniu.auth.digest.Mac(accessKey, secretKey);	 
 	var options = {
-		scope: "wg-tour",
+		scope: "tour-wg",
 		// callbackUrl: 'http://192.168.1.39/QNYcallback',
 		// callbackBody: '{"key":"$(key)","hash":"$(etag)","fsize":$(fsize),"bucket":"$(bucket)","name":"$(x:name)"}',
 	  };
@@ -206,7 +206,7 @@ router.post('/uploadQNY',function(req, res, next) {
 					for (let j = 0; j < TextArr.length; j++) {
 						if(ImgTextId[index] == j){
 							console.log(TextArr[j].txtImgId);
-							insertStr+=`("http://q9h6f63jm.bkt.clouddn.com/${fileName}${imagePath}","${TextArr[j].txtImgId}","${contentId}"),`;
+							insertStr+=`("http://qbc93xu4f.bkt.clouddn.com/${fileName}${imagePath}","${TextArr[j].txtImgId}","${contentId}"),`;
 						}
 					}
 					// 上传到七牛云

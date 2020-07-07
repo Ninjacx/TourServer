@@ -31,6 +31,12 @@ router.get('/homeData',(req, res, next)=>{
 	var {page,type}=req.query;
 	var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
 	var type = type== 1?`and t_content.type=1`:'';
+	if(type == 1){
+		`and t_content.type=1`;
+	}else if(type == 2){
+		// 查询本周的所有帖子
+		// `and xx`
+	}
 	// var offSets = ((page?page:1)- 1) * 10;
 	var contentsql = `select count(t_support.id) as supportCount,t_plate.plate_name,t_plate_second.plate_name as secondPlate_name,t_content.*,
 						${tools.setDateTime('t_content.create_time')}

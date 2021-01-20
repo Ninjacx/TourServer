@@ -1,9 +1,7 @@
 var mysql = require('mysql');
+
 // 使用连接池，提升性能
-
-
 // MySQL连接池数据库联接配置
-
 var pool = mysql.createPool({
     host: '47.98.163.21',
     user: 'root',

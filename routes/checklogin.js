@@ -69,7 +69,17 @@ const checklogin = {
     } else {
       resJson.json({ code: -1, msg: failMsg });
     }
-  }
+  },
+  // result,传入结果集，isRes 是否返回结果参数  指定提示文字
+  resultSuccess: function (resJson, result, successMsg, failMsg) {
+    var successMsg = successMsg ? successMsg : "操作成功";
+    var failMsg = failMsg ? failMsg : "请稍后再试";
+    
+    
+    resJson.json(JSON.parse(JSON.stringify(result)));
+    
+    // resJson.json({ code: -1, msg: failMsg });
+  },
 }
 
 module.exports = checklogin;

@@ -1,5 +1,6 @@
 var express = require('express');
 var conf = require('../conf/conf');
+var {MenuModel} = require('../conf/model/t_menu');
 var url = require('url');
 // const fs = require('fs');//文件
 // const multer = require('multer')({ dest: 'www/upload' });
@@ -20,12 +21,16 @@ const tools = require('../common/tools');
 /**---------------------------------1.获取---------------------------------------------*/
 // 查出菜单 
 router.get('/getMenu',(req, res, next)=>{
-  // 传入groups = 1 则加条件，不然就查全部
-    var groups = req.query.groups?`and groups = ${req.query.groups}`:"";
-    var selectSQL = `select name,icon,menu_key,groups,url from t_menu where is_del = 0 ${groups}`; // name,icon,groups
-      conf.query(selectSQL,function(err,result){
-        checklogin.result(res,result,true);
-      },res);
+  MenuModel.findAll({
+    where: {
+      is_del: 0,
+      groups: req.query.groups
+    }
+  }).then((resultList)=>{
+    checklogin.resultSuccess(res, resultList);
+  }).catch((error)=>{
+    res.json({ code: -1, msg: '请稍后再试' });
+  })
 });
 
 // 查出APP 展示的商家广告位 与 APP 其它展示图

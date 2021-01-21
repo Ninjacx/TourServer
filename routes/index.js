@@ -1,5 +1,6 @@
 var express = require('express');
 var conf = require('../conf/conf');
+var {UserModel} = require('../conf/model/t_user');
 var url = require('url');
 var path=require('path'); 
 // const fs = require('fs');//文件
@@ -27,7 +28,11 @@ const serverIp = 'http://192.168.1.33/';//'http://192.168.1.33/';
 
 /**---------------------------------1.获取---------------------------------------------*/
 // 首页展示的数据 
-router.get('/homeData',(req, res, next)=>{
+router.get('/homeData',async (req, res, next)=>{
+	UserModel.findOne({attributes: ['id'], where: { nick_name: '旅行的乌龟12' } }).then((res)=>{
+		console.log('User',JSON.parse(JSON.stringify(res)));
+	})
+	
 	var {page,type}=req.query;
 	var offSets = ((!isNaN(page)&&page>0?page:1)- 1) * 10;
 	var type = type== 1?`and t_content.type=1`:'';

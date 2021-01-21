@@ -1,5 +1,6 @@
 var express = require('express');
 var conf = require('../conf/conf');
+var {setCatch} = require('../common/publicFn');
 var {MenuModel} = require('../conf/model/t_menu');
 var url = require('url');
 // const fs = require('fs');//文件
@@ -29,7 +30,7 @@ router.get('/getMenu',(req, res, next)=>{
   }).then((resultList)=>{
     checklogin.resultSuccess(res, resultList);
   }).catch((error)=>{
-    res.json({ code: -1, msg: '请稍后再试' });
+    setCatch(res, error)
   })
 });
 

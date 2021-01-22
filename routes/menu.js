@@ -2,6 +2,7 @@ var express = require('express');
 var conf = require('../conf/conf');
 var {setCatch} = require('../common/publicFn');
 var {MenuModel} = require('../conf/model/t_menu');
+var {BannerModel} = require('../conf/model/t_banner');
 var url = require('url');
 // const fs = require('fs');//文件
 // const multer = require('multer')({ dest: 'www/upload' });
@@ -36,12 +37,23 @@ router.get('/getMenu',(req, res, next)=>{
 
 // 查出APP 展示的商家广告位 与 APP 其它展示图
 router.get('/getBanner',(req, res, next)=>{
+  BannerModel.findAll({
+    attributes: ['title', 'url','image','type'],
+    where: {
+      is_del: 0,
+      type: req.query.type
+    }
+  }).then((resultList)=>{
+    checklogin.resultSuccess(res, resultList);
+  }).catch((error)=>{
+    setCatch(res, error)
+  })
   // 传入groups = 1 则加条件，不然就查全部
-    var type = req.query.type?`and type = ${req.query.type}`:"";
-    var selectSQL = `select title,url,image,type from t_banner where is_del = 0 ${type}`;
-      conf.query(selectSQL,function(err,result){
-        checklogin.result(res,result,true);
-      },res);
+    // var type = req.query.type?`and type = ${req.query.type}`:"";
+    // var selectSQL = `select title,url,image,type from t_banner where is_del = 0 ${type}`;
+    //   conf.query(selectSQL,function(err,result){
+    //     checklogin.result(res,result,true);
+    //   },res);
 });
 
 module.exports = router;

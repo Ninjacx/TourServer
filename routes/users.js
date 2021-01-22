@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var {UserModel} = require('../conf/model/t_user');
+var {MemberModel} = require('../conf/model/t_member');
 var conf = require('../conf/conf');
 const uuidv1 = require('uuid/v1');
 const uuidv4 = require('uuid/v4');
@@ -167,6 +168,15 @@ router.post('/login', function(req, res, next) {
 router.get('/isLogin', function(req, res, next) {
   var token = req.query.token;
   // console.log(token);
+  // var userMember =  UserModel.hasMany(MemberModel, {foreignKey: 'id', targetKey: 'member_id'})
+  var userMember  =  MemberModel.belongsTo(UserModel, {foreignKey: 'member_id', targetKey: 'id'}) // , targetKey: 'id'
+  UserModel.findAll({
+    // ...params,
+    include: userMember
+  }).then((result)=>{
+    res.json({code: 200,data: JSON.parse(JSON.stringify(result))});
+    // console.log('result',JSON.parse(JSON.stringify(result)));
+  })
   var sql = `select t_user.*,t_member.member_name,DATE_FORMAT(t_user.create_time,"%Y-%m-%d")as createTime from t_user left join t_member on t_user.member_id = t_member.id where t_user.is_del = 0 and token = "${token}"`;
         conf.query(sql,function(err,result){
         if(result.length) {

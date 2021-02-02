@@ -4,13 +4,13 @@
  * @author Sky
  */
 
-successResult = (res, msg, resFn) => {
+successResult = (res, data, msg, resFn) => {
   console.log('errorMsg',errorMsg);
   var msg = msg || '操作成功' 
   if(resFn){
     resFn()
   }else{
-    res.json({ code: -1, msg });
+    res.json({ code: 200, data, msg});
   }
 },
 

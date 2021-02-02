@@ -178,7 +178,7 @@ router.get('/isLogin', function(req, res, next) {
     include: userMember,
     where: { token }
   }).then((result)=>{
-    successResult()
+    successResult(res, result)
     // res.json({code: 200,data: JSON.parse(JSON.stringify(result))});
     // console.log('result',JSON.parse(JSON.stringify(result)));
   }).catch(function(err) {

@@ -5,7 +5,7 @@ const Member = sequelizeDB.define('Member', {
   // 在这里定义模型属性
   id: {
     type: DataTypes.INTEGER,
-    primaryKey:true
+    primaryKey: true
     // allowNull: false
   },
   member_name: {

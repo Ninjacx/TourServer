@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var {setCatch} = require('../common/publicFn');
 var {UserModel} = require('../conf/model/t_user');
 var {MemberModel} = require('../conf/model/t_member');
 var conf = require('../conf/conf');
@@ -166,26 +167,35 @@ router.post('/login', function(req, res, next) {
 
 /**验证用户token是否登录 */
 router.get('/isLogin', function(req, res, next) {
-  var token = req.query.token;
+  var {token} = req.query;
   // console.log(token);
   // var userMember =  UserModel.hasMany(MemberModel, {foreignKey: 'id', targetKey: 'member_id'})
-  var userMember  =  MemberModel.belongsTo(UserModel, {foreignKey: 'member_id', targetKey: 'id'}) // , targetKey: 'id'
-  UserModel.findAll({
+  // var userMember  =  MemberModel.belongsTo(UserModel, {foreignKey: 'member_id', targetKey: 'id'}) // , targetKey: 'id'
+  var userMember = UserModel.belongsTo(MemberModel,{foreignKey: 'member_id', targetKey: 'id'})
+  
+  UserModel.findOne({
     // ...params,
-    include: userMember
+    include: userMember,
+    where: {
+      token
+    }
   }).then((result)=>{
     res.json({code: 200,data: JSON.parse(JSON.stringify(result))});
     // console.log('result',JSON.parse(JSON.stringify(result)));
-  })
-  var sql = `select t_user.*,t_member.member_name,DATE_FORMAT(t_user.create_time,"%Y-%m-%d")as createTime from t_user left join t_member on t_user.member_id = t_member.id where t_user.is_del = 0 and token = "${token}"`;
-        conf.query(sql,function(err,result){
-        if(result.length) {
-          // 重启APP的时候调用此处，返回最新用户信息，redux 重启就没信息了
-          res.json({code: 200,data: result[0]});
-        }else{
-          res.json({code: -2,msg: "请重新登录"});
-        }
-    },res);
+  }).catch(function(err) {
+    //定义错误页面
+    setCatch(res, error)
+    // res.json({code: -1,msg: "请稍后再试"});
+  });
+  // var sql = `select t_user.*,t_member.member_name,DATE_FORMAT(t_user.create_time,"%Y-%m-%d")as createTime from t_user left join t_member on t_user.member_id = t_member.id where t_user.is_del = 0 and token = "${token}"`;
+  //       conf.query(sql,function(err,result){
+  //       if(result.length) {
+  //         // 重启APP的时候调用此处，返回最新用户信息，redux 重启就没信息了
+  //         res.json({code: 200,data: result[0]});
+  //       }else{
+  //         res.json({code: -2,msg: "请重新登录"});
+  //       }
+  //   },res);
 });
 
 /**修改用户个人信息 */

@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var {setCatch} = require('../common/publicFn');
+var {successResult, setCatch} = require('../common/publicFn');
 var {UserModel} = require('../conf/model/t_user');
 var {MemberModel} = require('../conf/model/t_member');
 var conf = require('../conf/conf');
@@ -176,15 +176,14 @@ router.get('/isLogin', function(req, res, next) {
   UserModel.findOne({
     // ...params,
     include: userMember,
-    where: {
-      token
-    }
+    where: { token }
   }).then((result)=>{
-    res.json({code: 200,data: JSON.parse(JSON.stringify(result))});
+    successResult()
+    // res.json({code: 200,data: JSON.parse(JSON.stringify(result))});
     // console.log('result',JSON.parse(JSON.stringify(result)));
   }).catch(function(err) {
     //定义错误页面
-    setCatch(res, error)
+    setCatch(res, err)
     // res.json({code: -1,msg: "请稍后再试"});
   });
   // var sql = `select t_user.*,t_member.member_name,DATE_FORMAT(t_user.create_time,"%Y-%m-%d")as createTime from t_user left join t_member on t_user.member_id = t_member.id where t_user.is_del = 0 and token = "${token}"`;

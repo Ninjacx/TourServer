@@ -4,13 +4,12 @@
  * @author Sky
  */
 
-successResult = (res, msg, resFn) => {
-  console.log('errorMsg',errorMsg);
+successResult = (res, data, msg, resFn) => {
   var msg = msg || '操作成功' 
   if(resFn){
     resFn()
   }else{
-    res.json({ code: -1, msg });
+    res.json({ code: -1, msg , data: JSON.parse(JSON.stringify(data))});
   }
 },
 
@@ -24,6 +23,5 @@ successResult = (res, msg, resFn) => {
       res.json({ code: -1, msg });
     }
   },
-// }
 
 module.exports = {successResult, setCatch};

@@ -5,11 +5,19 @@
  */
 
 successResult = (res, data, msg, resFn) => {
+<<<<<<< HEAD
+=======
+  console.log('errorMsg',errorMsg);
+>>>>>>> 696785e0af4845ea5d3ca6b5b35b7995496c5abb
   var msg = msg || '操作成功' 
   if(resFn){
     resFn()
   }else{
+<<<<<<< HEAD
     res.json({ code: -1, msg , data: JSON.parse(JSON.stringify(data))});
+=======
+    res.json({ code: 200, data, msg});
+>>>>>>> 696785e0af4845ea5d3ca6b5b35b7995496c5abb
   }
 },
 

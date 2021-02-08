@@ -5,7 +5,10 @@ const sequelize = new Sequelize('Tour','root','123',{
     host:'47.98.163.21',
     port:3306,
     dialect:'mysql',
+    pool: {
+        max: 5,
+        min: 0,
+        idle: 10000
+    }
 });
-
-
 exports.sequelizeDB = sequelize

@@ -5,6 +5,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var ejs = require('ejs');
+var weChatRouter = require('./routes/weChat');
 var indexRouter = require('./routes/index');
 var menuRouter = require('./routes/menu');
 var forumRouter = require('./routes/forum'); // 关于帖子的接口
@@ -56,6 +57,7 @@ app.use(function(req, res, next){
 
 /* APP 前台接口 */
 app.use('/', indexRouter);
+app.use('/weChat', weChatRouter);
 app.use('/menu', menuRouter);
 app.use('/forum', forumRouter);
 

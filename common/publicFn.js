@@ -5,22 +5,20 @@
  */
 
 successResult = (res, data, msg, resFn) => {
-  console.log('errorMsg',errorMsg);
   var msg = msg || '操作成功' 
   if(resFn){
     resFn()
   }else{
-    res.json({ code: -1, msg , data: JSON.parse(JSON.stringify(data))});
+    res.status(200)
+    res.json({ code: 200, msg , data: JSON.parse(JSON.stringify(data))});
   }
 },
-
-// const publicFn = {
   setCatch = (res, errorMsg, resFn) => {
-    console.log('errorMsg',errorMsg);
     var msg = '请稍后再试' 
     if(resFn){
       resFn()
     }else{
+      res.status(500)
       res.json({ code: -1, msg });
     }
   },

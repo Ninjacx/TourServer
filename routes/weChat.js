@@ -1,9 +1,10 @@
 var express = require('express');
 var conf = require('../conf/conf');
-var {setCatch} = require('../common/publicFn');
+var {successResult, setCatch} = require('../common/publicFn');
 const axios = require('axios');
 var wxBizDataCrypt = require('../common/WXBizDataCrypt');
 var {MenuModel} = require('../conf/model/t_menu');
+var {UserModel} = require('../conf/model/t_user');
 var {BannerModel} = require('../conf/model/t_banner');
 var url = require('url');
 // const fs = require('fs');//文件
@@ -43,48 +44,64 @@ router.get('/getUserPhoneStepOne',(req, res, next)=>{
         status: 200
       })
     }
+  }).catch((error)=>{
+    setCatch(res, error)
   })
 });
 router.get('/getUserPhoneStepTwo',(req, res, next)=>{
   const { sessionKey, encryptedData, iv } = req.query
-  console.log('sessionKey',sessionKey);
-  console.log('encryptedData',encryptedData);
-  console.log('iv',iv);
   const appid = "wx54dea766ca936f0d"
   var bizDataCrypt = new wxBizDataCrypt(appid, sessionKey)
-  
   const data = bizDataCrypt.decryptData(encryptedData, iv)
-  console.log('data',data);
-  if (Object.keys(data).length > 0) {
-    res.status(200)
-    res.send({
-      status: 200,
-      data,
-      msg: '获取手机号码成功'
-    })
-  } else {
-    res.status(400)
-    res.send({
-      status: 400,
-      msg: '获取失败,请重新授权'
-    })
-  }
-
+  successResult(res,data)
 });
+
+// 登录
+router.post('/login',async (req, res, next) => {
+  var {openId, phoneNumber} = req.body
+  // 此方法查到数据则取出，否则直接添加
+  const [user, isNewUser] = await UserModel.findOrCreate({
+    attributes: { exclude: ['id'] },
+    where: { phone: phoneNumber },
+    defaults: {
+      open_id: openId,
+      phone: phoneNumber
+    }
+  })
+  var msg = isNewUser?'注册成功': '登录成功'
+  successResult(res, user.dataValues, msg)
+})
+
+// 商户发布车型
+router.post('/publish',async (req, res, next) => {
+  var {motorcycleName, volume, rent_day, rent_month} = req.body
+  // // 此方法查到数据则取出，否则直接添加
+  // const [user, isNewUser] = await UserModel.findOrCreate({
+  //   attributes: { exclude: ['id'] },
+  //   where: { phone: phoneNumber },
+  //   defaults: {
+  //     open_id: openId,
+  //     phone: phoneNumber
+  //   }
+  // })
+  // var msg = isNewUser?'注册成功': '登录成功'
+  // successResult(res, user.dataValues, msg)
+})
+
 
 // 查出APP 展示的商家广告位 与 APP 其它展示图
 router.get('/getBanner',(req, res, next)=>{
-  BannerModel.findAll({
-    attributes: ['title', 'url','image','type'],
-    where: {
-      is_del: 0,
-      type: req.query.type
-    }
-  }).then((resultList)=>{
-    checklogin.resultSuccess(res, resultList);
-  }).catch((error)=>{
-    setCatch(res, error)
-  })
+  // BannerModel.findAll({
+  //   attributes: ['title', 'url','image','type'],
+  //   where: {
+  //     is_del: 0,
+  //     type: req.query.type
+  //   }
+  // }).then((resultList)=>{
+  //   checklogin.resultSuccess(res, resultList);
+  // }).catch((error)=>{
+  //   setCatch(res, error)
+  // })
   // 传入groups = 1 则加条件，不然就查全部
     // var type = req.query.type?`and type = ${req.query.type}`:"";
     // var selectSQL = `select title,url,image,type from t_banner where is_del = 0 ${type}`;

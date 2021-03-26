@@ -2,24 +2,40 @@ const {sequelizeDB} = require('../SequelizeDb');
 const {Sequelize,DataTypes,Model,QueryTypes} = require('sequelize');
 
 const User = sequelizeDB.define('User', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey:true
+  // id: {
+  //   type: DataTypes.INTEGER,
+  //   // primaryKey: true
+  //   // allowNull: false
+  // },
+  // // 在这里定义模型属性
+  // nick_name: {
+  //   type: DataTypes.STRING,
+  //   // allowNull: false
+  // },
+  open_id: {
+    type: DataTypes.STRING,
     // allowNull: false
   },
-  // 在这里定义模型属性
-  nick_name: {
+  account: {
     type: DataTypes.STRING,
-    allowNull: false
+    // allowNull: false
+  },
+  phone: {
+    type: DataTypes.STRING,
+    // allowNull: false
   },
   token: {
     type: DataTypes.STRING
     // allowNull 默认为 true
   },
-  signature: {
-    type: DataTypes.STRING
-    // allowNull 默认为 true
-  }
+  create_time: {
+    type: DataTypes.DATE,
+    // allowNull: false
+  },
+  // signature: {
+  //   type: DataTypes.STRING
+  //   // allowNull 默认为 true
+  // }
 }, {
   // 这是其他模型参数
   freezeTableName: true, // 禁止模型名根据表名自动复数

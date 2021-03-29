@@ -74,7 +74,7 @@ router.post('/login',async (req, res, next) => {
 
 // 商户发布车型
 router.post('/publish',async (req, res, next) => {
-  var {motorcycleName, volume, rent_day, rent_month} = req.body
+  var {motorcycleName, volume, rentDay, rentMonth} = req.body
   // // 此方法查到数据则取出，否则直接添加
   // const [user, isNewUser] = await UserModel.findOrCreate({
   //   attributes: { exclude: ['id'] },

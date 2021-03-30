@@ -5,7 +5,6 @@
  */
 
 successResult = (res, data, msg, resFn) => {
-  var msg = msg || '操作成功' 
   if(resFn){
     resFn()
   }else{
@@ -14,7 +13,7 @@ successResult = (res, data, msg, resFn) => {
   }
 },
   setCatch = (res, errorMsg, resFn) => {
-    var msg = '请稍后再试' 
+    var msg = errorMsg || '请稍后再试' 
     if(resFn){
       resFn()
     }else{

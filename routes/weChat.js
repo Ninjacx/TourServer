@@ -3,10 +3,11 @@ var conf = require('../conf/conf');
 var {successResult, setCatch} = require('../common/publicFn');
 const axios = require('axios');
 var wxBizDataCrypt = require('../common/WXBizDataCrypt');
-var {MenuModel} = require('../conf/model/t_menu');
+// var {MenuModel} = require('../conf/model/t_menu');
 var {UserModel} = require('../conf/model/t_user');
+var {licensePlateModel} = require('../conf/model/t_license_plate');
+var {TypeModel} = require('../conf/model/t_type');
 var {PublishModel} = require('../conf/model/t_publish');
-var {BannerModel} = require('../conf/model/t_banner');
 var url = require('url');
 // const fs = require('fs');//文件
 // const multer = require('multer')({ dest: 'www/upload' });
@@ -75,8 +76,35 @@ router.post('/login',async (req, res, next) => {
   successResult(res, user.dataValues, msg)
 })
 
+// 牌照类型
+router.get('/getLicensePlate',(req, res, next)=>{
+  licensePlateModel.findAll({
+    attributes: ['id', 'license_plate_name']
+  }).then((result)=>{
+    successResult(res, result)
+  }).catch((error)=>{
+      setCatch(res, error)
+  })
+});
+// 出租类目菜单
+router.get('/getType',(req, res, next)=>{
+  console.log('qqqqq',req.get("Authorization"));
+   TypeModel.findAll({
+    attributes: ['id', 'type_name']
+  }).then((result)=>{
+    successResult(res, result)
+  }).catch((error)=>{
+      setCatch(res, error)
+  })
+});
+
+
 // 商户发布车型
 router.post('/publish',function(req, res, next) {
+  // post 没获取到header
+  var uid = req.get("Authorization")
+  console.log('uid',uid);
+  return false
 	var form = new formidable.IncomingForm();
     //设置文件上传存放地址（需要先把这个文件夹，在项目中建好）
 	form.uploadDir = "./public/upload";
@@ -88,11 +116,13 @@ router.post('/publish',function(req, res, next) {
             var new_path = "./public/upload/" + extname;
              //改名
             fs.rename(old_path, new_path,async function(err) { //把之前存的图片换成真的图片的完整路径
-              var paramsObj = Object.assign(params,{pic_url: `/upload/${extname}`})
+              var paramsObj = Object.assign(params,{pic_url: `/upload/${extname}`, uid: uid})
+              console.log('paramsObj',paramsObj);
               await PublishModel.create(paramsObj).then((result)=>{
                 successResult(res, result._options, '发布成功')
               }).catch((error)=>{
-                  setCatch(res, error.errors[0].message)
+                console.log('error',error);
+                  setCatch(res, error)
               })
             });
     });

@@ -70,7 +70,6 @@ const Publish = sequelizeDB.define('Publish', {
   is_valid: {
     type: DataTypes.STRING,
   },
-  
   open_id: {
     type: DataTypes.STRING,
     // allowNull: false

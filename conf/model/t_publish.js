@@ -40,6 +40,9 @@ const Publish = sequelizeDB.define('Publish', {
   region_id: {
     type: DataTypes.INTEGER,
   },
+  type_id: {
+    type: DataTypes.INTEGER,
+  },
   volume: {
     type: DataTypes.STRING,
   },

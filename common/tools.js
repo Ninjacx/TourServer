@@ -22,14 +22,15 @@ const tools = {
       }
     },
     resultError: function(data,message,res) {
-      /*验证字符串是否为空*/
-      var strData = typeof(data) == "string"? this.trim(data): data;
-      if(strData =="" || data.length ==0 ||data==null ||data== "null" || data== undefined || data== "undefined"){
+      var msg = message || '参数为空'
+      if(data== null || data== "null" || data== undefined || data== "undefined" || data == ''){
          res.json({
             code: -1,
-            msg: message,
+            msg,
          });
+         return false
       }
+      return true
     },
     // 去除左右空格
     trim: function(str){

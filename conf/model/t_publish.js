@@ -73,36 +73,18 @@ const Publish = sequelizeDB.define('Publish', {
   is_valid: {
     type: DataTypes.STRING,
   },
-  open_id: {
-    type: DataTypes.STRING,
-    // allowNull: false
-  },
-  account: {
-    type: DataTypes.STRING,
-    // allowNull: false
-  },
-  phone: {
-    type: DataTypes.STRING,
-    // allowNull: false
-  },
-  token: {
-    type: DataTypes.STRING
-    // allowNull 默认为 true
+  is_active: {
+    type: DataTypes.INTEGER,
   },
   create_time: {
     type: DataTypes.DATE,
-    // allowNull: false
   },
-  // signature: {
-  //   type: DataTypes.STRING
-  //   // allowNull 默认为 true
-  // }
 }, {
   // 这是其他模型参数
   freezeTableName: true, // 禁止模型名根据表名自动复数
   timestamps: true,
 
-  // // 不需要字段
+  // 不需要字段
   createdAt: false,
   updatedAt: false,
   tableName: 't_publish',

@@ -6,6 +6,10 @@
 
 
 const tools = {
+   // 校验参数接口传入参数
+   paramsRule: function(str,message,res) {
+      return str ? str : ''
+   },
    isNull: function(str,message,res) {
       /*验证字符串是否为空*/
       if(!Boolean(str.replace(/(^\s*)|(\s*$)/g, ""))){

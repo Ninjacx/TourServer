@@ -5,6 +5,8 @@ const axios = require('axios');
 var wxBizDataCrypt = require('../common/WXBizDataCrypt');
 // var {MenuModel} = require('../conf/model/t_menu');
 var {UserModel} = require('../conf/model/t_user');
+
+var {V_PublishModel} = require('../conf/model/v_publish');
 var {licensePlateModel} = require('../conf/model/t_license_plate');
 var {TypeModel} = require('../conf/model/t_type');
 var {PublishModel} = require('../conf/model/t_publish');
@@ -26,7 +28,7 @@ const serverIp = 'http://172.16.19.133/';
 /*验证登录*/
 // const AuthMiddleware = require('./checklogin');
 const checklogin = require('./checklogin');
-const {resultError} = require('../common/tools');
+const {resultError, paramsRule} = require('../common/tools');
 
 /**---------------------------------1.获取---------------------------------------------*/
 // 小程序测试号信息
@@ -99,62 +101,56 @@ router.get('/getType',(req, res, next)=>{
   })
 });
 
-// 列表 
-router.get('/publishData',(req, res, next)=>{
+// 列表 leftjoin
+router.get('/publishDataList',(req, res, next)=>{
   const { typeId } = req.query
-  var v1 = resultError(typeId,'参数为空', res)
-  if(v1){
-
-    PublishModel.hasOne(RegionModel, {
-      foreignKey: 'id'
-    })
-    var res = RegionModel.belongsTo(PublishModel).findAll({
-      attributes: { exclude: ['uid','is_valid','is_active'] },
-      // where: {
-      //   type_id: typeId
-      // },
-    }).then((result)=>{
-      console.log(result);
-      // successResult(res, result)
-    }).catch((error)=>{
-      console.log('error',error);
-        // setCatch(res, error)
-    })
-    return false
-      PublishModel.findAll({
-        attributes: { exclude: ['uid','is_valid','is_active'] },
-        where: {
-          type_id: typeId
-        },
-      }).then((result)=>{
-        successResult(res, result)
-      }).catch((error)=>{
-        console.log('error',error);
-          setCatch(res, error)
-      })
-  }
-});
-// 详情
-router.get('/publishDetailOne',(req, res, next)=>{
-
-  const { publishId } = req.query
-  PublishModel.findOne({attributes: ['id'], where: { id: publishId } }).then((result)=>{
+  V_PublishModel.findAll({
+    attributes: { exclude: ['uid','is_valid','is_active'] },
+    where: {
+      type_id: paramsRule(typeId)
+    },
+  }).then((result)=>{
 		successResult(res, result)
 	})
-  // var v1 = resultError(typeId,'参数为空', res)
-  // if(v1){
-  //     PublishModel.findAll({
-  //       attributes: { exclude: ['uid','is_valid','is_active'] },
-  //       where: {
-  //         id: publishId
-  //       },
-  //     }).then((result)=>{
-  //       successResult(res, result)
-  //     }).catch((error)=>{
-  //       console.log('error',error);
-  //         setCatch(res, error)
-  //     })
-  // }
+    // PublishModel.hasOne(RegionModel, {
+    //   foreignKey: 'id'
+    // })
+    // var res = RegionModel.belongsTo(PublishModel).findAll({
+    //   attributes: { exclude: ['uid','is_valid','is_active'] },
+    //   // where: {
+    //   //   type_id: typeId
+    //   // },
+    // }).then((result)=>{
+    //   console.log(result);
+    //   // successResult(res, result)
+    // }).catch((error)=>{
+    //   console.log('error',error);
+    //     // setCatch(res, error)
+    // })
+    // return false
+    //   PublishModel.findAll({
+    //     attributes: { exclude: ['uid','is_valid','is_active'] },
+    //     where: {
+    //       type_id: typeId
+    //     },
+    //   }).then((result)=>{
+    //     successResult(res, result)
+    //   }).catch((error)=>{
+    //     console.log('error',error);
+    //       setCatch(res, error)
+    //   })
+});
+// 用户发布详情
+router.get('/publishDetailOne',(req, res, next)=>{
+  const { publishId } = req.query
+  V_PublishModel.findOne({
+    attributes: { exclude: ['id', 'uid','is_valid','is_active'] },
+    where: {
+      id: paramsRule(publishId)
+    },
+  }).then((result)=>{
+		successResult(res, result)
+	})
 });
 
 

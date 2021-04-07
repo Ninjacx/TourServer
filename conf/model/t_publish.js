@@ -2,26 +2,7 @@ const {sequelizeDB} = require('../SequelizeDb');
 const {Sequelize,DataTypes,Model,QueryTypes} = require('sequelize');
 
 const Publish = sequelizeDB.define('Publish', {
-  // id: {
-  //   type: DataTypes.INTEGER,
-  //   primaryKey: true
-  //   // allowNull: false
-  // },
-  // id
-  // motorcycle_name
-  // license_plate_id
-  // volume
-  // rent_day
-  // region_id
-  // rent_month
-  // addr_detail
-  // contact
-  // photo
-  // contact_phone
-  // createtime
-  // uid
-  // is_valid
-  // // 在这里定义模型属性
+  // 在这里定义模型属性
   motorcycle_name: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -53,12 +34,6 @@ const Publish = sequelizeDB.define('Publish', {
     type: DataTypes.STRING,
   },
   addr_detail: {
-    type: DataTypes.STRING,
-  },
-  contact: {
-    type: DataTypes.STRING,
-  },
-  contact_phone: {
     type: DataTypes.STRING,
   },
   pic_url: {

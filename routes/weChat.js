@@ -1,11 +1,13 @@
 var express = require('express');
 var conf = require('../conf/conf');
 var {successResult, setCatch} = require('../common/publicFn');
+const {sequelizeDB} = require('../conf/SequelizeDb');
+// const {Sequelize,DataTypes,Model,QueryTypes} = require('sequelize');
 const axios = require('axios');
 var wxBizDataCrypt = require('../common/WXBizDataCrypt');
 // var {MenuModel} = require('../conf/model/t_menu');
 var {UserModel} = require('../conf/model/t_user');
-
+var {OrderModel} = require('../conf/model/t_order');
 var {V_PublishModel} = require('../conf/model/v_publish');
 var {licensePlateModel} = require('../conf/model/t_license_plate');
 var {TypeModel} = require('../conf/model/t_type');
@@ -144,7 +146,7 @@ router.get('/publishDataList',(req, res, next)=>{
 router.get('/publishDetailOne',(req, res, next)=>{
   const { publishId } = req.query
   V_PublishModel.findOne({
-    attributes: { exclude: ['id', 'uid','is_valid'] },
+    attributes: { include:[['id','publishId']], exclude: ['id','uid','is_valid'] },
     where: {
       id: paramsRule(publishId)
     },
@@ -152,6 +154,83 @@ router.get('/publishDetailOne',(req, res, next)=>{
 		successResult(res, result)
 	})
 });
+// 支付成功生成订单 订单生成后需要把t_publish 表中的is_active 改成活动状态
+router.post('/addOrder',(req, res, next) => {
+  var uid = req.get("Authorization")
+  
+  var {publishId, countDay, startDate, startTime} = req.body
+  // console.log('startDate',startDate);
+  // console.log('startDate',startTime);
+  // return false;
+  // 查出当前产品的单价 并且后台计算
+  PublishModel.findOne({
+    attributes: { include:['rent_day','rent_month']},
+    where: {
+      id: paramsRule(publishId)
+    },
+  }).then(async (result)=>{
+    var {rent_day, rent_month} = result 
+    var payMent = countDay * rent_day // 按照天数的金额
+
+    // 生成订单 创建订单，并且改变产品的状态，已被使用
+    try {
+      const result = await sequelizeDB.transaction(async t => {
+        OrderModel.create({
+          amount: payMent,
+          uid: uid,
+          publish_id: publishId,
+          end_time: '' // 根据用户初始时间+天数 = 结束时间
+        }, { transaction: t })
+
+         PublishModel.update({is_active: 1}, {where: { id: publishId }}, { transaction: t })
+        //  const res2 = await
+        
+        // await PublishModel.setShooter({
+        //   is_active: 1,where: { id: publishId }
+        // }, { transaction: t })
+        //  .then((res)=>{
+        //   if(!res[0]){throw new Error()}
+        //  })
+        // .then(updateRes => {})
+        // await user.setShooter({
+        //   firstName: 'John',
+        //   lastName: 'Boothe'
+        // }, { transaction: t }) throw new Error();
+          // console.log('res1',res1);
+        //   console.log('res2',res2);
+        // // return user
+        // throw new Error();
+      })
+    console.log('result',result);
+      // 如果执行到此，则表示事务已成功提交，result 是事务返回的结果，在这种情况下为 `user`
+    } catch (error) {
+      console.log('-------------------');
+      console.log(error);
+      console.log('-------------------');
+      // 如果执行到此，则发生错误，该事务已由 Sequelize 自动回滚。
+    }
+
+
+
+
+		// successResult(res, result)
+	}).catch((error)=>{
+     setCatch(res, error)
+  })
+  // console.log('publishId',publishId);
+  // 此方法查到数据则取出，否则直接添加
+  // const [user, isNewUser] = await UserModel.findOrCreate({
+  //   attributes: { exclude: ['id'] },
+  //   where: { phone: phoneNumber },
+  //   defaults: {
+  //     id: uuid_v4(),
+  //     open_id: openId,
+  //     phone: phoneNumber
+  //   }
+  // })
+  // var msg = isNewUser?'注册成功': '登录成功'
+  // successResult(res, user.dataValues, msg)
+})
 
 // 商户发布车型 (需优化一个人一天最多只能加50条？)
 router.post('/publish',function(req, res, next) {

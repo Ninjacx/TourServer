@@ -70,7 +70,7 @@ router.post('/login',async (req, res, next) => {
   var {openId, phoneNumber} = req.body
   // 此方法查到数据则取出，否则直接添加
   const [user, isNewUser] = await UserModel.findOrCreate({
-    attributes: { exclude: ['id'] },
+    // attributes: { exclude: ['id'] },
     where: { phone: phoneNumber },
     defaults: {
       id: uuid_v4(),
@@ -154,11 +154,27 @@ router.get('/publishDetailOne',(req, res, next)=>{
 		successResult(res, result)
 	})
 });
+// 用户我的订单列表
+router.get('/getUserOrderList',(req, res, next)=>{
+  // const { typeId } = req.query
+  var uid = req.get("Authorization")
+  OrderModel.findAll({
+    attributes: { exclude: ['uid','is_valid'] },
+    where: {
+      uid: uid,
+      status: 1
+    },
+  }).then((result)=>{
+		successResult(res, result)
+	})
+});
 // 支付成功生成订单 订单生成后需要把t_publish 表中的is_active 改成活动状态
 router.post('/addOrder',(req, res, next) => {
   var uid = req.get("Authorization")
   
   var {publishId, countDay, startDate, startTime} = req.body
+  console.log('startDate + startTime,',startDate + ' ' +startTime);
+  // return false
   // console.log('startDate',startDate);
   // console.log('startDate',startTime);
   // return false;
@@ -171,37 +187,28 @@ router.post('/addOrder',(req, res, next) => {
   }).then(async (result)=>{
     var {rent_day, rent_month} = result 
     var payMent = countDay * rent_day // 按照天数的金额
-
+    // 统一前端传时间戳过来会方便
     // 生成订单 创建订单，并且改变产品的状态，已被使用
+    // console.log('=========',{
+    //   amount: payMent,
+    //   uid: uid,
+    //   publish_id: publishId,
+    //   end_time: '' // 根据用户初始时间+天数 = 结束时间
+    // });
     try {
-      const result = await sequelizeDB.transaction(async t => {
+      // const result = await sequelizeDB.transaction(async t => {
         OrderModel.create({
           amount: payMent,
           uid: uid,
           publish_id: publishId,
-          end_time: '' // 根据用户初始时间+天数 = 结束时间
-        }, { transaction: t })
+          start_time: '2021-04-07 22:34:35', //startDate + ' 0' +startTime,
+          end_time: '2021-04-07 22:34:35' // 根据用户初始时间+天数 = 结束时间
+        }) // , { transaction: t }
 
-         PublishModel.update({is_active: 1}, {where: { id: publishId }}, { transaction: t })
-        //  const res2 = await
-        
-        // await PublishModel.setShooter({
-        //   is_active: 1,where: { id: publishId }
-        // }, { transaction: t })
-        //  .then((res)=>{
-        //   if(!res[0]){throw new Error()}
-        //  })
-        // .then(updateRes => {})
-        // await user.setShooter({
-        //   firstName: 'John',
-        //   lastName: 'Boothe'
-        // }, { transaction: t }) throw new Error();
-          // console.log('res1',res1);
-        //   console.log('res2',res2);
-        // // return user
-        // throw new Error();
-      })
-    console.log('result',result);
+         var resUpdate = await PublishModel.update({is_active: 1}, {where: { id: publishId }}) // , { transaction: t }
+         successResult(res, resUpdate)
+      // })
+    // console.log('result',result);
       // 如果执行到此，则表示事务已成功提交，result 是事务返回的结果，在这种情况下为 `user`
     } catch (error) {
       console.log('-------------------');

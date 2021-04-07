@@ -83,7 +83,12 @@ router.get('/homeData',async (req, res, next)=>{
 
 
 // 获取两个类目菜单的接口数据
-router.get('/getPlateAll',(req, res, next)=>{
+router.post('/getPlateAll',(req, res, next)=>{
+	  console.log('req',req.get('myauthauthauth'));
+
+		return false
+
+
 	  var token = req.query.token;
 	  var selectPlate = `select * from t_plate`;
 	  var selectPlate2 = `select t_plate_second.*,t_collect.collect_state from t_plate_second 

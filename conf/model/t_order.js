@@ -14,6 +14,9 @@ const Order = sequelizeDB.define('Order', {
   publish_id:{
     type: DataTypes.INTEGER,
   },
+  start_time: {
+    type: DataTypes.DATE,
+  },
   end_time: {
     type: DataTypes.DATE,
   },

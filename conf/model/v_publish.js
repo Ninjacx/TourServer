@@ -37,6 +37,9 @@ const v_Publish = sequelizeDB.define('v_Publish', {
   license_plate_id: {
     type: DataTypes.INTEGER,
   },
+  license_plate_name: {
+    type: DataTypes.STRING,
+  },
   region_id: {
     type: DataTypes.INTEGER,
   },

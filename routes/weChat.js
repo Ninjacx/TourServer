@@ -105,7 +105,7 @@ router.get('/getType',(req, res, next)=>{
 router.get('/publishDataList',(req, res, next)=>{
   const { typeId } = req.query
   V_PublishModel.findAll({
-    attributes: { exclude: ['uid','is_valid','is_active'] },
+    attributes: { exclude: ['uid','is_valid'] },
     where: {
       type_id: paramsRule(typeId)
     },
@@ -144,7 +144,7 @@ router.get('/publishDataList',(req, res, next)=>{
 router.get('/publishDetailOne',(req, res, next)=>{
   const { publishId } = req.query
   V_PublishModel.findOne({
-    attributes: { exclude: ['id', 'uid','is_valid','is_active'] },
+    attributes: { exclude: ['id', 'uid','is_valid'] },
     where: {
       id: paramsRule(publishId)
     },
@@ -153,11 +153,9 @@ router.get('/publishDetailOne',(req, res, next)=>{
 	})
 });
 
-
 // 商户发布车型 (需优化一个人一天最多只能加50条？)
 router.post('/publish',function(req, res, next) {
   var uid = req.get("Authorization")
-
   // 当类型为牌照的时候则不调用上传图片的接口
 	var form = new formidable.IncomingForm();
     //设置文件上传存放地址（需要先把这个文件夹，在项目中建好）

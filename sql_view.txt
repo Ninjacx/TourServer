@@ -1,8 +1,9 @@
-<-----v_publish----->
-SELECT	t_publish.*,t_type.type_name,t_region.region_name,t_user.phone,t_user.real_name,t_user.nick_name
+# v_publish 
+SELECT	t_publish.*,t_type.type_name,t_region.region_name,t_user.phone,t_user.real_name,t_user.nick_name,t_license_plate.license_plate_name
 FROM
 	t_publish
 	LEFT JOIN t_type ON t_publish.type_id = t_type.id 
 	LEFT JOIN t_region ON t_publish.region_id = t_region.id
 	LEFT JOIN t_user ON t_publish.uid = t_user.id
---------------------------------------------------------
+	LEFT JOIN t_license_plate ON t_publish.license_plate_id = t_license_plate.id
+#--------------------------------------------------------

@@ -2,7 +2,7 @@ var express = require('express');
 var conf = require('../conf/conf');
 var {successResult, setCatch} = require('../common/publicFn');
 const {sequelizeDB} = require('../conf/SequelizeDb');
-// const {Sequelize,DataTypes,Model,QueryTypes} = require('sequelize');
+const {Sequelize,DataTypes,Model,QueryTypes} = require('sequelize');
 const axios = require('axios');
 var wxBizDataCrypt = require('../common/WXBizDataCrypt');
 // var {MenuModel} = require('../conf/model/t_menu');
@@ -160,6 +160,24 @@ router.get('/publishDetailOne',(req, res, next)=>{
 router.get('/getUserOrderList',(req, res, next)=>{
   // const { typeId } = req.query
   var uid = req.get("Authorization")
+  // https://www.cnblogs.com/hss-blog/articles/10220267.html
+  PublishModel.hasOne(OrderModel, {foreignKey: 'id'})
+  OrderModel.belongsTo(PublishModel, {foreignKey: 'publish_id',attributes: { exclude: ['uid','is_valid'] }})
+  OrderModel.findAll({attributes: ['publish_id'], where: { }, include: [ // Sequelize.col('Publish.id'),
+    { model:PublishModel,
+      attributes: ['volume'],
+      where:{id: 1},   
+      required: false,
+      as: 'Publish',
+      raw:true
+    },
+    
+  ]}).then((result)=>{
+		successResult(res, result)
+	})
+
+  return false
+
   OrderModel.findAll({
     attributes: { exclude: ['uid','is_valid'] },
     where: {

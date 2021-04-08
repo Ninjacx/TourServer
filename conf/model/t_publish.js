@@ -3,6 +3,11 @@ const {Sequelize,DataTypes,Model,QueryTypes} = require('sequelize');
 
 const Publish = sequelizeDB.define('Publish', {
   // 在这里定义模型属性
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true
+  },
+  // 在这里定义模型属性
   motorcycle_name: {
     type: DataTypes.STRING,
     allowNull: false,

@@ -12,6 +12,8 @@ var {V_PublishModel} = require('../conf/model/v_publish');
 var {licensePlateModel} = require('../conf/model/t_license_plate');
 var {TypeModel} = require('../conf/model/t_type');
 var {PublishModel} = require('../conf/model/t_publish');
+var {BannerModel} = require('../conf/model/t_banner');
+
 var {RegionModel} = require('../conf/model/t_region');
 
 var url = require('url');
@@ -269,17 +271,17 @@ router.post('/publish',function(req, res, next) {
 
 // 查出APP 展示的商家广告位 与 APP 其它展示图
 router.get('/getBanner',(req, res, next)=>{
-  // BannerModel.findAll({
-  //   attributes: ['title', 'url','image','type'],
-  //   where: {
-  //     is_del: 0,
-  //     type: req.query.type
-  //   }
-  // }).then((resultList)=>{
-  //   checklogin.resultSuccess(res, resultList);
-  // }).catch((error)=>{
-  //   setCatch(res, error)
-  // })
+  BannerModel.findAll({
+    attributes: ['banner_name', 'url','image','type'],
+    where: {
+      is_del: 0
+      // type: req.query.type
+    }
+  }).then((result)=>{
+    successResult(res, result)
+  }).catch((error)=>{
+    setCatch(res, error)
+  })
   // 传入groups = 1 则加条件，不然就查全部
     // var type = req.query.type?`and type = ${req.query.type}`:"";
     // var selectSQL = `select title,url,image,type from t_banner where is_del = 0 ${type}`;

@@ -6,6 +6,10 @@
 
 
 const tools = {
+   // where条件默认参数
+   initWhereParams: function(obj) {
+      return Object.assign({is_del: 0},obj)
+   },
    // 校验参数接口传入参数
    paramsRule: function(str,message,res) {
       return str ? str : ''

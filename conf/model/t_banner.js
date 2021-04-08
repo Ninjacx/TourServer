@@ -3,25 +3,16 @@ const {Sequelize,DataTypes,Model,QueryTypes} = require('sequelize');
 
 const Banner = sequelizeDB.define('Banner', {
   // 在这里定义模型属性
-  name: {
+  banner_name: {
     type: DataTypes.STRING,
     // allowNull: false
   },
-  menu_key: {
+  image: {
     type: DataTypes.STRING
     // allowNull 默认为 true
   },
-  icon: {
+  type: {
     type: DataTypes.STRING
-    // allowNull 默认为 true
-  },
-  
-  groups: {
-    type: DataTypes.INTEGER
-    // allowNull 默认为 true
-  },
-  menu_id: {
-    type: DataTypes.INTEGER
     // allowNull 默认为 true
   },
   url: {

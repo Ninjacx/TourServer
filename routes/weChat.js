@@ -1,4 +1,5 @@
 var express = require('express');
+// DATE_FORMAT(t_user.create_time,"%Y-%m-%d")as createTime
 var conf = require('../conf/conf');
 var {successResult, setCatch} = require('../common/publicFn');
 const {sequelizeDB} = require('../conf/SequelizeDb');
@@ -158,35 +159,37 @@ router.get('/publishDetailOne',(req, res, next)=>{
 });
 // 用户我的订单列表
 router.get('/getUserOrderList',(req, res, next)=>{
-  // const { typeId } = req.query
+  // whereIn  历史，已完成，进行中
+  const { status } = req.query
   var uid = req.get("Authorization")
+  console.log('uid', uid);
   // https://www.cnblogs.com/hss-blog/articles/10220267.html
-  PublishModel.hasOne(OrderModel, {foreignKey: 'id'})
-  OrderModel.belongsTo(PublishModel, {foreignKey: 'publish_id',attributes: { exclude: ['uid','is_valid'] }})
-  OrderModel.findAll({attributes: ['publish_id'], where: { }, include: [ // Sequelize.col('Publish.id'),
-    { model:PublishModel,
-      attributes: ['volume'],
-      where:{id: 1},   
-      required: false,
-      as: 'Publish',
-      raw:true
-    },
-    
-  ]}).then((result)=>{
-		successResult(res, result)
-	})
-
-  return false
+  V_PublishModel.hasOne(OrderModel, {foreignKey: 'id'})
+  OrderModel.belongsTo(V_PublishModel, {foreignKey: 'publish_id'}) // , attributes: { exclude: ['uid','is_valid'] }
 
   OrderModel.findAll({
-    attributes: { exclude: ['uid','is_valid'] },
-    where: {
-      uid: uid,
-      status: 1
-    },
-  }).then((result)=>{
-		successResult(res, result)
-	})
+    attributes: {
+      include:[ //  
+        Sequelize.col('v_publish.addr_detail'),
+        Sequelize.col('v_publish.motorcycle_name'),
+        Sequelize.col('v_publish.region_name'),
+        Sequelize.col('v_publish.license_plate_name'),
+        Sequelize.col('v_publish.pic_url'),
+        [Sequelize.fn('date_format', Sequelize.col('start_time'),'%Y-%m-%d %H:%i:%s'), 'start_time'],
+        [Sequelize.fn('date_format', Sequelize.col('end_time'),'%Y-%m-%d %H:%i:%s'), 'end_time']
+      ],
+      exclude: ['uid','is_valid'] 
+    }, 
+      where: {status: paramsRule(status)}, 
+      include: [
+                { model: V_PublishModel,
+                  attributes: [],
+                  required: false,
+                },
+                
+      ], raw: true}).then((result)=>{
+        successResult(res, result)
+      })
 });
 // 支付成功生成订单 订单生成后需要把t_publish 表中的is_active 改成活动状态
 router.post('/addOrder',(req, res, next) => {

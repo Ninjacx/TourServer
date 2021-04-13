@@ -14,6 +14,7 @@ var {licensePlateModel} = require('../conf/model/t_license_plate');
 var {TypeModel} = require('../conf/model/t_type');
 var {PublishModel} = require('../conf/model/t_publish');
 var {BannerModel} = require('../conf/model/t_banner');
+var {AdviceModel} = require('../conf/model/t_advice');
 
 var {RegionModel} = require('../conf/model/t_region');
 
@@ -310,5 +311,19 @@ router.get('/getBanner',(req, res, next)=>{
     //     checklogin.result(res,result,true);
     //   },res);
 });
+
+// 意见反馈添加
+router.post('/addAdvice',(req, res, next) => {
+  var {content, phone, uid} = req.body
+  AdviceModel.create({
+    content: paramsRule(content),
+    phone: paramsRule(phone),
+    uid
+  }).then((result)=>{
+    successResult(res, result, '反馈成功')
+  }).catch((error)=>{
+    setCatch(res, error)
+  })
+})
 
 module.exports = router;

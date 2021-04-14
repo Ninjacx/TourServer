@@ -53,7 +53,7 @@ const Publish = sequelizeDB.define('Publish', {
   is_valid: {
     type: DataTypes.STRING,
   },
-  is_active: {
+  is_lease: {
     type: DataTypes.INTEGER,
   },
   create_time: {

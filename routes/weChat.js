@@ -111,7 +111,7 @@ router.get('/getType',(req, res, next)=>{
 router.get('/publishDataList',(req, res, next)=>{
   const { typeId } = req.query
   V_PublishModel.findAll({
-    attributes: { exclude: ['uid','is_valid'] },
+    attributes: { exclude: ['uid','is_lease'] },
     where: {
       type_id: paramsRule(typeId)
     },
@@ -229,7 +229,7 @@ router.post('/addOrder',(req, res, next) => {
           end_time: '2021-04-07 22:34:35' // 根据用户初始时间+天数 = 结束时间
         }) // , { transaction: t }
 
-         var resUpdate = await PublishModel.update({is_active: 1}, {where: { id: publishId }}) // , { transaction: t }
+         var resUpdate = await PublishModel.update({is_lease: 1}, {where: { id: publishId }}) // , { transaction: t }
          successResult(res, resUpdate)
       // })
     // console.log('result',result);

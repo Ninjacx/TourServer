@@ -263,6 +263,19 @@ router.post('/addOrder',(req, res, next) => {
   // successResult(res, user.dataValues, msg)
 })
 
+// 发布牌照
+router.post('/publishLicensePlate',function(req, res, next) {
+  var uid = req.get("Authorization")
+  var params = req.body
+  // 
+  PublishModel.create(Object.assign(params, uid)).then((result)=>{
+    successResult(res, result._options, '发布成功')
+  }).catch((error)=>{
+    console.log('error',error);
+      setCatch(res, error)
+  })
+})
+
 // 商户发布车型 (需优化一个人一天最多只能加50条？)
 router.post('/publish',function(req, res, next) {
   var uid = req.get("Authorization")

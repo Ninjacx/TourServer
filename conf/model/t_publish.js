@@ -10,15 +10,15 @@ const Publish = sequelizeDB.define('Publish', {
   // 在这里定义模型属性
   motorcycle_name: {
     type: DataTypes.STRING,
-    allowNull: false,
-    validate: {
-        customValidator(value) {
-          if (value === null || !value) {
-            throw new Error("not null");
-          }
-        // msg: '请填写车型名'
-      }
-    }
+    // allowNull: false,
+    // validate: {
+    //     customValidator(value) {
+    //       if (value === null || !value) {
+    //         throw new Error("not null");
+    //       }
+    //     // msg: '请填写车型名'
+    //   }
+    // }
   },
   license_plate_id: {
     type: DataTypes.INTEGER,
@@ -48,6 +48,12 @@ const Publish = sequelizeDB.define('Publish', {
     type: DataTypes.DATE,
   },
   uid: {
+    type: DataTypes.STRING,
+  },
+  contact: {
+    type: DataTypes.STRING,
+  },
+  contact_phone: {
     type: DataTypes.STRING,
   },
   is_valid: {

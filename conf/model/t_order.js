@@ -13,6 +13,7 @@ const Order = sequelizeDB.define('Order', {
   },
   publish_id:{
     type: DataTypes.INTEGER,
+    primaryKey: true, // 设置关联的外键
   },
   start_time: {
     type: DataTypes.DATE,

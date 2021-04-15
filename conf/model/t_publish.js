@@ -5,6 +5,7 @@ const Publish = sequelizeDB.define('Publish', {
   // 在这里定义模型属性
   id: {
     type: DataTypes.INTEGER,
+    foreignKey: 'id' ,
     primaryKey: true
   },
   // 在这里定义模型属性

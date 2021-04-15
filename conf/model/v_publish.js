@@ -4,6 +4,7 @@ const {Sequelize,DataTypes,Model,QueryTypes} = require('sequelize');
 const v_Publish = sequelizeDB.define('v_Publish', {
   id: {
     type: DataTypes.INTEGER,
+    foreignKey: 'id' ,
     primaryKey: true
     // allowNull: false
   },

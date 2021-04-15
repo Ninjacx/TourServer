@@ -107,7 +107,7 @@ router.get('/getType',(req, res, next)=>{
   })
 });
 
-// 列表 leftjoin
+// 发布的列表
 router.get('/publishDataList',(req, res, next)=>{
   const { typeId } = req.query
   V_PublishModel.findAll({
@@ -117,34 +117,9 @@ router.get('/publishDataList',(req, res, next)=>{
     },
   }).then((result)=>{
 		successResult(res, result)
-	})
-    // PublishModel.hasOne(RegionModel, {
-    //   foreignKey: 'id'
-    // })
-    // var res = RegionModel.belongsTo(PublishModel).findAll({
-    //   attributes: { exclude: ['uid','is_valid','is_active'] },
-    //   // where: {
-    //   //   type_id: typeId
-    //   // },
-    // }).then((result)=>{
-    //   console.log(result);
-    //   // successResult(res, result)
-    // }).catch((error)=>{
-    //   console.log('error',error);
-    //     // setCatch(res, error)
-    // })
-    // return false
-    //   PublishModel.findAll({
-    //     attributes: { exclude: ['uid','is_valid','is_active'] },
-    //     where: {
-    //       type_id: typeId
-    //     },
-    //   }).then((result)=>{
-    //     successResult(res, result)
-    //   }).catch((error)=>{
-    //     console.log('error',error);
-    //       setCatch(res, error)
-    //   })
+	}).catch((error)=>{
+     setCatch(res, error)
+  })
 });
 // 用户发布详情
 router.get('/publishDetailOne',(req, res, next)=>{
@@ -157,6 +132,45 @@ router.get('/publishDetailOne',(req, res, next)=>{
   }).then((result)=>{
 		successResult(res, result)
 	})
+});
+// 用户发布的列表
+router.get('/userPublishDataList',(req, res, next)=>{
+  
+  var uid = req.get("Authorization")
+  const { lease } = req.query
+  
+  OrderModel.hasOne(V_PublishModel,{foreignKey: 'id'}) 
+  V_PublishModel.belongsTo(OrderModel, {foreignKey: 'id'}) // , {foreignKey: 'id'}
+
+  V_PublishModel.findAll({
+    attributes: {
+      include:[
+        [Sequelize.fn('date_format', Sequelize.col('start_time'),'%Y-%m-%d %H:%i:%s'), 'start_time'],
+        [Sequelize.fn('date_format', Sequelize.col('end_time'),'%Y-%m-%d %H:%i:%s'), 'end_time']
+      ],
+      exclude: ['uid','is_valid'] 
+    }, 
+      where: {uid, is_lease: paramsRule(lease)}, 
+      include: [
+                { model: OrderModel,
+                  attributes: [],
+                  required: false,
+                },
+                
+      ], raw: true}).then((result)=>{
+        successResult(res, result)
+      })
+  // V_PublishModel.findAll({
+  //   attributes: { exclude: ['uid','is_lease'] },
+  //   where: {
+  //     uid,
+  //     is_lease: paramsRule(lease)
+  //   },
+  // }).then((result)=>{
+	// 	successResult(res, result)
+	// }).catch((error)=>{
+  //    setCatch(res, error)
+  // })
 });
 // 用户我的订单列表
 router.get('/getUserOrderList',(req, res, next)=>{

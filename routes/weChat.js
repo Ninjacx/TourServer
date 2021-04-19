@@ -34,7 +34,7 @@ const serverIp = 'http://172.16.19.133/';
 /*验证登录*/
 // const AuthMiddleware = require('./checklogin');
 const checklogin = require('./checklogin');
-const {resultError, paramsRule} = require('../common/tools');
+const {resultError, paramsRule, setTimeStamp} = require('../common/tools');
 
 /**---------------------------------1.获取---------------------------------------------*/
 // 小程序测试号信息
@@ -111,7 +111,7 @@ router.get('/getType',(req, res, next)=>{
 router.get('/publishDataList',(req, res, next)=>{
   const { typeId } = req.query
   V_PublishModel.findAll({
-    attributes: { exclude: ['uid','is_lease'] },
+    attributes: { exclude: ['uid'] },
     where: {
       type_id: paramsRule(typeId)
     },
@@ -190,8 +190,9 @@ router.get('/getUserOrderList',(req, res, next)=>{
         Sequelize.col('v_publish.region_name'),
         Sequelize.col('v_publish.license_plate_name'),
         Sequelize.col('v_publish.pic_url'),
-        [Sequelize.fn('date_format', Sequelize.col('start_time'),'%Y-%m-%d %H:%i:%s'), 'start_time'],
-        [Sequelize.fn('date_format', Sequelize.col('end_time'),'%Y-%m-%d %H:%i:%s'), 'end_time']
+        [Sequelize.fn('date_format', Sequelize.col('Order.create_time'),'%Y-%m-%d %H:%i:%s'), 'create_time'],
+        Sequelize.col('start_time'),
+        Sequelize.col('end_time'),
       ],
       exclude: ['uid','is_valid'] 
     }, 
@@ -210,12 +211,8 @@ router.get('/getUserOrderList',(req, res, next)=>{
 router.post('/addOrder',(req, res, next) => {
   var uid = req.get("Authorization")
   
-  var {publishId, countDay, startDate, startTime} = req.body
-  console.log('startDate + startTime,',startDate + ' ' +startTime);
-  // return false
-  // console.log('startDate',startDate);
-  // console.log('startDate',startTime);
-  // return false;
+  var {publishId, countDay, startDate, endDate, startTime, endTime} = req.body
+ 
   // 查出当前产品的单价 并且后台计算
   PublishModel.findOne({
     attributes: { include:['rent_day','rent_month']},
@@ -234,13 +231,15 @@ router.post('/addOrder',(req, res, next) => {
     //   end_time: '' // 根据用户初始时间+天数 = 结束时间
     // });
     try {
-      // const result = await sequelizeDB.transaction(async t => {
+      var start_time = setTimeStamp(`${startDate} ${startTime}`)
+      var end_time = setTimeStamp(`${endDate} ${endTime}`)
+      
         OrderModel.create({
           amount: payMent,
           uid: uid,
           publish_id: publishId,
-          start_time: '2021-04-07 22:34:35', //startDate + ' 0' +startTime,
-          end_time: '2021-04-07 22:34:35' // 根据用户初始时间+天数 = 结束时间
+          start_time: start_time, //'0' + start_time + ':00', //startDate + ' 0' +startTime,
+          end_time: end_time, //'0' + end_time + ':00' // 根据用户初始时间+天数 = 结束时间
         }) // , { transaction: t }
 
          var resUpdate = await PublishModel.update({is_lease: 1}, {where: { id: publishId }}) // , { transaction: t }
@@ -249,9 +248,7 @@ router.post('/addOrder',(req, res, next) => {
     // console.log('result',result);
       // 如果执行到此，则表示事务已成功提交，result 是事务返回的结果，在这种情况下为 `user`
     } catch (error) {
-      console.log('-------------------');
-      console.log(error);
-      console.log('-------------------');
+       setCatch(res, error)
       // 如果执行到此，则发生错误，该事务已由 Sequelize 自动回滚。
     }
 

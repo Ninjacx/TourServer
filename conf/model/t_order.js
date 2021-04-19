@@ -16,10 +16,13 @@ const Order = sequelizeDB.define('Order', {
     primaryKey: true, // 设置关联的外键
   },
   start_time: {
+    type: DataTypes.STRING,
+  },
+  create_time: {
     type: DataTypes.DATE,
   },
   end_time: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING,
   },
 }, {
   // 这是其他模型参数

@@ -50,7 +50,15 @@ const tools = {
        WHEN 1 then CONCAT('昨天 ',DATE_FORMAT(${time},'%T'))
        WHEN 2 then CONCAT('前天 ',DATE_FORMAT(${time},'%T'))
        ELSE DATE_FORMAT(${time},"20%y-%m-%d") END as dateTime`;
-    }
+    },
+
+   //  关于时间处理
+   // 时间转成时间戳
+   setTimeStamp(dateStr){
+      var date = dateStr.substring(0,19);    
+      date = date.replace(/-/g,'/'); //必须把日期'-'转为'/'
+      return new Date(date).getTime()/1000;
+   }
  }
 
 

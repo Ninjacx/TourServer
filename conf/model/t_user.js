@@ -2,16 +2,28 @@ const {sequelizeDB} = require('../SequelizeDb');
 const {Sequelize,DataTypes,Model,QueryTypes} = require('sequelize');
 
 const User = sequelizeDB.define('User', {
-  // id: {
-  //   type: DataTypes.INTEGER,
-  //   // primaryKey: true
-  //   // allowNull: false
-  // },
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true   
+    // allowNull: false
+  },
   // // 在这里定义模型属性
   // nick_name: {
   //   type: DataTypes.STRING,
   //   // allowNull: false
   // },
+  member_id: {
+    type: DataTypes.INTEGER,
+    // allowNull: false
+  },
+  apply_status: {
+    type: DataTypes.INTEGER,
+    // allowNull: false
+  },
+  apply_member_id: {
+    type: DataTypes.INTEGER,
+    // allowNull: false
+  },
   open_id: {
     type: DataTypes.STRING,
     // allowNull: false

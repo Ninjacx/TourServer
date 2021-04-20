@@ -68,7 +68,18 @@ router.get('/getUserPhoneStepTwo',(req, res, next)=>{
   const data = bizDataCrypt.decryptData(encryptedData, iv)
   successResult(res,data)
 });
-
+// 获取单独一个用户的信息
+router.get('/getFindOneUser',(req, res, next)=>{
+  var uid = req.get("Authorization")
+  UserModel.findOne({
+    attributes: { include:[['apply_status','member_id']], exclude: ['id','open_id','is_valid'] }, // , exclude: ['id','uid','is_valid'] 
+    where: {
+      id: paramsRule(uid)
+    },
+  }).then((result)=>{
+		successResult(res, result)
+	})
+})
 // 登录
 router.post('/login',async (req, res, next) => {
   var {openId, phoneNumber} = req.body
@@ -145,8 +156,10 @@ router.get('/userPublishDataList',(req, res, next)=>{
   V_PublishModel.findAll({
     attributes: {
       include:[
-        [Sequelize.fn('date_format', Sequelize.col('start_time'),'%Y-%m-%d %H:%i:%s'), 'start_time'],
-        [Sequelize.fn('date_format', Sequelize.col('end_time'),'%Y-%m-%d %H:%i:%s'), 'end_time']
+        [Sequelize.fn('date_format', Sequelize.col('v_Publish.create_time'),'%Y-%m-%d %H:%i:%s'), 'create_time'],
+        Sequelize.col('start_time'),
+        Sequelize.col('end_time'),
+        Sequelize.col('amount'),
       ],
       exclude: ['uid','is_valid'] 
     }, 
@@ -348,6 +361,14 @@ router.post('/addAdvice',(req, res, next) => {
   }).catch((error)=>{
     setCatch(res, error)
   })
+})
+
+// 申请成为商户
+router.post('/applyMember',async function(req, res, next) {
+  var uid = req.get("Authorization")
+  console.log('uid',uid);
+  var resUpdate = await UserModel.update({apply_member_id: 2, apply_status: 0}, {where: { id: paramsRule(uid) }}) // , { transaction: t }
+  successResult(res, resUpdate[0], '申请成功,请等待结果')
 })
 
 module.exports = router;

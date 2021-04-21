@@ -12,6 +12,9 @@ const User = sequelizeDB.define('User', {
   //   type: DataTypes.STRING,
   //   // allowNull: false
   // },
+  lease_user_type: {
+    type: DataTypes.INTEGER,
+  },
   member_id: {
     type: DataTypes.INTEGER,
     // allowNull: false

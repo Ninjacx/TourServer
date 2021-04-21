@@ -173,17 +173,6 @@ router.get('/userPublishDataList',(req, res, next)=>{
       ], raw: true}).then((result)=>{
         successResult(res, result)
       })
-  // V_PublishModel.findAll({
-  //   attributes: { exclude: ['uid','is_lease'] },
-  //   where: {
-  //     uid,
-  //     is_lease: paramsRule(lease)
-  //   },
-  // }).then((result)=>{
-	// 	successResult(res, result)
-	// }).catch((error)=>{
-  //    setCatch(res, error)
-  // })
 });
 // 用户我的订单列表
 router.get('/getUserOrderList',(req, res, next)=>{

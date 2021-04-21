@@ -72,7 +72,7 @@ router.get('/getUserPhoneStepTwo',(req, res, next)=>{
 router.get('/getFindOneUser',(req, res, next)=>{
   var uid = req.get("Authorization")
   UserModel.findOne({
-    attributes: { include:[['apply_status','member_id']], exclude: ['id','open_id','is_valid'] }, // , exclude: ['id','uid','is_valid'] 
+    attributes: { exclude: ['id','open_id','is_valid'] }, // exclude: ['id','uid','is_valid']  include:[['apply_status','member_id']],
     where: {
       id: paramsRule(uid)
     },

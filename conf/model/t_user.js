@@ -12,6 +12,30 @@ const User = sequelizeDB.define('User', {
   //   type: DataTypes.STRING,
   //   // allowNull: false
   // },
+  lease_emergency_contact: {
+    type: DataTypes.STRING,
+    // allowNull: false
+  },
+  lease_emergency_phone: {
+    type: DataTypes.STRING,
+    // allowNull: false
+  },
+  lease_cardA: {
+    type: DataTypes.STRING,
+    // allowNull: false
+  },
+  lease_cardB: {
+    type: DataTypes.STRING,
+    // allowNull: false
+  },
+  lease_contact_phone: {
+    type: DataTypes.STRING,
+    // allowNull: false
+  },
+  lease_contact: {
+    type: DataTypes.STRING,
+    // allowNull: false
+  },
   lease_user_type: {
     type: DataTypes.INTEGER,
   },

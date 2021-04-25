@@ -7,41 +7,34 @@ const User = sequelizeDB.define('User', {
     primaryKey: true   
     // allowNull: false
   },
-  // // 在这里定义模型属性
-  // nick_name: {
-  //   type: DataTypes.STRING,
-  //   // allowNull: false
-  // },
   sex: {
     type: DataTypes.INTEGER,
   },
+  // 驾驶证号码
   drive_licence: {
     type: DataTypes.INTEGER,
   },
-  lease_emergency_contact: {
-    type: DataTypes.STRING,
-    // allowNull: false
-  },
-  lease_emergency_phone: {
-    type: DataTypes.STRING,
-    // allowNull: false
-  },
+  // 租借人身份证照片（正面）
   lease_cardA: {
     type: DataTypes.STRING,
     // allowNull: false
   },
+  // 租借人身份证照片（反面）
   lease_cardB: {
     type: DataTypes.STRING,
     // allowNull: false
   },
+  // 租借人手机
   lease_contact_phone: {
     type: DataTypes.STRING,
     // allowNull: false
   },
+  // 租借人姓名
   lease_contact: {
     type: DataTypes.STRING,
     // allowNull: false
   },
+  // 租借人类型
   lease_user_type: {
     type: DataTypes.INTEGER,
   },
@@ -73,14 +66,39 @@ const User = sequelizeDB.define('User', {
     type: DataTypes.STRING
     // allowNull 默认为 true
   },
+  
+  lease_emergency_contact: {
+    type: DataTypes.STRING,
+    // allowNull: false
+  },
+  lease_emergency_phone: {
+    type: DataTypes.STRING,
+    // allowNull: false
+  },
+  // 驾驶证照片 （正面）
+  drive_cardA: {
+    type: DataTypes.STRING
+    // allowNull 默认为 true
+  },
+  // 驾驶证照片 （反面）
+  drive_cardB: {
+    type: DataTypes.STRING
+    // allowNull 默认为 true
+  },
+  // 租借人车辆所在地址
+  lease_addr: {
+    type: DataTypes.STRING
+    // allowNull 默认为 true
+  },
+  // 租借人店面地址照片
+  lease_addr_photo: {
+    type: DataTypes.STRING
+    // allowNull 默认为 true
+  },
   create_time: {
     type: DataTypes.DATE,
     // allowNull: false
-  },
-  // signature: {
-  //   type: DataTypes.STRING
-  //   // allowNull 默认为 true
-  // }
+  }
 }, {
   // 这是其他模型参数
   freezeTableName: true, // 禁止模型名根据表名自动复数

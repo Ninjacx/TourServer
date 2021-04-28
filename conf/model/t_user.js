@@ -7,6 +7,18 @@ const User = sequelizeDB.define('User', {
     primaryKey: true   
     // allowNull: false
   },
+  real_name: {
+    type: DataTypes.STRING,
+    // allowNull: false
+  },
+  emergency_contact: {
+    type: DataTypes.STRING,
+    // allowNull: false
+  },
+  emergency_phone: {
+    type: DataTypes.STRING,
+    // allowNull: false
+  },
   sex: {
     type: DataTypes.INTEGER,
   },
@@ -96,6 +108,10 @@ const User = sequelizeDB.define('User', {
     // allowNull 默认为 true
   },
   create_time: {
+    type: DataTypes.DATE,
+    // allowNull: false
+  },
+  update_time: {
     type: DataTypes.DATE,
     // allowNull: false
   }

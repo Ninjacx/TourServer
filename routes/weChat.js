@@ -350,18 +350,16 @@ router.post('/publish',function(req, res, next) {
 // 修改我的资料认证
 router.post('/setUserDoc',function(req, res, next) {
   var uid = req.get("Authorization")
-  console.log('req.body', req.body);
-  // req.body
-  UserModel.update({ lastName: "Doe" }, {
+  UserModel.update(req.body, {
     where: {
       id: paramsRule(uid),
     }
   }).then((result)=>{
-    successResult(res, result._options, '发布成功')
+    successResult(res, result, '修改成功')
   }).catch((error)=>{
-      // setCatch(res, error)
+    console.log('error', error);
+      setCatch(res, error)
   })
- 
 });
 
 

@@ -14,6 +14,7 @@ var {licensePlateModel} = require('../conf/model/t_license_plate');
 var {TypeModel} = require('../conf/model/t_type');
 var {PublishModel} = require('../conf/model/t_publish');
 var {BannerModel} = require('../conf/model/t_banner');
+var {DemandModel} = require('../conf/model/t_demand');
 var {AdviceModel} = require('../conf/model/t_advice');
 
 var {RegionModel} = require('../conf/model/t_region');
@@ -34,7 +35,7 @@ const serverIp = 'http://172.16.19.133/';
 /*验证登录*/
 // const AuthMiddleware = require('./checklogin');
 const checklogin = require('./checklogin');
-const {resultError, paramsRule, setTimeStamp} = require('../common/tools');
+const {resultError, paramsRule, paramsInit, setTimeStamp} = require('../common/tools');
 
 /**---------------------------------公共方法start---------------------------------------------*/
 
@@ -284,10 +285,6 @@ router.post('/addOrder',(req, res, next) => {
        setCatch(res, error)
       // 如果执行到此，则发生错误，该事务已由 Sequelize 自动回滚。
     }
-
-
-
-
 		// successResult(res, result)
 	}).catch((error)=>{
      setCatch(res, error)
@@ -362,6 +359,7 @@ router.post('/setUserDoc',function(req, res, next) {
   })
 });
 
+/****首页****/
 
 // 查出APP 展示的商家广告位 与 APP 其它展示图
 router.get('/getBanner',(req, res, next)=>{
@@ -376,13 +374,45 @@ router.get('/getBanner',(req, res, next)=>{
   }).catch((error)=>{
     setCatch(res, error)
   })
-  // 传入groups = 1 则加条件，不然就查全部
-    // var type = req.query.type?`and type = ${req.query.type}`:"";
-    // var selectSQL = `select title,url,image,type from t_banner where is_del = 0 ${type}`;
-    //   conf.query(selectSQL,function(err,result){
-    //     checklogin.result(res,result,true);
-    //   },res);
 });
+
+// 获取需求表列表
+router.get('/getDemand',(req, res, next)=>{
+  const { count, pageSize } = req.query
+  
+  UserModel.hasOne(DemandModel, {foreignKey: 'id'})
+  DemandModel.belongsTo(UserModel, {foreignKey: 'uid'}) 
+
+  DemandModel.findAll({
+      attributes: {
+        include:[
+          [Sequelize.fn('date_format', Sequelize.col('Demand.create_time'),'%Y-%m-%d %H:%i:%s'), 'create_time'],
+          Sequelize.col('real_name'),
+          // Sequelize.col('end_time'),
+          // Sequelize.col('amount'),
+        ],
+        exclude: ['uid','id'] 
+      }, 
+      // where: {uid, is_lease: paramsRule(lease)}, 
+      include: [
+                { model: UserModel,
+                  attributes: [],
+                  required: false,
+                },
+                
+      ], raw: true}).then((result)=>{
+        successResult(res, result)
+      }).catch((error)=>{
+        setCatch(res, error)
+      })
+    // limit: paramsInit(parseInt(count), 5),
+    // attributes: ['content', 'create_time','uid'],
+    // where: {
+    //   is_del: 0
+    // }
+});
+
+/****首页END****/
 
 // 意见反馈添加
 router.post('/addAdvice',(req, res, next) => {

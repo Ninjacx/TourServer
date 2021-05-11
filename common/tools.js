@@ -11,8 +11,12 @@ const tools = {
       return Object.assign({is_del: 0},obj)
    },
    // 校验参数接口传入参数
-   paramsRule: function(str,message,res) {
+   paramsRule: function(str) {
       return str ? str : ''
+   },
+   // 校验参数接口传入参数第二个为设置默认参数
+   paramsInit: function(str,initVal) {
+      return str ? str : initVal
    },
    isNull: function(str,message,res) {
       /*验证字符串是否为空*/

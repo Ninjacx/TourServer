@@ -139,6 +139,37 @@ router.get('/getLicensePlate',(req, res, next)=>{
       setCatch(res, error)
   })
 });
+
+// 用户删除我的发布中的车型
+router.post('/delPublishOne',async (req, res, next) => {
+  var uid = req.get("Authorization")
+  console.log('uid',uid);
+  var { pid } = req.body
+  PublishModel.update({is_dels: 1}, {where: { id2: pid}}).then((result)=>{
+    console.log('result',result);
+    successResult(res, result, '删除成功')
+  }).catch((error)=>{
+    console.log('error', error);
+      setCatch(res, error)
+  })
+  
+  // , uid, is_lease: 0
+      // successResult(res, resUpdate, '删除成功')
+  // 此方法查到数据则取出，否则直接添加
+  // const [user, isNewUser] = await UserModel.findOrCreate({
+  //   // attributes: { exclude: ['id'] },
+  //   where: { phone: phoneNumber },
+  //   defaults: {
+  //     id: uuid_v4(),
+  //     open_id: openId,
+  //     phone: phoneNumber
+  //   }
+  // })
+  // var msg = isNewUser?'注册成功': '登录成功'
+  // successResult(res, user.dataValues, msg)
+}) 
+
+
 // 出租类目菜单
 router.get('/getType',(req, res, next)=>{
    TypeModel.findAll({

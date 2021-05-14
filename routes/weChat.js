@@ -117,7 +117,6 @@ router.post('/login',async (req, res, next) => {
   var {openId, phoneNumber} = req.body
   // 此方法查到数据则取出，否则直接添加
   const [user, isNewUser] = await UserModel.findOrCreate({
-    // attributes: { exclude: ['id'] },
     where: { phone: phoneNumber },
     defaults: {
       id: uuid_v4(),

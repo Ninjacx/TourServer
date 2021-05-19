@@ -100,6 +100,17 @@ router.get('/getUserPhoneStepTwo',(req, res, next)=>{
   const data = bizDataCrypt.decryptData(encryptedData, iv)
   successResult(res,data)
 });
+
+// 获取上海所有的区
+router.get('/getRegion',(req, res, next)=>{
+  RegionModel.findAll({
+    attributes: ['id', 'region_name']
+  }).then((result)=>{
+    successResult(res, result)
+  }).catch((error)=>{
+      setCatch(res, error)
+  })
+});
 // 获取单独一个用户的信息
 router.get('/getFindOneUser',(req, res, next)=>{
   var uid = req.get("Authorization")
@@ -144,28 +155,54 @@ router.post('/delPublishOne',async (req, res, next) => {
   var uid = req.get("Authorization")
   console.log('uid',uid);
   var { pid } = req.body
-  PublishModel.update({is_dels: 1}, {where: { id2: pid}}).then((result)=>{
+  PublishModel.update({is_del: 1}, {where: { id: pid}}).then((result)=>{
     console.log('result',result);
     successResult(res, result, '删除成功')
   }).catch((error)=>{
     console.log('error', error);
       setCatch(res, error)
   })
-  
-  // , uid, is_lease: 0
-      // successResult(res, resUpdate, '删除成功')
-  // 此方法查到数据则取出，否则直接添加
-  // const [user, isNewUser] = await UserModel.findOrCreate({
-  //   // attributes: { exclude: ['id'] },
-  //   where: { phone: phoneNumber },
-  //   defaults: {
-  //     id: uuid_v4(),
-  //     open_id: openId,
-  //     phone: phoneNumber
-  //   }
-  // })
-  // var msg = isNewUser?'注册成功': '登录成功'
-  // successResult(res, user.dataValues, msg)
+})
+
+//  提前归还 结束订单 (暂时没用)
+router.post('/aheadOverOrder',async (req, res, next) => {
+  var uid = req.get("Authorization")
+  var { pid } = req.body
+
+  OrderModel.hasOne(PublishModel,{foreignKey: 'id'}) 
+  PublishModel.belongsTo(OrderModel, {foreignKey: 'id'}) // , {foreignKey: 'id'}
+
+  PublishModel.update({
+     is_del: 1,
+    // attributes: {
+    //   include:[
+    //     [Sequelize.fn('date_format', Sequelize.col('v_Publish.create_time'),'%Y-%m-%d %H:%i:%s'), 'create_time'],
+    //     Sequelize.col('start_time'),
+    //     Sequelize.col('end_time'),
+    //     Sequelize.col('amount'),
+    //   ],
+    //   exclude: ['uid','is_valid'] 
+    // }, 
+      where: {'Order.id': '188'},  // uid, is_lease: paramsRule(lease)
+      include: [
+                { model: OrderModel,
+                  attributes: [],
+                  required: false,
+                },
+                
+      ]}).then((result)=>{
+        console.log('result',result);
+        // successResult(res, result)
+      })
+//   PublishModel.update({
+
+//   // PublishModel.update({is_del: 1}, {where: { id: pid}}).then((result)=>{
+//   //   console.log('result',result);
+//   //   successResult(res, result, '删除成功')
+//   // }).catch((error)=>{
+//   //   console.log('error', error);
+//   //     setCatch(res, error)
+//   // })
 }) 
 
 
@@ -446,7 +483,8 @@ router.get('/getDemand',(req, res, next)=>{
 
 // 意见反馈添加
 router.post('/addAdvice',(req, res, next) => {
-  var {content, phone, uid} = req.body
+  var {content, phone} = req.body
+  var uid = req.get("Authorization")
   AdviceModel.create({
     content: paramsRule(content),
     phone: paramsRule(phone),

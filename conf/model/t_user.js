@@ -54,6 +54,10 @@ const User = sequelizeDB.define('User', {
     type: DataTypes.INTEGER,
     // allowNull: false
   },
+  lease_region_id: {
+    type: DataTypes.INTEGER,
+    // allowNull: false
+  },
   apply_status: {
     type: DataTypes.INTEGER,
     // allowNull: false
@@ -71,6 +75,10 @@ const User = sequelizeDB.define('User', {
     // allowNull: false
   },
   phone: {
+    type: DataTypes.STRING,
+    // allowNull: false
+  },
+  contact_phone: {
     type: DataTypes.STRING,
     // allowNull: false
   },

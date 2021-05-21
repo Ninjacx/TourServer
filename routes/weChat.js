@@ -132,7 +132,8 @@ router.post('/login',async (req, res, next) => {
     defaults: {
       id: uuid_v4(),
       open_id: openId,
-      phone: phoneNumber
+      phone: phoneNumber,
+      contact_phone: phoneNumber
     }
   })
   var msg = isNewUser?'注册成功': '登录成功'

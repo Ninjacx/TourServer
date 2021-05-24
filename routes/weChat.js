@@ -16,6 +16,7 @@ var {PublishModel} = require('../conf/model/t_publish');
 var {BannerModel} = require('../conf/model/t_banner');
 var {DemandModel} = require('../conf/model/t_demand');
 var {AdviceModel} = require('../conf/model/t_advice');
+var {FaqModel} = require('../conf/model/t_faq');
 
 var {RegionModel} = require('../conf/model/t_region');
 
@@ -30,7 +31,7 @@ var formidable = require("formidable");
 var fs = require('fs');//文件
 const uuid_v5 = require('uuid/v5');
 const uuid_v4 = require('uuid/v4');
-const serverIp = 'http://172.16.19.133/';
+// const serverIp = 'http://172.16.19.133/';
 
 /*验证登录*/
 // const AuthMiddleware = require('./checklogin');
@@ -504,5 +505,22 @@ router.post('/applyMember',async function(req, res, next) {
   var resUpdate = await UserModel.update({apply_member_id: 2, apply_status: 0}, {where: { id: paramsRule(uid) }}) // , { transaction: t }
   successResult(res, resUpdate[0], '申请成功,请等待结果')
 })
+
+/*-------------------*/
+// 获取常见问题
+router.get('/getFaq',(req, res, next)=>{
+  FaqModel.findAll({
+    attributes: {
+      exclude: ['id', 'create_time']
+    },
+    where: {
+      is_del: 0
+    }
+  }).then((result)=>{
+    successResult(res, result)
+  }).catch((error)=>{
+    setCatch(res, error)
+  })
+});
 
 module.exports = router;

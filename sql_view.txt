@@ -1,5 +1,5 @@
 # v_publish 
-SELECT	t_publish.*,t_type.type_name,t_region.region_name,t_user.phone,t_user.real_name,t_user.nick_name,t_license_plate.license_plate_name
+SELECT	t_publish.*,t_type.type_name,t_region.region_name,t_user.real_name,t_user.nick_name,t_license_plate.license_plate_name
 FROM
 	t_publish
 	LEFT JOIN t_type ON t_publish.type_id = t_type.id 

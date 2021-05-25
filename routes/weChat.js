@@ -387,30 +387,16 @@ router.post('/publishLicensePlate',function(req, res, next) {
 })
 
 // 商户发布车型 (需优化一个人一天最多只能加50条？)
-router.post('/publish',function(req, res, next) {
+router.post('/publish',async function(req, res, next) {
   var uid = req.get("Authorization")
-  // 当类型为牌照的时候则不调用上传图片的接口
-	var form = new formidable.IncomingForm();
-    //设置文件上传存放地址（需要先把这个文件夹，在项目中建好）
-	form.uploadDir = "./public/upload";
-    //执行里面的回调函数的时候，表单已经全部接收完毕了。
-    form.parse(req,function(err, params, files) {
-            var old_path = files.file.path; //myFileName就是我们刚在前台模板里面配置的后台接受的名称；
-            var extname = uuid_v5(files.file.name, uuid_v5.DNS); //因为formidable这个时候存在我们刚路径上的，只是一个path，还没有具体的扩展名，如：2.png这样的
-            // //新的路径由组成：原父路径 + 拓展名
-            var new_path = "./public/upload/" + extname;
-             //改名
-            fs.rename(old_path, new_path,async function(err) { //把之前存的图片换成真的图片的完整路径
-              var paramsObj = Object.assign(params,{pic_url: `/upload/${extname}`, uid})
-              console.log('paramsObj',paramsObj);
-              await PublishModel.create(paramsObj).then((result)=>{
-                successResult(res, result._options, '发布成功')
-              }).catch((error)=>{
-                console.log('error',error);
-                  setCatch(res, error)
-              })
-            });
-    });
+  
+  var paramsObj = Object.assign(req.body,{uid})
+  await PublishModel.create(paramsObj).then((result)=>{
+    successResult(res, result._options, '发布成功')
+  }).catch((error)=>{
+    console.log('error',error);
+      setCatch(res, error)
+  })
 });
 
 // 修改我的资料认证

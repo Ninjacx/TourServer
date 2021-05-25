@@ -8,20 +8,6 @@ const v_Publish = sequelizeDB.define('v_Publish', {
     primaryKey: true
     // allowNull: false
   },
-  // id
-  // motorcycle_name
-  // license_plate_id
-  // volume
-  // rent_day
-  // region_id
-  // rent_month
-  // addr_detail
-  // contact
-  // photo
-  // contact_phone
-  // createtime
-  // uid
-  // is_valid
   // // 在这里定义模型属性
   motorcycle_name: {
     type: DataTypes.STRING,
@@ -56,13 +42,16 @@ const v_Publish = sequelizeDB.define('v_Publish', {
   rent_month: {
     type: DataTypes.STRING,
   },
+  rent_year: {
+    type: DataTypes.STRING,
+  },
   addr_detail: {
     type: DataTypes.STRING,
   },
   // contact: {
   //   type: DataTypes.STRING,
   // },
-  phone: {
+  contact_phone: {
     type: DataTypes.STRING,
   },
   pic_url: {

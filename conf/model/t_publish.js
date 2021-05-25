@@ -39,6 +39,9 @@ const Publish = sequelizeDB.define('Publish', {
   rent_month: {
     type: DataTypes.STRING,
   },
+  rent_year: {
+    type: DataTypes.STRING,
+  },
   addr_detail: {
     type: DataTypes.STRING,
   },

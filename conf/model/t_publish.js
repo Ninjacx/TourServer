@@ -60,6 +60,9 @@ const Publish = sequelizeDB.define('Publish', {
   contact_phone: {
     type: DataTypes.STRING,
   },
+  deposit: {
+    type: DataTypes.INTEGER,
+  },
   is_valid: {
     type: DataTypes.STRING,
   },
@@ -68,6 +71,9 @@ const Publish = sequelizeDB.define('Publish', {
   },
   create_time: {
     type: DataTypes.DATE,
+  },
+  description: {
+    type: DataTypes.STRING,
   },
 }, {
   // 这是其他模型参数

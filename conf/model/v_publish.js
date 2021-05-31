@@ -63,6 +63,9 @@ const v_Publish = sequelizeDB.define('v_Publish', {
   uid: {
     type: DataTypes.STRING,
   },
+  deposit: {
+    type: DataTypes.INTEGER,
+  },
   is_valid: {
     type: DataTypes.STRING,
   },
@@ -76,6 +79,9 @@ const v_Publish = sequelizeDB.define('v_Publish', {
   region_name: {
     type: DataTypes.STRING,
   },
+  description: {
+    type: DataTypes.STRING,
+  }
 }, {
   // 这是其他模型参数
   freezeTableName: true, // 禁止模型名根据表名自动复数

@@ -249,8 +249,22 @@ router.get('/publishDetailOne',(req, res, next)=>{
 router.get('/userPublishDataList',(req, res, next)=>{
   
   var uid = req.get("Authorization")
-  const { lease } = req.query
-  
+  const { typeIndex } = req.query
+  // is_valid 0 无效 1 有效 （审核后通过）
+  // is_lease 0 未出租 1已出租 （状态）
+  console.log('typeIndex',typeIndex);
+  var params = {}
+  if(typeIndex === '0'){
+    params = {is_valid: 0}
+  }else if(typeIndex === '1'){
+    params = {is_lease: 0, is_valid: 1}
+  }else if(typeIndex === '2'){
+    params = {is_lease: 1, is_valid: 1}
+  }
+  console.log('params', Object.assign({uid}, paramsRule(params)));
+  // return false
+  // is_valid 
+
   OrderModel.hasOne(V_PublishModel,{foreignKey: 'id'}) 
   V_PublishModel.belongsTo(OrderModel, {foreignKey: 'id'}) // , {foreignKey: 'id'}
 
@@ -264,7 +278,7 @@ router.get('/userPublishDataList',(req, res, next)=>{
       ],
       exclude: ['uid','is_valid'] 
     }, 
-      where: {uid, is_lease: paramsRule(lease)}, 
+      where: Object.assign({uid}, paramsRule(params)), 
       include: [
                 { model: OrderModel,
                   attributes: [],

@@ -221,18 +221,24 @@ router.get('/getType',(req, res, next)=>{
 
 // 发布的列表
 router.get('/publishDataList',(req, res, next)=>{
-  const { typeId } = req.query
+  const { typeId, pageSize } = req.query
+  var limit = 20
+  var offset = (pageSize - 1) * limit
+  // console.log('pageSize', pageSize);
   V_PublishModel.findAll({
     attributes: { exclude: ['uid'] },
     where: {
       type_id: paramsRule(typeId)
     },
+    offset: offset,
+    limit: limit,
   }).then((result)=>{
 		successResult(res, result)
 	}).catch((error)=>{
      setCatch(res, error)
   })
 });
+
 // 用户发布详情
 router.get('/publishDetailOne',(req, res, next)=>{
   const { publishId } = req.query

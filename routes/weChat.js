@@ -219,11 +219,31 @@ router.get('/getType',(req, res, next)=>{
   })
 });
 
-// 发布的列表
+// 租车的列表
 router.get('/publishDataList',(req, res, next)=>{
-  const { typeId, pageSize } = req.query
-  var limit = 20
-  var offset = (pageSize - 1) * limit
+  const { typeId, pageSize ,limit} = req.query
+  var limits = limit || 20
+  var offset = (pageSize - 1) * limits
+  // console.log('pageSize', pageSize);
+  V_PublishModel.findAll({
+    attributes: { exclude: ['uid'] },
+    where: {
+      type_id: paramsRule(typeId)
+    },
+    offset: offset,
+    limit: limit,
+  }).then((result)=>{
+		successResult(res, result)
+	}).catch((error)=>{
+     setCatch(res, error)
+  })
+});
+
+// 首页推荐
+router.get('/recommendList',(req, res, next)=>{
+  const { typeId, pageSize ,limit} = req.query
+  var limits = limit || 5
+  var offset = (pageSize - 1) * limits
   // console.log('pageSize', pageSize);
   V_PublishModel.findAll({
     attributes: { exclude: ['uid'] },

@@ -2,6 +2,7 @@ var express = require('express');
 // DATE_FORMAT(t_user.create_time,"%Y-%m-%d")as createTime
 var conf = require('../conf/conf');
 var {successResult, setCatch} = require('../common/publicFn');
+const weChatChecklogin = require('./weChatChecklogin');
 const {sequelizeDB} = require('../conf/SequelizeDb');
 const {Sequelize,DataTypes,Model,QueryTypes} = require('sequelize');
 const axios = require('axios');
@@ -113,7 +114,7 @@ router.get('/getRegion',(req, res, next)=>{
   })
 });
 // 获取单独一个用户的信息
-router.get('/getFindOneUser',(req, res, next)=>{
+router.get('/getFindOneUser', weChatChecklogin.AuthMiddleware, (req, res, next)=>{
   var uid = req.get("Authorization")
   UserModel.findOne({
     attributes: { exclude: ['id','open_id','is_valid'] }, // exclude: ['id','uid','is_valid']  include:[['apply_status','member_id']],
@@ -272,7 +273,7 @@ router.get('/publishDetailOne',(req, res, next)=>{
 	})
 });
 // 用户发布的列表
-router.get('/userPublishDataList',(req, res, next)=>{
+router.get('/userPublishDataList', weChatChecklogin.AuthMiddleware, (req, res, next)=>{
   
   var uid = req.get("Authorization")
   const { typeIndex } = req.query
@@ -316,7 +317,7 @@ router.get('/userPublishDataList',(req, res, next)=>{
       })
 });
 // 用户我的订单列表
-router.get('/getUserOrderList',(req, res, next)=>{
+router.get('/getUserOrderList', weChatChecklogin.AuthMiddleware, (req, res, next)=>{
   // whereIn  历史，已完成，进行中
   const { status } = req.query
   var uid = req.get("Authorization")
@@ -351,9 +352,9 @@ router.get('/getUserOrderList',(req, res, next)=>{
       })
 });
 // 支付成功生成订单 订单生成后需要把t_publish 表中的is_active 改成活动状态
-router.post('/addOrder',(req, res, next) => {
+router.post('/addOrder', weChatChecklogin.AuthMiddleware, (req, res, next) => {
   var uid = req.get("Authorization")
-  
+
   var {publishId, countDay, startDate, endDate, startTime, endTime} = req.body
  
   // 查出当前产品的单价 并且后台计算
@@ -427,7 +428,7 @@ router.post('/publishLicensePlate',function(req, res, next) {
 })
 
 // 商户发布车型 (需优化一个人一天最多只能加50条？)
-router.post('/publish',async function(req, res, next) {
+router.post('/publish', weChatChecklogin.AuthMiddleware, async function(req, res, next) {
   var uid = req.get("Authorization")
   
   var paramsObj = Object.assign(req.body,{uid})
@@ -440,7 +441,7 @@ router.post('/publish',async function(req, res, next) {
 });
 
 // 修改我的资料认证
-router.post('/setUserDoc',function(req, res, next) {
+router.post('/setUserDoc', weChatChecklogin.AuthMiddleware, (req, res, next) => {
   var uid = req.get("Authorization")
   UserModel.update(req.body, {
     where: {
@@ -457,7 +458,7 @@ router.post('/setUserDoc',function(req, res, next) {
 /****首页****/
 
 // 查出APP 展示的商家广告位 与 APP 其它展示图
-router.get('/getBanner',(req, res, next)=>{
+router.get('/getBanner', (req, res, next)=> {
   BannerModel.findAll({
     attributes: ['banner_name', 'url','image','type'],
     where: {
@@ -510,7 +511,7 @@ router.get('/getDemand',(req, res, next)=>{
 /****首页END****/
 
 // 意见反馈添加
-router.post('/addAdvice',(req, res, next) => {
+router.post('/addAdvice', weChatChecklogin.AuthMiddleware, (req, res, next) => {
   var {content, phone} = req.body
   var uid = req.get("Authorization")
   AdviceModel.create({

@@ -9,6 +9,7 @@ const axios = require('axios');
 var wxBizDataCrypt = require('../common/WXBizDataCrypt');
 // var {MenuModel} = require('../conf/model/t_menu');
 var {UserModel} = require('../conf/model/t_user');
+var {IntegralModel} = require('../conf/model/t_integral');
 var {OrderModel} = require('../conf/model/t_order');
 var {V_PublishModel} = require('../conf/model/v_publish');
 var {licensePlateModel} = require('../conf/model/t_license_plate');
@@ -138,6 +139,19 @@ router.post('/login',async (req, res, next) => {
       contact_phone: phoneNumber
     }
   })
+  var msg = isNewUser?'注册成功': '登录成功'
+  successResult(res, user.dataValues, msg)
+})
+// 积分签到
+router.post('/IntegralSignIn',async (req, res, next) => {
+  var uid = req.get("Authorization")
+  // 此方法查到数据则取出，否则直接添加
+  const [Integral, created] = await IntegralModel.findOrCreate({
+    where: { uid: paramsRule(uid), create_time: Sequelize.fn('left', Sequelize.col('create_time') * 1, 8) }
+  })
+
+  console.log(created);
+  return false
   var msg = isNewUser?'注册成功': '登录成功'
   successResult(res, user.dataValues, msg)
 })

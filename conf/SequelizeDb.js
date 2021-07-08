@@ -2,7 +2,6 @@ const {Sequelize,DataTypes,Model,QueryTypes} = require('sequelize');
 // https://www.sequelize.com.cn/core-concepts/model-basics  文档
 //Setting up a connection
 const sequelize = new Sequelize('jdz','root','123',{
-    // logging: console.log
     logging: function (str) {
         console.log('str',str);
         // do your own logging

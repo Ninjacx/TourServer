@@ -2,7 +2,7 @@ var express = require('express');
 // DATE_FORMAT(t_user.create_time,"%Y-%m-%d")as createTime
 var conf = require('../conf/conf');
 var {successResult, setCatch} = require('../common/publicFn');
-const weChatChecklogin = require('./weChatChecklogin');
+const weChatCheckLogin = require('./weChatCheckLogin');
 const {sequelizeDB} = require('../conf/SequelizeDb');
 const {Sequelize,DataTypes,Model,QueryTypes} = require('sequelize');
 const axios = require('axios');
@@ -10,6 +10,8 @@ var wxBizDataCrypt = require('../common/WXBizDataCrypt');
 // var {MenuModel} = require('../conf/model/t_menu');
 var {UserModel} = require('../conf/model/t_user');
 var {IntegralModel} = require('../conf/model/t_integral');
+var {IntegralSignInModel} = require('../conf/model/t_integral_signin');
+
 var {OrderModel} = require('../conf/model/t_order');
 var {V_PublishModel} = require('../conf/model/v_publish');
 var {licensePlateModel} = require('../conf/model/t_license_plate');
@@ -115,7 +117,7 @@ router.get('/getRegion',(req, res, next)=>{
   })
 });
 // 获取单独一个用户的信息
-router.get('/getFindOneUser', weChatChecklogin.AuthMiddleware, (req, res, next)=>{
+router.get('/getFindOneUser', weChatCheckLogin.AuthMiddleware, (req, res, next)=>{
   var uid = req.get("Authorization")
   UserModel.findOne({
     attributes: { exclude: ['id','open_id','is_valid'] }, // exclude: ['id','uid','is_valid']  include:[['apply_status','member_id']],
@@ -140,19 +142,27 @@ router.post('/login',async (req, res, next) => {
     }
   })
   var msg = isNewUser?'注册成功': '登录成功'
+  if(isNewUser){
+    // 注册成功后到用户积分表添加一条此用户的数据
+    IntegralModel.create({ uid: user.id }).catch((error)=>{
+      setCatch(res, error)
+    })
+  }
   successResult(res, user.dataValues, msg)
 })
 // 积分签到
-router.post('/IntegralSignIn',async (req, res, next) => {
+router.post('/IntegralSignIn', weChatCheckLogin.AuthMiddleware, async (req, res, next) => {
   var uid = req.get("Authorization")
   // 此方法查到数据则取出，否则直接添加
-  const [Integral, created] = await IntegralModel.findOrCreate({
+  const [Integral, created] = await IntegralSignInModel.findOrCreate({
     where: { uid: paramsRule(uid), create_time: Sequelize.fn('left', Sequelize.col('create_time') * 1, 8) }
+    // select * from t_integral_signin where DATE(create_time) = '2021-07-07'
   })
+  // 添加成 功更新积分表用户对应用户数据 否则等于当天已经签到过了
+  if(created){
 
-  console.log(created);
-  return false
-  var msg = isNewUser?'注册成功': '登录成功'
+  }
+   
   successResult(res, user.dataValues, msg)
 })
 
@@ -287,7 +297,7 @@ router.get('/publishDetailOne',(req, res, next)=>{
 	})
 });
 // 用户发布的列表
-router.get('/userPublishDataList', weChatChecklogin.AuthMiddleware, (req, res, next)=>{
+router.get('/userPublishDataList', weChatCheckLogin.AuthMiddleware, (req, res, next)=>{
   
   var uid = req.get("Authorization")
   const { typeIndex } = req.query
@@ -331,7 +341,7 @@ router.get('/userPublishDataList', weChatChecklogin.AuthMiddleware, (req, res, n
       })
 });
 // 用户我的订单列表
-router.get('/getUserOrderList', weChatChecklogin.AuthMiddleware, (req, res, next)=>{
+router.get('/getUserOrderList', weChatCheckLogin.AuthMiddleware, (req, res, next)=>{
   // whereIn  历史，已完成，进行中
   const { status } = req.query
   var uid = req.get("Authorization")
@@ -366,7 +376,7 @@ router.get('/getUserOrderList', weChatChecklogin.AuthMiddleware, (req, res, next
       })
 });
 // 支付成功生成订单 订单生成后需要把t_publish 表中的is_active 改成活动状态
-router.post('/addOrder', weChatChecklogin.AuthMiddleware, (req, res, next) => {
+router.post('/addOrder', weChatCheckLogin.AuthMiddleware, (req, res, next) => {
   var uid = req.get("Authorization")
 
   var {publishId, countDay, startDate, endDate, startTime, endTime} = req.body
@@ -442,7 +452,7 @@ router.post('/publishLicensePlate',function(req, res, next) {
 })
 
 // 商户发布车型 (需优化一个人一天最多只能加50条？)
-router.post('/publish', weChatChecklogin.AuthMiddleware, async function(req, res, next) {
+router.post('/publish', weChatCheckLogin.AuthMiddleware, async function(req, res, next) {
   var uid = req.get("Authorization")
   
   var paramsObj = Object.assign(req.body,{uid})
@@ -455,7 +465,7 @@ router.post('/publish', weChatChecklogin.AuthMiddleware, async function(req, res
 });
 
 // 修改我的资料认证
-router.post('/setUserDoc', weChatChecklogin.AuthMiddleware, (req, res, next) => {
+router.post('/setUserDoc', weChatCheckLogin.AuthMiddleware, (req, res, next) => {
   var uid = req.get("Authorization")
   UserModel.update(req.body, {
     where: {
@@ -525,7 +535,7 @@ router.get('/getDemand',(req, res, next)=>{
 /****首页END****/
 
 // 意见反馈添加
-router.post('/addAdvice', weChatChecklogin.AuthMiddleware, (req, res, next) => {
+router.post('/addAdvice', weChatCheckLogin.AuthMiddleware, (req, res, next) => {
   var {content, phone} = req.body
   var uid = req.get("Authorization")
   AdviceModel.create({

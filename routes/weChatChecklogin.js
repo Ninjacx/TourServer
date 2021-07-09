@@ -8,7 +8,7 @@ var {UserModel} = require('../conf/model/t_user');
 // var {successResult, setCatch} = require('../common/publicFn');
 const {resultError, paramsRule, paramsInit, setTimeStamp} = require('../common/tools');
 /*APP 登录中间件验证*/
-const checklogin = {
+const checkLogin = {
   AuthMiddleware: (req, res, next) => {
     var uid = req.get("Authorization")
     UserModel.findOne({
@@ -47,4 +47,4 @@ const checklogin = {
   }
 }
 
-module.exports = checklogin;
+module.exports = checkLogin;

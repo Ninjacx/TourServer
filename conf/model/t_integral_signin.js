@@ -1,7 +1,7 @@
 const {sequelizeDB} = require('../SequelizeDb');
 const {Sequelize,DataTypes,Model,QueryTypes} = require('sequelize');
 
-const Integral = sequelizeDB.define('Integral', {
+const IntegralSignIn = sequelizeDB.define('IntegralSignIn', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true   
@@ -11,11 +11,7 @@ const Integral = sequelizeDB.define('Integral', {
     type: DataTypes.STRING,
     // allowNull: false
   },
-  integral_value: {
-    type: DataTypes.STRING,
-    // allowNull: false
-  },
-  update_time: {
+  create_time: {
     type: DataTypes.DATE,
     // allowNull: false
   }
@@ -27,8 +23,8 @@ const Integral = sequelizeDB.define('Integral', {
   // 不需要字段
   createdAt: false,
   updatedAt: false,
-  tableName: 't_integral',
+  tableName: 't_integral_signin',
   sequelizeDB, // 我们需要传递连接实例
-  modelName: 'Integral' // 我们需要选择模型名称
+  modelName: 'IntegralSignIn' // 我们需要选择模型名称
 });
-exports.IntegralModel = Integral;
+exports.IntegralSignInModel = IntegralSignIn;

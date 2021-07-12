@@ -159,9 +159,13 @@ router.post('/IntegralSignIn', weChatCheckLogin.AuthMiddleware, async (req, res,
     // select * from t_integral_signin where DATE(create_time) = '2021-07-07'
   })
   // 添加成 功更新积分表用户对应用户数据 否则等于当天已经签到过了
-  if(created){
-
-  }
+  if(created) {
+    IntegralModel.update({integral_value: 10}, {where: { uid: paramsRule(uid)}}).then((result)=>{
+      successResult(res, result, '签到成功')
+    }).catch((error)=>{
+        setCatch(res, error)
+    })
+  }else{}
    
   successResult(res, user.dataValues, msg)
 })

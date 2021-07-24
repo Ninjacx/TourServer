@@ -2,11 +2,6 @@ const {sequelizeDB} = require('../SequelizeDb');
 const {Sequelize,DataTypes,Model,QueryTypes} = require('sequelize');
 
 const IntegralSignIn = sequelizeDB.define('IntegralSignIn', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true   
-    // allowNull: false
-  },
   uid: {
     type: DataTypes.STRING,
     // allowNull: false

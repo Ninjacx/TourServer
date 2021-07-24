@@ -4,7 +4,7 @@ var conf = require('../conf/conf');
 var {successResult, setCatch} = require('../common/publicFn');
 const weChatCheckLogin = require('./weChatCheckLogin');
 const {sequelizeDB} = require('../conf/SequelizeDb');
-const {Sequelize,DataTypes,Model,QueryTypes} = require('sequelize');
+const {Sequelize, Op, DataTypes, Model, QueryTypes} = require('sequelize');
 const axios = require('axios');
 var wxBizDataCrypt = require('../common/WXBizDataCrypt');
 // var {MenuModel} = require('../conf/model/t_menu');
@@ -40,7 +40,7 @@ const uuid_v4 = require('uuid/v4');
 /*验证登录*/
 // const AuthMiddleware = require('./checklogin');
 const checklogin = require('./checklogin');
-const {resultError, paramsRule, paramsInit, setTimeStamp} = require('../common/tools');
+const {resultError, paramsRule, paramsInit, setTimeStamp, deepJson, getNowDate} = require('../common/tools');
 
 /**---------------------------------公共方法start---------------------------------------------*/
 
@@ -151,23 +151,52 @@ router.post('/login',async (req, res, next) => {
   successResult(res, user.dataValues, msg)
 })
 // 积分签到
-router.post('/IntegralSignIn', weChatCheckLogin.AuthMiddleware, async (req, res, next) => {
+router.post('/IntegralSignIn', weChatCheckLogin.AuthMiddleware, async(req, res, next) => {
   var uid = req.get("Authorization")
+  
+  console.log('ymd', getNowDate())
+  console.log(typeof(getNowDate()));
   // 此方法查到数据则取出，否则直接添加
   const [Integral, created] = await IntegralSignInModel.findOrCreate({
-    where: { uid: paramsRule(uid), create_time: Sequelize.fn('left', Sequelize.col('create_time') * 1, 8) }
-    // select * from t_integral_signin where DATE(create_time) = '2021-07-07'
+    where: {
+      [Op.and]: [
+        Sequelize.where(Sequelize.fn('DATE', Sequelize.col('create_time')), getNowDate()),
+        {
+          uid: paramsRule(uid)
+        }
+      ]
+    },
+    defaults: {
+       uid: uid
+    }
+  }).catch((error)=>{
+       setCatch(res, error)
   })
-  // 添加成 功更新积分表用户对应用户数据 否则等于当天已经签到过了
-  if(created) {
-    IntegralModel.update({integral_value: 10}, {where: { uid: paramsRule(uid)}}).then((result)=>{
-      successResult(res, result, '签到成功')
-    }).catch((error)=>{
-        setCatch(res, error)
-    })
-  }else{}
+  // 添加成功更新积分表用户对应用户数据 否则等于当天已经签到过了（不处理）
+  console.log('created', typeof(created));
+    if(created) {
+      IntegralModel.findOne({
+        exclude: { exclude: ['integral_value'] }, // exclude: ['id','uid','is_valid']  include:[['apply_status','member_id']],
+        where: {
+          uid: paramsRule(uid)
+        },
+      }).then((result)=>{
+        // successResult(res, result)
+         IntegralModel.update({integral_value: deepJson(result).integral_value + 10}, {where: { uid: paramsRule(uid)}}).then((result)=>{
+          successResult(res, result, '签到成功')
+          }).catch((error)=>{
+              setCatch(res, error)
+          })
+      })
+    }else{
+      console.log('123');
+      res.json({
+        code: -1,
+        msg: '今日已签到，请明天再来',
+      });
+    }
    
-  successResult(res, user.dataValues, msg)
+  // successResult(res, user.dataValues, msg)
 })
 
 // 牌照类型

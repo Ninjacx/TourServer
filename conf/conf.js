@@ -7,7 +7,8 @@ var pool = mysql.createPool({
     user: 'root',
     password: '123',
     database: 'tour',
-    port: 3306
+    port: 3306,
+    timezone: "08:00"
 });
 
 

@@ -6,6 +6,10 @@
 
 
 const tools = {
+   // 深拷贝一下 
+   deepJson: function(obj){
+      return JSON.parse(JSON.stringify(obj))
+   },
    // where条件默认参数
    initWhereParams: function(obj) {
       return Object.assign({is_del: 0},obj)
@@ -62,6 +66,14 @@ const tools = {
       var date = dateStr.substring(0,19);    
       date = date.replace(/-/g,'/'); //必须把日期'-'转为'/'
       return new Date(date).getTime()/1000;
+   },
+   getNowDate(){
+      var nowDate = new Date();
+      var year = nowDate.getFullYear();
+      var month = nowDate.getMonth() + 1 < 10 ? "0" + (nowDate.getMonth() + 1) : nowDate.getMonth() + 1;
+      var day = nowDate.getDate() < 10 ? "0" + nowDate.getDate() : nowDate.getDate();
+      
+      return year + "-" + month + "-" + day;
    }
  }
 

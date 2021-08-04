@@ -150,6 +150,8 @@ router.post('/login',async (req, res, next) => {
   }
   successResult(res, user.dataValues, msg)
 })
+
+
 // 积分签到
 router.post('/IntegralSignIn', weChatCheckLogin.AuthMiddleware, async(req, res, next) => {
   var uid = req.get("Authorization")
@@ -279,14 +281,16 @@ router.get('/getType',(req, res, next)=>{
 
 // 租车的列表
 router.get('/publishDataList',(req, res, next)=>{
-  const { typeId, pageSize ,limit} = req.query
+  const { typeId, pageSize ,limit, sortType} = req.query
+  
   var limits = limit || 20
   var offset = (pageSize - 1) * limits
   // console.log('pageSize', pageSize);
   V_PublishModel.findAll({
     attributes: { exclude: ['uid'] },
     where: {
-      type_id: paramsRule(typeId)
+      type_id: paramsRule(typeId),
+      is_valid: 1,
     },
     offset: offset,
     limit: limit,
@@ -306,7 +310,8 @@ router.get('/recommendList',(req, res, next)=>{
   V_PublishModel.findAll({
     attributes: { exclude: ['uid'] },
     where: {
-      type_id: paramsRule(typeId)
+      type_id: paramsRule(typeId),
+      is_valid: 1
     },
     offset: offset,
     limit: limit,
@@ -346,8 +351,6 @@ router.get('/userPublishDataList', weChatCheckLogin.AuthMiddleware, (req, res, n
     params = {is_lease: 1, is_valid: 1}
   }
   console.log('params', Object.assign({uid}, paramsRule(params)));
-  // return false
-  // is_valid 
 
   OrderModel.hasOne(V_PublishModel,{foreignKey: 'id'}) 
   V_PublishModel.belongsTo(OrderModel, {foreignKey: 'id'}) // , {foreignKey: 'id'}
@@ -487,7 +490,6 @@ router.post('/publishLicensePlate',function(req, res, next) {
 // 商户发布车型 (需优化一个人一天最多只能加50条？)
 router.post('/publish', weChatCheckLogin.AuthMiddleware, async function(req, res, next) {
   var uid = req.get("Authorization")
-  
   var paramsObj = Object.assign(req.body,{uid})
   await PublishModel.create(paramsObj).then((result)=>{
     successResult(res, result._options, '发布成功')

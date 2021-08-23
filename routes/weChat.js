@@ -191,7 +191,6 @@ router.post('/IntegralSignIn', weChatCheckLogin.AuthMiddleware, async(req, res, 
           })
       })
     }else{
-      console.log('123');
       res.json({
         code: -1,
         msg: '今日已签到，请明天再来',

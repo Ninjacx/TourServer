@@ -19,7 +19,7 @@ window.onload = function(){
 
 
 
-  document.getElementById('btn1').addEventListener('click', function () {
+  document.getElementById('submitContactDetail').addEventListener('click', function () {
      console.log(editor.txt.html());
     $.post('/system/saveText',{'txt':editor.txt.html(),'id':getQueryString('id')},function(result){
         console.log('success');

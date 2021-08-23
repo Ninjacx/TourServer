@@ -6,11 +6,10 @@ var pool = mysql.createPool({
     host: '139.224.131.217',
     user: 'root',
     password: '123',
-    database: 'tour',
+    database: 'modu_system',
     port: 3306,
     timezone: "08:00"
 });
-
 
 // function sql(sql){
 function query(sql,callback,routerRes){

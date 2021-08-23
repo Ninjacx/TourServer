@@ -31,14 +31,14 @@
 	.hidden{
 	       display:none;
 	}
-  </style>
+</style>
 
 <body>
 	<nav class="bgwhite">
 		  <div id="header">
 				<ul>
 				  	<%if(token){%>
-							<li><img width="35px" height="35px"  src="/images/user-icon.png" alt=""></li>
+							<li><img width="35px" height="35px"  src="/img/user-icon.png" alt=""></li>
 							<li>欢迎你，<%=nickName %></li>
 							<li data-toggle="modal" data-target="#Modal">退出<form id="logout" method="post" action="/logout"></form></li>
 					  <%}else{%>

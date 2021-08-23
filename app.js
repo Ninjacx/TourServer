@@ -11,7 +11,8 @@ var menuRouter = require('./routes/menu');
 var forumRouter = require('./routes/forum'); // 关于帖子的接口
 
 var usersRouter = require('./routes/users');
-// var system = require('./routes/system');
+// 后端管理
+var system = require('./routes/system');
 
 var activeRouter = require('./routes/active');
 
@@ -66,7 +67,7 @@ app.use('/users', usersRouter);
 // H5中的接口汇总
 app.use('/activeRouter', activeRouter);
 
-// app.use('/system', system);
+app.use('/system', system);
 app.use(express.static(path.join(__dirname, 'public')));
 //app.use('/static',express.static('/public'));
 // catch 404 and forward to error handler

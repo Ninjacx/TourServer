@@ -1,4 +1,4 @@
-const {sequelizeDB} = require('../SequelizeDb');
+const {sequelizeDB} = require('../SequelizeSystemDb');
 const {Sequelize,DataTypes,Model,QueryTypes} = require('sequelize');
 
 const WebViewDetail = sequelizeDB.define('WebViewDetail', {

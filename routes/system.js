@@ -10,6 +10,8 @@ var formidable = require("formidable");
 var router = express.Router();
 var app = express();
 
+ 
+const serverIp = require('../common/serverIp');
 //1./ 2.user 3.test 5.vue 6.css 7 else
 
 
@@ -22,7 +24,7 @@ router.get('/', function(req, res, next) {
 router.get('/test', function(req, res, next) {
   var arg = url.parse(req.url,true).query;
   var {id}=arg;
-  var selectSQL = `select * from t_contact_detail where id = ${id}`;
+  var selectSQL = `select * from t_banner_detail where id = ${id}`;
   console.log('selectSQL', selectSQL)
   conf.query(selectSQL,function(err,result){
           var result=JSON.stringify(result);
@@ -61,7 +63,7 @@ router.post('/upload', function(req, res, next) {
                 if(err) {
                     res.send({errno:0,data: []}) //错误返回
                 }else{
-                    res.send({errno:0,data: ['/system/upload/'+extname]}) //返回图片路径，让前端展示
+                    res.send({errno:0,data: [serverIp+'system/upload/'+extname]}) //返回图片路径，让前端展示
 				        }
             });
     });

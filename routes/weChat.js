@@ -2,6 +2,8 @@ var express = require('express');
 // DATE_FORMAT(t_user.create_time,"%Y-%m-%d")as createTime
 var conf = require('../conf/conf');
 var {successResult, setCatch} = require('../common/publicFn');
+const serverIp = require('../common/serverIp');
+
 const weChatCheckLogin = require('./weChatCheckLogin');
 const {sequelizeDB} = require('../conf/SequelizeDb');
 const {Sequelize, Op, DataTypes, Model, QueryTypes} = require('sequelize');
@@ -17,12 +19,14 @@ var {V_PublishModel} = require('../conf/model/v_publish');
 var {licensePlateModel} = require('../conf/model/t_license_plate');
 var {TypeModel} = require('../conf/model/t_type');
 var {PublishModel} = require('../conf/model/t_publish');
-var {BannerModel} = require('../conf/model/t_banner');
+// var {BannerModel} = require('../conf/model/t_banner');
 var {DemandModel} = require('../conf/model/t_demand');
 var {AdviceModel} = require('../conf/model/t_advice');
 var {FaqModel} = require('../conf/model/t_faq');
-
 var {RegionModel} = require('../conf/model/t_region');
+
+/**********system***********/
+var {BannerDetailModel} = require('../conf/modelSys/t_banner_detail');
 
 var url = require('url');
 // const fs = require('fs');//文件
@@ -35,7 +39,7 @@ var formidable = require("formidable");
 var fs = require('fs');//文件
 const uuid_v5 = require('uuid/v5');
 const uuid_v4 = require('uuid/v4');
-// const serverIp = 'http://172.16.19.133/';
+
 
 /*验证登录*/
 // const AuthMiddleware = require('./checklogin');
@@ -517,13 +521,14 @@ router.post('/setUserDoc', weChatCheckLogin.AuthMiddleware, (req, res, next) => 
 
 // 查出APP 展示的商家广告位 与 APP 其它展示图
 router.get('/getBanner', (req, res, next)=> {
-  BannerModel.findAll({
-    attributes: ['banner_name', 'url','image','type'],
+  BannerDetailModel.findAll({
+    attributes: ['banner_url','details'],
     where: {
       is_del: 0
       // type: req.query.type
     }
   }).then((result)=>{
+    console.log('result', result);
     successResult(res, result)
   }).catch((error)=>{
     setCatch(res, error)

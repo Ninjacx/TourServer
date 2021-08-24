@@ -23,7 +23,7 @@ const uuidv1 = require('uuid/v1');
 const checklogin = require('./checklogin');
 
 const tools = require('../common/tools');
-const serverIp = 'http://192.168.1.33/';//'http://192.168.1.33/';
+const serverIp = 'http://192.168.1.33/';
 
 
 /**---------------------------------1.获取---------------------------------------------*/

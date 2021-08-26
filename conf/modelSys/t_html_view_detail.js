@@ -1,7 +1,7 @@
 const {sequelizeDB} = require('../SequelizeSystemDb');
 const {Sequelize,DataTypes,Model,QueryTypes} = require('sequelize');
 
-const WebViewDetail = sequelizeDB.define('WebViewDetail', {
+const HtmlViewDetail = sequelizeDB.define('HtmlViewDetail', {
   type_name: {
     type: DataTypes.STRING,
   },
@@ -16,8 +16,8 @@ const WebViewDetail = sequelizeDB.define('WebViewDetail', {
   // 不需要字段
   createdAt: false,
   updatedAt: false,
-  tableName: 't_webview_detail',
+  tableName: 't_html_view_detail',
   sequelizeDB, // 我们需要传递连接实例
-  modelName: 'WebViewDetail' // 我们需要选择模型名称
+  modelName: 'HtmlViewDetail' // 我们需要选择模型名称
 });
-exports.WebViewDetailModel = WebViewDetail;
+exports.HtmlViewDetailModel = HtmlViewDetail;

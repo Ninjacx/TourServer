@@ -27,6 +27,7 @@ var {RegionModel} = require('../conf/model/t_region');
 
 /**********system***********/
 var {BannerDetailModel} = require('../conf/modelSys/t_banner_detail');
+var {HtmlViewDetailModel} = require('../conf/modelSys/t_html_view_detail');
 
 var url = require('url');
 // const fs = require('fs');//文件
@@ -44,7 +45,7 @@ const uuid_v4 = require('uuid/v4');
 /*验证登录*/
 // const AuthMiddleware = require('./checklogin');
 const checklogin = require('./checklogin');
-const {resultError, paramsRule, paramsInit, setTimeStamp, deepJson, getNowDate} = require('../common/tools');
+const {resultError, paramsRule, paramsInit, initWhereParams, setTimeStamp, deepJson, getNowDate} = require('../common/tools');
 
 /**---------------------------------公共方法start---------------------------------------------*/
 
@@ -521,16 +522,39 @@ router.post('/setUserDoc', weChatCheckLogin.AuthMiddleware, (req, res, next) => 
 
 // 查出APP 展示的商家广告位 与 APP 其它展示图
 router.get('/getBanner', (req, res, next)=> {
-  BannerDetailModel.findAll({
-    attributes: ['banner_url','details'],
-    where: {
-      is_del: 0
-      // type: req.query.type
-    }
+  var { id } = req.query
+  var Model = null
+  
+  // 单条有id
+  if(paramsRule(id)) {
+    Model = BannerDetailModel.findOne({
+      attributes: ['banner_url','details','id'],
+      where: initWhereParams({id: paramsRule(id)})
+    })
+  }else{
+    Model = BannerDetailModel.findAll({
+      attributes: ['banner_url','details','id'],
+      where: initWhereParams()
+    })
+  }
+    Model.then((result)=>{
+      successResult(res, result)
+    }).catch((error)=>{
+      setCatch(res, error)
+    })
+});
+
+// 获取富文本编辑的菜单内容
+router.get('/getHtmlView', (req, res, next)=> {
+  var { id } = req.query
+ 
+  HtmlViewDetailModel.findOne({
+    attributes: ['type_name','details','id'],
+    where: {id: paramsRule(id)}
   }).then((result)=>{
-    console.log('result', result);
     successResult(res, result)
   }).catch((error)=>{
+    console.log('err',error);
     setCatch(res, error)
   })
 });

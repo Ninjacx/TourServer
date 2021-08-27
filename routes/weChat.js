@@ -608,7 +608,7 @@ router.post('/addAdvice', weChatCheckLogin.AuthMiddleware, (req, res, next) => {
   }).then((result)=>{
     successResult(res, result, '反馈成功')
   }).catch((error)=>{
-    setCatch(res, error)
+    setCatch(res, error) 
   })
 })
 

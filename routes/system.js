@@ -9,7 +9,7 @@ var fs = require('fs');//文件
 var formidable = require("formidable");
 var router = express.Router();
 var app = express();
-
+const {resultError, paramsRule, paramsInit, initWhereParams, setTimeStamp, deepJson, getNowDate} = require('../common/tools');
  
 const serverIp = require('../common/serverIp');
 //1./ 2.user 3.test 5.vue 6.css 7 else
@@ -20,8 +20,8 @@ router.get('/', function(req, res, next) {
   res.render('system/vue',{left:5});
 });
 
-//富文本编辑器
-router.get('/test', function(req, res, next) {
+//富文本编辑器初始化显示
+router.get('/bannerView', function(req, res, next) {
   var arg = url.parse(req.url,true).query;
   var {id}=arg;
   var selectSQL = `select * from t_banner_detail where id = ${id}`;
@@ -29,7 +29,42 @@ router.get('/test', function(req, res, next) {
   conf.query(selectSQL,function(err,result){
           var result=JSON.stringify(result);
           var txt=JSON.parse(result);
-      res.render('system/bannerDetail',{res:txt,left:3});
+      res.render('system/bannerDetail',{res: txt, left: 'A1', id: id});
+    });
+});
+
+// 富文本编辑器保存banner
+router.post('/saveText', function(req, res, next) {
+  // var arg = url.parse(req.body,true).query;
+  var {id,txt}=req.body;
+  console.log(id);
+  var selectSQL = `update t_banner_detail SET details = '${txt}'  WHERE id = ${id}`;
+  conf.query(selectSQL,function(err,result){
+      res.json({result:200});
+    });
+});
+
+// 查询配置的html页面
+router.get('/htmlView', function(req, res, next) {
+  var arg = url.parse(req.url,true).query;
+  var {id}=arg;
+  var selectSQL = `select * from t_html_view_detail where id = ${id}`;
+  console.log('selectSQL', selectSQL)
+  conf.query(selectSQL,function(err,result){
+          var result=JSON.stringify(result);
+          var txt=JSON.parse(result);
+      res.render('system/htmlViewDetail',{res: txt, left: 'A2', id: id});
+    });
+});
+
+// 提交保存配置的自定义html页面
+router.post('/saveHtmlView', function(req, res, next) {
+  // var arg = url.parse(req.body,true).query;
+  var {id,txt}=req.body;
+  console.log(id);
+  var selectSQL = `update t_html_view_detail SET details = '${txt}'  WHERE id = ${id}`;
+  conf.query(selectSQL,function(err,result){
+      res.json({result:200});
     });
 });
 
@@ -69,15 +104,7 @@ router.post('/upload', function(req, res, next) {
     });
 });
 
-router.post('/saveText', function(req, res, next) {
-  // var arg = url.parse(req.body,true).query;
-  var {id,txt}=req.body;
-  console.log(id);
-  var selectSQL = `update t_banner_detail SET details = '${txt}'  WHERE id = ${id}`;
-  conf.query(selectSQL,function(err,result){
-      res.json({result:200});
-    });
-});
+
 /***文档***/
 
 //vue

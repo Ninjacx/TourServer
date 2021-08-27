@@ -4,12 +4,15 @@
       <ul class="layui-nav layui-nav-tree"  lay-filter="test">
 	    <li class="layui-nav-item <% if(left==2) { %>layui-this <% }%>" ><a href="/system/user">用户管理</a></li>
         <li class="layui-nav-item layui-nav-itemed">
-          <a class="" href="javascript:;">商品管理</a>
+          <a href="javascript:;">富文本管理</a>
           <dl class="layui-nav-child">
-            <dd><a href="/system/test?id=2">商品列表</a></dd>
+            <dd class="<% if(left== 'A1') { %>layui-this <% }%>"><a href="/system/bannerView?id=1">banner轮播</a></dd>
+            <dd class="<% if(left== 'A2') { %>layui-this <% }%>"><a href="/system/htmlView?id=1">其它</a></dd>
+            <!-- <dd class="<% if(left==7) { %>layui-this <% }%>"><a href="/system/else">其它</a></dd>
+			      <dd class="<% if(left==8) { %>layui-this <% }%>"><a href="/system/else">react</a></dd> -->
           </dl>
-        </li>
-        <li class="layui-nav-item layui-nav-itemed">
+      </li>
+      <!-- <li class="layui-nav-item layui-nav-itemed">
           <a href="javascript:;">订单管理</a>
           <dl class="layui-nav-child">
             <dd><a href="javascript:;">订单列表</a></dd>
@@ -17,15 +20,15 @@
             <dd class="<% if(left==3) { %>layui-this <% }%>"><a href="/system/test?id=1">超链接</a></dd>
           </dl>
         </li>
-		<li class="layui-nav-item layui-nav-itemed">
+		    <li class="layui-nav-item layui-nav-itemed">
           <a href="javascript:;">DOC</a>
           <dl class="layui-nav-child">
             <dd class="<% if(left==5) { %>layui-this <% }%>"><a href="/system/vue">VUE</a></dd>
             <dd class="<% if(left==6) { %>layui-this <% }%>"><a href="/system/css">CSS</a></dd>
             <dd class="<% if(left==7) { %>layui-this <% }%>"><a href="/system/else">其它</a></dd>
-			<dd class="<% if(left==8) { %>layui-this <% }%>"><a href="/system/else">react</a></dd>
+			      <dd class="<% if(left==8) { %>layui-this <% }%>"><a href="/system/else">react</a></dd>
           </dl>
-        </li>
+      </li> -->
        
       </ul>
     </div>

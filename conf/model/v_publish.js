@@ -75,6 +75,9 @@ const v_Publish = sequelizeDB.define('v_Publish', {
   create_time: {
     type: DataTypes.DATE,
   },
+  end_time: {
+    type: DataTypes.STRING,
+  },
   /**********/
   region_name: {
     type: DataTypes.STRING,

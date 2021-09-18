@@ -328,9 +328,12 @@ router.get('/recommendList',(req, res, next)=>{
 
 // 用户发布详情
 router.get('/publishDetailOne',(req, res, next)=>{
+  // [Sequelize.fn('date_format', Sequelize.col('Order.create_time'),'%Y-%m-%d %H:%i:%s'), 'order_create_time'],
   const { publishId } = req.query
   V_PublishModel.findOne({
-    attributes: { include:[['id','publishId']], exclude: ['id','uid','is_valid'] },
+    attributes: { 
+      include:[['id','publishId'],[Sequelize.fn('FROM_UNIXTIME', Sequelize.col('end_time'),'%Y-%m-%d %H:%i:%s'), 'end_time']], 
+      exclude: ['id','uid','is_valid'] },
     where: {
       id: paramsRule(publishId)
     },
@@ -450,7 +453,7 @@ router.post('/addOrder', weChatCheckLogin.AuthMiddleware, (req, res, next) => {
           end_time: end_time, //'0' + end_time + ':00' // 根据用户初始时间+天数 = 结束时间
         }) // , { transaction: t }
 
-         var resUpdate = await PublishModel.update({is_lease: 1}, {where: { id: publishId }}) // , { transaction: t }
+         var resUpdate = await PublishModel.update({ is_lease: 1, end_time }, {where: { id: publishId }}) // , { transaction: t }
          successResult(res, resUpdate)
       // })
     // console.log('result',result);

@@ -1,46 +1,68 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <title>摩都租车后台管理系统</title>
-  <link rel="stylesheet" href="../css/layui.css">
-  <script src="/js/jquery.min.js" charset="utf-8"></script>
-</head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
-  
-    <% include header.html %>
-  
-
+  <% include header.html %>
 	<%-include("left.html")%>
-
   <div class="layui-body">
     <!-- 内容主体区域 -->
+    <div id="userList" >
+      
+    </div>
     <div style="padding: 15px;">
-	
-			<% for(var i=0;i<res.length;i++){ %>
-			<div><%-res[i].id-%></div>
-			<%}%>
-		
-		
+      <table  class="layui-table">
+        <colgroup>
+          <col width="150">
+          <col width="200">
+          <col>
+        </colgroup>
+        <thead>
+          <tr>
+            <th>姓名</th>
+            <th>联系人电话</th>
+            <th>驾驶证号码</th>
+            <th>商户或个人</th>
+            <th>注册日期</th>
+          </tr> 
+        </thead>
+        <tbody>
+          <% for(var i=0;i<res.length;i++){ %>
+          <tr>
+            <td><%-res[i].real_name-%></td>
+            <td><%-res[i].contact_phone-%></td>
+            <td><%-res[i].drive_licence-%></td>
+            <td><%-res[i].lease_user_type === 0? '个人':'商户'-%></td>
+            <td><%-res[i].create_time-%></td>
+          </tr>
+          <%}%>
+        </tbody>
+      </table>
 	</div>
   </div>
-  
-  <div class="layui-footer">
-	
-    <!-- 底部固定区域 -->
-    © layui.com - 底部固定区域 
-  </div>
+  <% include footer.html %>
 </div>
-<script src="../js/layui.js"></script>
+</body>
 <script>
-//JavaScript代码区域
-layui.use('element', function(){
-  var element = layui.element;
-  element.init();
+  //JavaScript代码区域
+  // layui.use('element', function(){
+  //   var element = layui.element;
+  //   element.init();
+  // });
+
+  // console.log('res', <%- res -%>);
+  layui.use('laypage', function(){
+  var laypage = layui.laypage;
   
+  //执行一个laypage实例
+  laypage.render({
+    elem: 'userList' //注意，这里的 test1 是 ID，不用加 # 号
+    ,count: 50 //数据总数，从服务端得到
+    ,jump: function(obj, first){
+      $.get('./user',{},function(res){
+        // console.log(res);
+        window.html = res
+      })
+      console.log(obj.curr); //得到当前页，以便向服务端请求对应页的数据。
+      console.log(obj.limit); //得到每页显示的条数
+    }
+  });
 });
 </script>
-</body>
-</html>

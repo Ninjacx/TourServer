@@ -70,12 +70,13 @@ router.post('/saveHtmlView', function(req, res, next) {
 
 //用户列表
 router.get('/user', function(req, res, next) {
+  console.log('req.body.pageSize', req.query.pageSize);
   var getUser = `select * from t_user where is_del = 0`;
   conf.query(getUser,function(err,result){
           var result=JSON.stringify(result);
 
           var user=JSON.parse(result);
-		   console.log(user);
+		  //  console.log(user);
       res.render('system/userList',{res:user,left:2});
     });
 });

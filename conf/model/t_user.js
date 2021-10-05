@@ -4,7 +4,7 @@ const {Sequelize,DataTypes,Model,QueryTypes} = require('sequelize');
 const User = sequelizeDB.define('User', {
   id: {
     type: DataTypes.INTEGER,
-    primaryKey: true   
+    primaryKey: true
     // allowNull: false
   },
   real_name: {

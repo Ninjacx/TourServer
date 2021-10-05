@@ -24,7 +24,7 @@ const checklogin = require('./checklogin');
 
 const tools = require('../common/tools');
 const serverIp = 'http://192.168.1.33/';
-
+serviceApplyStaDetail
 
 /**---------------------------------1.获取---------------------------------------------*/
 // 首页展示的数据 

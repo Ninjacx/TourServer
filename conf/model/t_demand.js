@@ -8,6 +8,10 @@ const Demand = sequelizeDB.define('Demand', {
     type: DataTypes.STRING,
     // allowNull: false
   },
+  phone: {
+    type: DataTypes.STRING,
+    // allowNull: false
+  },
   uid: {
     type: DataTypes.STRING
     // allowNull 默认为 true

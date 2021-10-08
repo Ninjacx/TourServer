@@ -367,7 +367,7 @@ router.get('/userPublishDataList', weChatCheckLogin.AuthMiddleware, (req, res, n
       include:[
         [Sequelize.fn('date_format', Sequelize.col('v_Publish.create_time'),'%Y-%m-%d %H:%i:%s'), 'create_time'],
         Sequelize.col('start_time'),
-        Sequelize.col('end_time'),
+        // Sequelize.col('end_time'),
         Sequelize.col('amount'),
       ],
       exclude: ['uid','is_valid'] 
@@ -403,7 +403,7 @@ router.get('/getUserOrderList', weChatCheckLogin.AuthMiddleware, (req, res, next
         Sequelize.col('v_publish.pic_url'),
         [Sequelize.fn('date_format', Sequelize.col('Order.create_time'),'%Y-%m-%d %H:%i:%s'), 'create_time'],
         Sequelize.col('start_time'),
-        Sequelize.col('end_time'),
+        // Sequelize.col('end_time'),
       ],
       exclude: ['uid','is_valid'] 
     }, 
@@ -564,8 +564,9 @@ router.get('/getHtmlView', (req, res, next)=> {
 
 // 获取需求表列表
 router.get('/getDemand',(req, res, next)=>{
-  const { count, pageSize } = req.query
-  
+  const { count, pageSize, limit } = req.query
+  var limits = limit || 20
+  var offset = (pageSize - 1) * limits
   UserModel.hasOne(DemandModel, {foreignKey: 'id'})
   DemandModel.belongsTo(UserModel, {foreignKey: 'uid'}) 
 
@@ -573,13 +574,15 @@ router.get('/getDemand',(req, res, next)=>{
       attributes: {
         include:[
           [Sequelize.fn('date_format', Sequelize.col('Demand.create_time'),'%Y-%m-%d %H:%i:%s'), 'create_time'],
-          Sequelize.col('real_name'),
+          Sequelize.col('Demand.phone'),
           // Sequelize.col('end_time'),
           // Sequelize.col('amount'),
         ],
         exclude: ['uid','id'] 
       }, 
       // where: {uid, is_lease: paramsRule(lease)}, 
+      limits,
+      offset,
       include: [
                 { model: UserModel,
                   attributes: [],
